@@ -48,6 +48,7 @@ ACCPaperPlayer::ACCPaperPlayer()
 	FollowCamera->bUsePawnControlRotation = false;
 	FollowCamera->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
 
+
 	// Input
 	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionJumpRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/InputAction/IA_Jump.IA_Jump'"));
 	if (nullptr != InputActionJumpRef.Object)
@@ -90,6 +91,7 @@ void ACCPaperPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 void ACCPaperPlayer::BeginPlay()
 {
+	Super::BeginPlay();
 
 	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
@@ -103,6 +105,17 @@ void ACCPaperPlayer::BeginPlay()
 void ACCPaperPlayer::Move(const FInputActionValue& Value)
 {
 	FVector2D InputVector = Value.Get<FVector2D>();
-	AddMovementInput(FVector(1.f, 0.f, 0.f), InputVector.X * 1000.0f);
 	UE_LOG(LogTemp, Log, TEXT("Moving with Input Vector: %s"), *InputVector.ToString());
+
+	// 2D 입력 벡터를 3D 벡터로 변환합니다. Z 축은 사용하지 않으므로 0입니다.
+	FVector Direction = FVector(InputVector.X, InputVector.Y, 0.f);
+
+	// 캐릭터의 이동 방향을 정규화합니다.
+	Direction = Direction.GetSafeNormal();
+
+	// 앞/뒤 이동 (X 축 입력 사용)
+	AddMovementInput(GetActorForwardVector(), Direction.X);
+
+	// 좌/우 이동 (Y 축 입력 사용)
+	AddMovementInput(GetActorRightVector(), Direction.Y);
 }
