@@ -107,15 +107,10 @@ void ACCPaperPlayer::Move(const FInputActionValue& Value)
 	FVector2D InputVector = Value.Get<FVector2D>();
 	UE_LOG(LogTemp, Log, TEXT("Moving with Input Vector: %s"), *InputVector.ToString());
 
-	// 2D 입력 벡터를 3D 벡터로 변환합니다. Z 축은 사용하지 않으므로 0입니다.
 	FVector Direction = FVector(InputVector.X, InputVector.Y, 0.f);
 
-	// 캐릭터의 이동 방향을 정규화합니다.
 	Direction = Direction.GetSafeNormal();
 
-	// 앞/뒤 이동 (X 축 입력 사용)
 	AddMovementInput(GetActorForwardVector(), Direction.X);
-
-	// 좌/우 이동 (Y 축 입력 사용)
 	AddMovementInput(GetActorRightVector(), Direction.Y);
 }
