@@ -22,7 +22,7 @@ ACCPaperPlayer::ACCPaperPlayer()
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
 	// CharacterMovement
-	GetCharacterMovement()->MaxWalkSpeed = 2000.0f;
+	GetCharacterMovement()->MaxWalkSpeed = 3000.0f;
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
 	GetCharacterMovement()->JumpZVelocity = 2000.f;
@@ -30,7 +30,7 @@ ACCPaperPlayer::ACCPaperPlayer()
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->GravityScale = 3.0f; 
-	GetCharacterMovement()->MaxAcceleration = 3000;
+	GetCharacterMovement()->MaxAcceleration = 10000;
 
 	// Capsule
 	GetCapsuleComponent()->SetCapsuleRadius(200.0f);
@@ -201,7 +201,7 @@ void ACCPaperPlayer::SetCurrentState(FGameDefinitions::EPlayerState NewState)
 void ACCPaperPlayer::Move(const FInputActionValue& Value)
 {
 	FVector2D InputVector = Value.Get<FVector2D>();
-	AddMovementInput(FVector(1.f, 0.f, 0.f), InputVector.X * 1000.0f);
+	AddMovementInput(FVector(1.f, 0.f, 0.f), InputVector.X * 1.0f);
 	if (PlayerFlipbook != nullptr)
 	{
 		FVector Scale = PlayerFlipbook->GetComponentScale();
