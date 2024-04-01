@@ -200,7 +200,7 @@ void ACCPaperPlayer::UpdateJump()
 	{
 		SetCurrentState(FGameDefinitions::EPlayerState::Land);
 	}
-	else if (CurrentFrame == 10)
+	else if (CurrentFrame == PlayerFlipbook->GetFlipbook()->GetNumFrames() - 1)
 	{
 		PlayerFlipbook->Stop();
 	}
@@ -209,7 +209,7 @@ void ACCPaperPlayer::UpdateJump()
 void ACCPaperPlayer::UpdateLand()
 {
 	int32 CurrentFrame = PlayerFlipbook->GetPlaybackPositionInFrames();
-	if (CurrentFrame == 2)
+	if (CurrentFrame == PlayerFlipbook->GetFlipbook()->GetNumFrames() - 1)
 	{
 		SetCurrentState(FGameDefinitions::EPlayerState::Idle);
 	}
@@ -247,7 +247,7 @@ void ACCPaperPlayer::SetCurrentState(FGameDefinitions::EPlayerState NewState)
 
 void ACCPaperPlayer::Move(const FInputActionValue& Value)
 {
-	//if (CurrentState == FGameDefinitions::EPlayerState::Jump || CurrentState == FGameDefinitions::EPlayerState::Jump) return;
+	if (CurrentState == FGameDefinitions::EPlayerState::Jump || CurrentState == FGameDefinitions::EPlayerState::Jump) return;
 
 	FVector2D InputVector = Value.Get<FVector2D>();
 	AddMovementInput(FVector(1.f, 0.f, 0.f), InputVector.X * 1.0f);
@@ -279,6 +279,15 @@ void ACCPaperPlayer::StartJump()
 void ACCPaperPlayer::Jump()
 {
 	Super::Jump();
+
+	FVector ForwardVector = PlayerFlipbook->GetRelativeTransform().GetScale3D();
+
+	float JumpStrength = 3000.0f;
+	float JumpHeight = 2000.0f;
+
+	FVector JumpVelocity = FVector(ForwardVector.X * JumpStrength, 0.0f, JumpHeight);
+
+	LaunchCharacter(JumpVelocity, true, true);
 }
 
 void ACCPaperPlayer::StopJumping()
