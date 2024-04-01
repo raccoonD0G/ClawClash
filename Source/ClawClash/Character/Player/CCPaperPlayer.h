@@ -26,8 +26,10 @@ protected:
 	void UpdateIdle();
 	void UpdateMove();
 	void UpdateJump();
+	void UpdateLand();
 
 	float PlayerIdleThreshold = 0.1f;
+	bool ShouldJump = false;
 
 	FGameDefinitions::EPlayerState CurrentState;
 	void SetCurrentState(FGameDefinitions::EPlayerState NewState);
@@ -52,6 +54,7 @@ protected:
 	TObjectPtr<class UInputMappingContext> InputMappingContext;
 	
 	void Move(const FInputActionValue& Value);
+	void StartJump();
 	void Jump();
 	void StopJumping();
 
@@ -67,6 +70,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animations", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UPaperFlipbook> JumpAnimation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animations", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UPaperFlipbook> LandAnimation;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animations", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UPaperFlipbook> MoveAnimation;

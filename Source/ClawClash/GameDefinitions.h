@@ -14,6 +14,7 @@ public:
     {
         Idle UMETA(DisplayName = "Idle"),
         Jump UMETA(DisplayName = "Jump"),
-        Move UMETA(DisplayName = "Move")
+        Move UMETA(DisplayName = "Move"),
+        Land UMETA(DisplayName = "Land")
     };
 };

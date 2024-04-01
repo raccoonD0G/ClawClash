@@ -26,7 +26,7 @@ ACCPaperPlayer::ACCPaperPlayer()
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
 	GetCharacterMovement()->JumpZVelocity = 2000.f;
-	GetCharacterMovement()->AirControl = 0.35f;
+	GetCharacterMovement()->AirControl = 0.0f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->GravityScale = 3.0f; 
@@ -86,16 +86,22 @@ ACCPaperPlayer::ACCPaperPlayer()
 		IdleAnimation = FlipbookIdleRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UPaperFlipbook> FlipbookMoveRef(TEXT("/Script/Paper2D.PaperFlipbook'/Game/Sprite/Player/Basic_Runnig/FB_Basic_Running.FB_Basic_Running'"));
+	static ConstructorHelpers::FObjectFinder<UPaperFlipbook> FlipbookMoveRef(TEXT("/Script/Paper2D.PaperFlipbook'/Game/Sprite/Player/Basic_Move/FB_Basic_Move.FB_Basic_Move'"));
 	if (nullptr != FlipbookMoveRef.Object)
 	{
 		MoveAnimation = FlipbookMoveRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UPaperFlipbook> FlipbookjumpRef(TEXT("/Script/Paper2D.PaperFlipbook'/Game/Sprite/Player/Basic_Runnig/FB_Basic_Running.FB_Basic_Running'"));
+	static ConstructorHelpers::FObjectFinder<UPaperFlipbook> FlipbookjumpRef(TEXT("/Script/Paper2D.PaperFlipbook'/Game/Sprite/Player/Basic_Jump/FB_Basic_Jump.FB_Basic_Jump'"));
 	if (nullptr != FlipbookjumpRef.Object)
 	{
 		JumpAnimation = FlipbookjumpRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UPaperFlipbook> FlipbookLandRef(TEXT("/Script/Paper2D.PaperFlipbook'/Game/Sprite/Player/Basic_Jump/FB_Basic_Land.FB_Basic_Land'"));
+	if (nullptr != FlipbookLandRef.Object)
+	{
+		LandAnimation = FlipbookLandRef.Object;
 	}
 }
 
@@ -105,7 +111,7 @@ void ACCPaperPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
 
-	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACCPaperPlayer::Jump);
+	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACCPaperPlayer::StartJump);
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACCPaperPlayer::StopJumping);
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ACCPaperPlayer::Move);
 }
@@ -127,21 +133,6 @@ void ACCPaperPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	float Speed = GetVelocity().Size();
-
-	if (GetCharacterMovement()->IsFalling())
-	{
-		SetCurrentState(FGameDefinitions::EPlayerState::Jump);
-	}
-	else if (GetCharacterMovement()->IsMovingOnGround() && Speed > PlayerIdleThreshold)
-	{
-		SetCurrentState(FGameDefinitions::EPlayerState::Move);
-	}
-	else
-	{
-		SetCurrentState(FGameDefinitions::EPlayerState::Idle);
-	}
-
 	switch (CurrentState)
 	{
 	case FGameDefinitions::EPlayerState::Idle:
@@ -156,6 +147,10 @@ void ACCPaperPlayer::Tick(float DeltaTime)
 		UpdateMove();
 		break;
 
+	case FGameDefinitions::EPlayerState::Land:
+		UpdateLand();
+		break;
+
 	default:
 		break;
 	}
@@ -163,17 +158,61 @@ void ACCPaperPlayer::Tick(float DeltaTime)
 
 void ACCPaperPlayer::UpdateIdle()
 {
-
+	if (ShouldJump == true)
+	{
+		SetCurrentState(FGameDefinitions::EPlayerState::Jump);
+	}
+	else
+	{
+		float Speed = GetVelocity().Size();
+		if (GetCharacterMovement()->IsMovingOnGround() && Speed > PlayerIdleThreshold)
+		{
+			SetCurrentState(FGameDefinitions::EPlayerState::Move);
+		}
+	}
 }
 
 void ACCPaperPlayer::UpdateMove()
 {
-
+	if (ShouldJump == true)
+	{
+		SetCurrentState(FGameDefinitions::EPlayerState::Jump);
+	}
+	else
+	{
+		float Speed = GetVelocity().Size();
+		if (GetCharacterMovement()->IsMovingOnGround() && Speed < PlayerIdleThreshold)
+		{
+			SetCurrentState(FGameDefinitions::EPlayerState::Idle);
+		}
+	}
 }
 
 void ACCPaperPlayer::UpdateJump()
 {
+	int32 CurrentFrame = PlayerFlipbook->GetPlaybackPositionInFrames();
+	if (CurrentFrame == 3 && ShouldJump == true)
+	{
+		Jump();
+		ShouldJump = false;
+	}
+	else if (CurrentFrame > 3 && GetCharacterMovement()->IsMovingOnGround())
+	{
+		SetCurrentState(FGameDefinitions::EPlayerState::Land);
+	}
+	else if (CurrentFrame == 10)
+	{
+		PlayerFlipbook->Stop();
+	}
+}
 
+void ACCPaperPlayer::UpdateLand()
+{
+	int32 CurrentFrame = PlayerFlipbook->GetPlaybackPositionInFrames();
+	if (CurrentFrame == 2)
+	{
+		SetCurrentState(FGameDefinitions::EPlayerState::Idle);
+	}
 }
 
 void ACCPaperPlayer::SetCurrentState(FGameDefinitions::EPlayerState NewState)
@@ -182,15 +221,23 @@ void ACCPaperPlayer::SetCurrentState(FGameDefinitions::EPlayerState NewState)
 	switch (CurrentState)
 	{
 	case FGameDefinitions::EPlayerState::Idle:
+		PlayerFlipbook->Play();
 		PlayerFlipbook->SetFlipbook(IdleAnimation);
 		break;
 
 	case FGameDefinitions::EPlayerState::Jump:
+		PlayerFlipbook->Play();
 		PlayerFlipbook->SetFlipbook(JumpAnimation);
 		break;
 
 	case FGameDefinitions::EPlayerState::Move:
+		PlayerFlipbook->Play();
 		PlayerFlipbook->SetFlipbook(MoveAnimation);
+		break;
+
+	case FGameDefinitions::EPlayerState::Land:
+		PlayerFlipbook->Play();
+		PlayerFlipbook->SetFlipbook(LandAnimation);
 		break;
 
 	default:
@@ -200,6 +247,8 @@ void ACCPaperPlayer::SetCurrentState(FGameDefinitions::EPlayerState NewState)
 
 void ACCPaperPlayer::Move(const FInputActionValue& Value)
 {
+	//if (CurrentState == FGameDefinitions::EPlayerState::Jump || CurrentState == FGameDefinitions::EPlayerState::Jump) return;
+
 	FVector2D InputVector = Value.Get<FVector2D>();
 	AddMovementInput(FVector(1.f, 0.f, 0.f), InputVector.X * 1.0f);
 	if (PlayerFlipbook != nullptr)
@@ -216,6 +265,14 @@ void ACCPaperPlayer::Move(const FInputActionValue& Value)
 		}
 
 		PlayerFlipbook->SetWorldScale3D(Scale);
+	}
+}
+
+void ACCPaperPlayer::StartJump()
+{
+	if (GetCharacterMovement()->IsFalling() == false)
+	{
+		ShouldJump = true;
 	}
 }
 
