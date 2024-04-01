@@ -5,7 +5,7 @@
 
 ACCGameModeBase::ACCGameModeBase()
 {
-	static ConstructorHelpers::FClassFinder<APawn> DefaultPawnClassRef(TEXT("/Game/Blueprint/BP_CCPaperPlayer.BP_CCPaperPlayer_C"));
+	static ConstructorHelpers::FClassFinder<APawn> DefaultPawnClassRef(TEXT("/Game/Blueprint/Character/Player/BP_CCPaperPlayer.BP_CCPaperPlayer_C"));
 	if (DefaultPawnClassRef.Class)
 	{
 		DefaultPawnClass = DefaultPawnClassRef.Class;

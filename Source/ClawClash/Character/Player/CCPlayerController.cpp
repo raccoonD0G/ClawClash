@@ -9,7 +9,7 @@ void ACCPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FInputModeGameOnly GameOnlyInputMode;
-	SetInputMode(GameOnlyInputMode);
+	FInputModeGameAndUI InputMode;
+	SetInputMode(InputMode);
 
 }
