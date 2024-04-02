@@ -18,6 +18,7 @@ class CLAWCLASH_API ACCPaperPlayer : public ACCPaperCharacter
 public:
 	ACCPaperPlayer();
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	void SetCurrentState(FGameDefinitions::EPlayerState NewState);
 
 protected:
 	virtual void BeginPlay() override;
@@ -32,7 +33,6 @@ protected:
 	bool ShouldJump = false;
 
 	FGameDefinitions::EPlayerState CurrentState;
-	void SetCurrentState(FGameDefinitions::EPlayerState NewState);
 
 // Camera Section
 protected:

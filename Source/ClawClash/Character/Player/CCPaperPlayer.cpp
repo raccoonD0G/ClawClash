@@ -181,7 +181,7 @@ void ACCPaperPlayer::UpdateMove()
 	else
 	{
 		float Speed = GetVelocity().Size();
-		if (GetCharacterMovement()->IsMovingOnGround() && Speed < PlayerIdleThreshold)
+		if (GetCharacterMovement()->IsMovingOnGround() && Speed <= PlayerIdleThreshold)
 		{
 			SetCurrentState(FGameDefinitions::EPlayerState::Idle);
 		}

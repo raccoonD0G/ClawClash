@@ -10,7 +10,7 @@ class CLAWCLASH_API FGameDefinitions
 {
 public:
     UENUM(BlueprintType)
-        enum class EPlayerState : uint8
+    enum class EPlayerState : uint8
     {
         Idle UMETA(DisplayName = "Idle"),
         Jump UMETA(DisplayName = "Jump"),

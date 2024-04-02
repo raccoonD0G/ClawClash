@@ -17,6 +17,8 @@ void UCCGameInstance::Init()
 
 void UCCGameInstance::OnStart()
 {
+    Super::OnStart();
+
     InitializeUI();
     StartGameTimer();
 }
