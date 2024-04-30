@@ -47,9 +47,12 @@ void ACCTileMapActor::BeginPlay()
         GroundTileArr.SetNum(EnumLength);
         for (int32 i = 0; i < GroundTileArr.Num(); i++)
         {
-            GroundTileArr[i].TileSet = TileSet;
-            GroundTileArr[i].PackedTileIndex = i;
+            GroundTileArr[i].TileInfo.TileSet = TileSet;
+            GroundTileArr[i].TileInfo.PackedTileIndex = i;
         }
+        GroundTileArr[(int32)EGroundType::Hill].MaxLength = 12;
+        GroundTileArr[(int32)EGroundType::Hill].MinLenght = 7;
+        
 
         // Fill Empty Tile
         for (int32 Row = 0; Row < TileMapHeight; Row ++)
@@ -146,7 +149,7 @@ void ACCTileMapActor::CreateGroundByType(EGroundType CurrentType, int32 Column, 
 
 void ACCTileMapActor::CreatHill(int32 Column, int32 Row, int32 StairLength)
 {
-    int32 LengthOfHill = FMath::RandRange(7, 12);
+    int32 LengthOfHill = FMath::RandRange(GroundTileArr[(int32)EGroundType::Hill].MinLenght, GroundTileArr[(int32)EGroundType::Hill].MaxLength);
     SetTileIfPossible(Column, Row, 0, GroundTileArr[(int32)EGroundType::Hill]);
     for (int32 i = Column + 1; i < Column + LengthOfHill; i++)
     {
@@ -172,12 +175,12 @@ void ACCTileMapActor::CreatHill(int32 Column, int32 Row, int32 StairLength)
     SetTileIfPossible(Column + LengthOfHill, Row, 0, GroundTileArr[(int32)EGroundType::Hill]);
 }
 
-void ACCTileMapActor::SetTileIfPossible(int32 Column, int32 Row, int32 Layer, FPaperTileInfo TileToSet)
+void ACCTileMapActor::SetTileIfPossible(int32 Column, int32 Row, int32 Layer, FCCPaperTileInfo TileToSet)
 {
     switch (Layer)
     {
     case 0:
-        if (Column >= 0 && Column < TileMapWeidth && Row >= 0 && Row < TileMapHeight) TileMapComponent->SetTile(Column, Row, 0, TileToSet);
+        if (Column >= 0 && Column < TileMapWeidth && Row >= 0 && Row < TileMapHeight) TileMapComponent->SetTile(Column, Row, 0, TileToSet.TileInfo);
         UE_LOG(LogTemp, Warning, TEXT("Setting tile at %d, %d"), Column, Row);
         break;
     default:

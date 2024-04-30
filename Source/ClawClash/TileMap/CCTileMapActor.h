@@ -6,6 +6,22 @@
 #include "PaperTileLayer.h"
 #include "CCTileMapActor.generated.h"
 
+USTRUCT()
+struct FCCPaperTileInfo
+{
+    GENERATED_BODY()
+
+
+    UPROPERTY()
+    FPaperTileInfo TileInfo;
+
+    UPROPERTY()
+    int32 MinLenght;
+
+    UPROPERTY()
+    int32 MaxLength;
+};
+
 UCLASS()
 class CLAWCLASH_API ACCTileMapActor : public AActor
 {
@@ -35,7 +51,7 @@ protected:
     void CreatHill(int32 Column, int32 Row, int32 StairLength);
 
     UFUNCTION()
-    void SetTileIfPossible(int32 Column, int32 Row, int32 Layer, FPaperTileInfo TileToSet);
+    void SetTileIfPossible(int32 Column, int32 Row, int32 Layer, FCCPaperTileInfo TileToSet);
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     TObjectPtr<class UPaperTileMapComponent> TileMapComponent;
@@ -45,7 +61,7 @@ protected:
     TObjectPtr<class UPaperTileSet> TileSet;
 
     UPROPERTY()
-    TArray<FPaperTileInfo> GroundTileArr;
+    TArray<struct FCCPaperTileInfo> GroundTileArr;
 
     UPROPERTY()
     TArray<float> GroundRatio;
