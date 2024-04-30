@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "ClawClash/Character/CCPaperCharacter.h"
 #include "InputActionValue.h"
-#include "ClawClash/GameDefinitions.h"
+#include "CCPlayerState.h"
 #include "CCPaperPlayer.generated.h"
 /**
  * 
@@ -18,7 +18,7 @@ class CLAWCLASH_API ACCPaperPlayer : public ACCPaperCharacter
 public:
 	ACCPaperPlayer();
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	void SetCurrentState(FGameDefinitions::EPlayerState NewState);
+	void SetCurrentState(EPlayerState NewState);
 
 protected:
 	virtual void BeginPlay() override;
@@ -28,11 +28,13 @@ protected:
 	void UpdateMove();
 	void UpdateJump();
 	void UpdateLand();
+	void UpdateFalling();
 
 	float PlayerIdleThreshold = 0.1f;
 	bool ShouldJump = false;
 
-	FGameDefinitions::EPlayerState CurrentState;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	EPlayerState CurrentState;
 
 // Camera Section
 protected:
@@ -44,6 +46,10 @@ protected:
 	
 //Input Section
 protected:
+
+	float JumpStrength = 0.0f;
+	float JumpHeight = 5000.0f;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> JumpAction;
 
@@ -76,4 +82,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animations", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UPaperFlipbook> MoveAnimation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animations", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UPaperFlipbook> FallingAnimation;
 };
