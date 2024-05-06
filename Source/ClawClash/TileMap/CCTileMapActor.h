@@ -7,19 +7,18 @@
 #include "CCTileMapActor.generated.h"
 
 USTRUCT()
-struct FCCPaperTileInfo
+struct FCCFieldInfo
 {
     GENERATED_BODY()
-
-
-    UPROPERTY()
-    FPaperTileInfo TileInfo;
 
     UPROPERTY()
     int32 MinLenght;
 
     UPROPERTY()
     int32 MaxLength;
+
+    UPROPERTY()
+    TArray<float> FeatureRatio;
 };
 
 UCLASS()
@@ -38,36 +37,61 @@ public:
     // Called every frame
     virtual void Tick(float DeltaTime) override;
 
-// TileMapSection
+// Util Section
 protected:
-
     UFUNCTION()
     int32 GetRandomIndexByProbability(const TArray<float>& Probabilities);
 
-    UFUNCTION()
-    void CreateGroundByType(EGroundType CurrentType, int32 Column, int32 Row);
+    int32 GetEnumLength(TObjectPtr<UEnum> TargetEnum);
 
+// Sprite Section
+protected:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sprite")
+    TObjectPtr<class UPaperSprite> WeedSprite;
+
+// TileMap Section
+protected:
+    UFUNCTION()
+    void CreateFieldByType(EFieldType CurrentType, int32 Column, int32 Row);
     UFUNCTION()
     void CreatHill(int32 Column, int32 Row, int32 StairLength);
-
     UFUNCTION()
-    void SetTileIfPossible(int32 Column, int32 Row, int32 Layer, FCCPaperTileInfo TileToSet);
+    void CreatWaterSide(int32 Column, int32 Row);
+    UFUNCTION()
+    void CreateAsphalt(int32 Column, int32 Row);
+
+    void SetTileIfPossible(TObjectPtr<class UPaperTileMapComponent> TileMapComponent, int32 Column, int32 Row, int32 Layer, FPaperTileInfo TileToSet, bool bEmptyOnly = true);
+    UFUNCTION()
+    bool CheckAllEmpty(int32 Column, int32 Row, int32 Length);
+    UFUNCTION()
+    void CreateCave(int32 Column, int32 Row);
+
+    void PlaceSpritesOnTileMap(TObjectPtr<class UPaperTileMap> UPaperTileMap, FVector2D StartingTile, int32 OffsetTiles, TObjectPtr<class UPaperSprite> SpriteToPlace, bool bAllowOverlap = false);
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-    TObjectPtr<class UPaperTileMapComponent> TileMapComponent;
+    TObjectPtr<class UPaperTileMapComponent> FieldTileMapComponent;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    TArray<TObjectPtr<class UPaperSpriteComponent>> FeatureSpriteComponentArr;
 
     // Reference to the TileSet
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TileMap")
-    TObjectPtr<class UPaperTileSet> TileSet;
+    TObjectPtr<class UPaperTileSet> FieldTileSet;
 
     UPROPERTY()
-    TArray<struct FCCPaperTileInfo> GroundTileArr;
+    TArray<struct FCCFieldInfo> FieldInfoArr;
+    UPROPERTY()
+    TArray<struct FPaperTileInfo> TileInfoArr;
+    UPROPERTY()
+    TArray<struct FPaperTileInfo> WaterSideFeatureInfoArr;
 
     UPROPERTY()
-    TArray<float> GroundRatio;
+    TArray<float> FieldRatio;
 
-    int32 TileMapWeidth = 512;
-    int32 TileMapHeight = 128;
+    UPROPERTY()
+    TObjectPtr<class UCCBoxQuadTreeNode> RootNode;
+
+    int32 TileMapWeidth = 256;
+    int32 TileMapHeight = 64;
     int32 NumOfFloor = 4;
 };
 

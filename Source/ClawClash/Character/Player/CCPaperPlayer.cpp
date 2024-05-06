@@ -50,7 +50,7 @@ ACCPaperPlayer::ACCPaperPlayer()
 	FollowCamera->bUsePawnControlRotation = false;
 	FollowCamera->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
 	FollowCamera->ProjectionMode = ECameraProjectionMode::Orthographic;
-	FollowCamera->OrthoWidth = 10000.0;
+	FollowCamera->OrthoWidth = 8000.0;
 
 	// Input
 	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionJumpRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/InputAction/IA_Jump.IA_Jump'"));
