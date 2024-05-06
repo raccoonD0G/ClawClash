@@ -44,3 +44,13 @@ enum class EWaterSideFeature : uint8
     Weed1Feature UMETA(DisplayName = "Weed1")
 };
 
+UENUM(BlueprintType)
+enum class EBasicFeature : uint8
+{
+    NoneFeature UMETA(DisplayName = "None"),
+    Grass0Feature UMETA(DisplayName = "Grass0"),
+    Grass1Feature UMETA(DisplayName = "Grass1"),
+    Grass2Feature UMETA(DisplayName = "Grass2"),
+    Grass3Feature UMETA(DisplayName = "Grass3"),
+};
+

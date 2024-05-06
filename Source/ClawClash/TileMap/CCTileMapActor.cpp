@@ -40,7 +40,7 @@ void ACCTileMapActor::BeginPlay()
     FieldRatio[(int32)EFieldType::BasicField] = 0.4f;
     FieldRatio[(int32)EFieldType::WatersideField] = 0.1f;
     FieldRatio[(int32)EFieldType::AsphaltField] = 0.1f;
-    FieldRatio[(int32)EFieldType::CaveField] = 0.01f;
+    FieldRatio[(int32)EFieldType::CaveField] = 0.1f;
     FieldRatio[(int32)EFieldType::HillField] = 0.01f;
     FieldRatio[(int32)EFieldType::EmptyField] = 0.0f;
 
@@ -58,8 +58,15 @@ void ACCTileMapActor::BeginPlay()
     // Initialize Feature
     FieldInfoArr[(int32)EFieldType::WatersideField].FeatureRatio.SetNum(GetEnumLength(StaticEnum<EWaterSideFeature>()));
     FieldInfoArr[(int32)EFieldType::WatersideField].FeatureRatio[(int32)EWaterSideFeature::NoneFeature] = 0.3f;
-    FieldInfoArr[(int32)EFieldType::WatersideField].FeatureRatio[(int32)EWaterSideFeature::Weed0Feature] = 0.3f;
-    FieldInfoArr[(int32)EFieldType::WatersideField].FeatureRatio[(int32)EWaterSideFeature::Weed1Feature] = 0.3f;
+    FieldInfoArr[(int32)EFieldType::WatersideField].FeatureRatio[(int32)EWaterSideFeature::Weed0Feature] = 0.1f;
+    FieldInfoArr[(int32)EFieldType::WatersideField].FeatureRatio[(int32)EWaterSideFeature::Weed1Feature] = 0.1f;
+
+    FieldInfoArr[(int32)EFieldType::BasicField].FeatureRatio.SetNum(GetEnumLength(StaticEnum<EBasicFeature>()));
+    FieldInfoArr[(int32)EFieldType::BasicField].FeatureRatio[(int32)EBasicFeature::NoneFeature] = 0.5f;
+    FieldInfoArr[(int32)EFieldType::BasicField].FeatureRatio[(int32)EBasicFeature::Grass0Feature] = 0.1f;
+    FieldInfoArr[(int32)EFieldType::BasicField].FeatureRatio[(int32)EBasicFeature::Grass1Feature] = 0.1f;
+    FieldInfoArr[(int32)EFieldType::BasicField].FeatureRatio[(int32)EBasicFeature::Grass2Feature] = 0.1f;
+    FieldInfoArr[(int32)EFieldType::BasicField].FeatureRatio[(int32)EBasicFeature::Grass3Feature] = 0.1f;
 
     if (FieldTileSet)
     {
@@ -153,6 +160,7 @@ void ACCTileMapActor::CreateFieldByType(EFieldType CurrentType, int32 Column, in
     {
     case EFieldType::BasicField:
         SetTileIfPossible(FieldTileMapComponent, Column, Row, 0, TileInfoArr[(int32)CurrentType]);
+        PlaceSpritesOnTileMap(FieldTileMapComponent->TileMap, FVector2D(Column, Row), 1, BasicSpriteArr, FieldInfoArr[(int32)EFieldType::BasicField].FeatureRatio, true);
         break;
     case EFieldType::WatersideField:
         CreatWaterSide(Column, Row);
@@ -226,7 +234,7 @@ void ACCTileMapActor::CreatWaterSide(int32 Column, int32 Row)
     }
     SetTileIfPossible(FieldTileMapComponent, Column + LengthOfWaterSide - 1, Row, 0, TileInfoArr[(int32)ETileType::WatersideRight]);
 
-    PlaceSpritesOnTileMap(FieldTileMapComponent->TileMap, FVector2D(Column, Row), LengthOfWaterSide, WeedSpriteArr, FieldInfoArr[(int32)EFieldType::WatersideField].FeatureRatio, true);
+    PlaceSpritesOnTileMap(FieldTileMapComponent->TileMap, FVector2D(Column, Row), LengthOfWaterSide, WaterSideSpriteArr, FieldInfoArr[(int32)EFieldType::WatersideField].FeatureRatio, true);
 }
 
 void ACCTileMapActor::CreateCave(int32 Column, int32 Row)
@@ -246,7 +254,7 @@ void ACCTileMapActor::CreateCave(int32 Column, int32 Row)
     SetTileIfPossible(FieldTileMapComponent, Column + LengthOfWaterSide - 1, Row, 0, TileInfoArr[(int32)ETileType::CaveRight]);
 }
 
-void ACCTileMapActor::PlaceSpritesOnTileMap(TObjectPtr<UPaperTileMap> TileMap, FVector2D StartingTile, int32 OffsetTiles, TArray<TObjectPtr<UPaperSprite>> SpriteToPlace, TArray<float> RatioArr, bool bAllowOverlap)
+void ACCTileMapActor::PlaceSpritesOnTileMap(TObjectPtr<UPaperTileMap> TileMap, FVector2D StartingTile, int32 OffsetTiles, TArray<TObjectPtr<UPaperSprite>> SpriteToPlace, TArray<float> RatioArr, bool bAllowOverlap, bool bAddToCollisionTree)
 {
     OffsetTiles--;
 
@@ -269,7 +277,7 @@ void ACCTileMapActor::PlaceSpritesOnTileMap(TObjectPtr<UPaperTileMap> TileMap, F
         if (Index != 0)
         {
             Index--;
-            FVector WorldPos(i, 0.0f, -StartWorldPos.Y + 1.5 * TileSize.Y);
+            FVector WorldPos(i, 0.0f, -StartWorldPos.Y + TileSize.Y + (SpriteToPlace[Index]->GetSourceSize().Y - 512) / 2);
             FBox2D BoxForSprite(FVector2D(WorldPos.X, WorldPos.Z), FVector2D(WorldPos.X + SpriteToPlace[Index]->GetSourceSize().X, WorldPos.Z + SpriteToPlace[Index]->GetSourceSize().Y));
 
             if (bAllowOverlap || !RootNode->IsColliding(BoxForSprite))
@@ -283,8 +291,11 @@ void ACCTileMapActor::PlaceSpritesOnTileMap(TObjectPtr<UPaperTileMap> TileMap, F
                     NewSprite->SetSprite(SpriteToPlace[Index]);
                     NewSprite->SetRelativeLocation(WorldPos);
                     NewSprite->SetCollisionProfileName(TEXT("NoCollision"));
+                    NewSprite->SetMaterial(0, TileMap->Material);
+                    NewSprite->bReceivesDecals = false;
+                    NewSprite->CastShadow = false;
 
-                    RootNode->Insert(BoxForSprite);
+                    if (bAddToCollisionTree == true) RootNode->Insert(BoxForSprite);
                     FeatureSpriteComponentArr.Add(NewSprite);
                 }
             }

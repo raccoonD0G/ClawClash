@@ -47,7 +47,11 @@ protected:
 // Sprite Section
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sprite")
-    TArray<TObjectPtr<class UPaperSprite>> WeedSpriteArr;
+    TArray<TObjectPtr<class UPaperSprite>> WaterSideSpriteArr;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sprite")
+    TArray<TObjectPtr<class UPaperSprite>> BasicSpriteArr;
+
 
 // TileMap Section
 protected:
@@ -66,7 +70,7 @@ protected:
     UFUNCTION()
     void CreateCave(int32 Column, int32 Row);
 
-    void PlaceSpritesOnTileMap(TObjectPtr<class UPaperTileMap> UPaperTileMap, FVector2D StartingTile, int32 OffsetTiles, TArray<TObjectPtr<class UPaperSprite>> SpriteToPlace, TArray<float> RatioArr, bool bAllowOverlap = false);
+    void PlaceSpritesOnTileMap(TObjectPtr<class UPaperTileMap> UPaperTileMap, FVector2D StartingTile, int32 OffsetTiles, TArray<TObjectPtr<class UPaperSprite>> SpriteToPlace, TArray<float> RatioArr, bool bAllowOverlap = false, bool bAddToCollisionTree = true);
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     TObjectPtr<class UPaperTileMapComponent> FieldTileMapComponent;
