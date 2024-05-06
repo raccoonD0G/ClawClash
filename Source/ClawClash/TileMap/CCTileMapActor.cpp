@@ -27,7 +27,7 @@ void ACCTileMapActor::BeginPlay()
 {
     Super::BeginPlay();
 
-    // Initialize the TileMap
+    // Initialize TileMap
     FieldTileMapComponent->CreateNewTileMap(TileMapWeidth, TileMapHeight, 512, 512, 1.0f, true);
     FieldTileMapComponent->TileMap->SetCollisionDomain(ESpriteCollisionMode::Use3DPhysics);
 
@@ -57,7 +57,9 @@ void ACCTileMapActor::BeginPlay()
 
     // Initialize Feature
     FieldInfoArr[(int32)EFieldType::WatersideField].FeatureRatio.SetNum(GetEnumLength(StaticEnum<EWaterSideFeature>()));
+    FieldInfoArr[(int32)EFieldType::WatersideField].FeatureRatio[(int32)EWaterSideFeature::NoneFeature] = 0.3f;
     FieldInfoArr[(int32)EFieldType::WatersideField].FeatureRatio[(int32)EWaterSideFeature::Weed0Feature] = 0.3f;
+    FieldInfoArr[(int32)EFieldType::WatersideField].FeatureRatio[(int32)EWaterSideFeature::Weed1Feature] = 0.3f;
 
     if (FieldTileSet)
     {
@@ -224,7 +226,7 @@ void ACCTileMapActor::CreatWaterSide(int32 Column, int32 Row)
     }
     SetTileIfPossible(FieldTileMapComponent, Column + LengthOfWaterSide - 1, Row, 0, TileInfoArr[(int32)ETileType::WatersideRight]);
 
-    PlaceSpritesOnTileMap(FieldTileMapComponent->TileMap, FVector2D(Column, Row), LengthOfWaterSide, WeedSprite);
+    PlaceSpritesOnTileMap(FieldTileMapComponent->TileMap, FVector2D(Column, Row), LengthOfWaterSide, WeedSpriteArr, FieldInfoArr[(int32)EFieldType::WatersideField].FeatureRatio, true);
 }
 
 void ACCTileMapActor::CreateCave(int32 Column, int32 Row)
@@ -244,11 +246,11 @@ void ACCTileMapActor::CreateCave(int32 Column, int32 Row)
     SetTileIfPossible(FieldTileMapComponent, Column + LengthOfWaterSide - 1, Row, 0, TileInfoArr[(int32)ETileType::CaveRight]);
 }
 
-void ACCTileMapActor::PlaceSpritesOnTileMap(TObjectPtr<UPaperTileMap> TileMap, FVector2D StartingTile, int32 OffsetTiles, TObjectPtr<UPaperSprite> SpriteToPlace, bool bAllowOverlap)
+void ACCTileMapActor::PlaceSpritesOnTileMap(TObjectPtr<UPaperTileMap> TileMap, FVector2D StartingTile, int32 OffsetTiles, TArray<TObjectPtr<UPaperSprite>> SpriteToPlace, TArray<float> RatioArr, bool bAllowOverlap)
 {
     OffsetTiles--;
 
-    if (!TileMap || !SpriteToPlace)
+    if (!TileMap)
     {
         return;
     }
@@ -263,25 +265,31 @@ void ACCTileMapActor::PlaceSpritesOnTileMap(TObjectPtr<UPaperTileMap> TileMap, F
 
     for (float i = StartWorldPos.X; i <= EndWorldPos.X; i += TileSize.X / 2)
     {
-        FVector WorldPos(i, 0.0f, -StartWorldPos.Y + 1.5 * TileSize.Y);
-        FBox2D BoxForSprite(FVector2D(WorldPos.X, WorldPos.Z), FVector2D(WorldPos.X + SpriteToPlace->GetSourceSize().X, WorldPos.Z + SpriteToPlace->GetSourceSize().Y));
-
-        if (bAllowOverlap || !RootNode->IsColliding(BoxForSprite))
+        int32 Index = GetRandomIndexByProbability(RatioArr);
+        if (Index != 0)
         {
-            TObjectPtr<UPaperSpriteComponent> NewSprite = NewObject<UPaperSpriteComponent>(this);
-            if (NewSprite)
-            {
-                NewSprite->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
-                NewSprite->RegisterComponent();
-                NewSprite->SetVisibility(true);
-                NewSprite->SetSprite(SpriteToPlace);
-                NewSprite->SetRelativeLocation(WorldPos);
-                NewSprite->SetCollisionProfileName(TEXT("NoCollision"));
+            Index--;
+            FVector WorldPos(i, 0.0f, -StartWorldPos.Y + 1.5 * TileSize.Y);
+            FBox2D BoxForSprite(FVector2D(WorldPos.X, WorldPos.Z), FVector2D(WorldPos.X + SpriteToPlace[Index]->GetSourceSize().X, WorldPos.Z + SpriteToPlace[Index]->GetSourceSize().Y));
 
-                RootNode->Insert(BoxForSprite);
-                FeatureSpriteComponentArr.Add(NewSprite);
+            if (bAllowOverlap || !RootNode->IsColliding(BoxForSprite))
+            {
+                TObjectPtr<UPaperSpriteComponent> NewSprite = NewObject<UPaperSpriteComponent>(this);
+                if (NewSprite)
+                {
+                    NewSprite->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+                    NewSprite->RegisterComponent();
+                    NewSprite->SetVisibility(true);
+                    NewSprite->SetSprite(SpriteToPlace[Index]);
+                    NewSprite->SetRelativeLocation(WorldPos);
+                    NewSprite->SetCollisionProfileName(TEXT("NoCollision"));
+
+                    RootNode->Insert(BoxForSprite);
+                    FeatureSpriteComponentArr.Add(NewSprite);
+                }
             }
         }
+        
     }
 }
 

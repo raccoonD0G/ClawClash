@@ -39,6 +39,8 @@ enum class EFieldType : uint8
 UENUM(BlueprintType)
 enum class EWaterSideFeature : uint8
 {
-    Weed0Feature UMETA(DisplayName = "Weed"),
+    NoneFeature UMETA(DisplayName = "None"),
+    Weed0Feature UMETA(DisplayName = "Weed0"),
+    Weed1Feature UMETA(DisplayName = "Weed1")
 };
 
