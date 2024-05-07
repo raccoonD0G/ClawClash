@@ -13,25 +13,33 @@ void UCCBoxQuadTreeNode::Initialize(const FVector2D& InBoundsMin, const FVector2
 bool UCCBoxQuadTreeNode::Insert(const FBox2D& Object)
 {
     if (!FBox2D(BoundsMin, BoundsMax).Intersect(Object))
+    {
         return false;
-
-    if (Objects.Num() < MaxObjects || Depth >= MaxDepth)
-    {
-        Objects.Add(Object);
-        return true;
     }
-
-    if (Children[0] == nullptr)
-        Subdivide();
-
-    int Index = GetChildIndex(Object);
-    if (Index != -1)
+    else
     {
-        return Children[Index]->Insert(Object);
-    }
+        if (Objects.Num() < MaxObjects || Depth >= MaxDepth)
+        {
+            Objects.Add(Object);
+            return true;
+        }
+        else
+        {
+            if (Children[0] == nullptr)
+                Subdivide();
 
-    Objects.Add(Object);
-    return true;
+            int Index = GetChildIndex(Object);
+            if (Index != -1)
+            {
+                return Children[Index]->Insert(Object);
+            }
+            else
+            {
+                Objects.Add(Object);
+                return true;
+            }
+        }
+    }
 }
 
 bool UCCBoxQuadTreeNode::IsColliding(const FBox2D& Object) const
@@ -41,9 +49,9 @@ bool UCCBoxQuadTreeNode::IsColliding(const FBox2D& Object) const
     if (!BoundBox.Intersect(Object))
         return false;
 
-    for (const auto& Existing : Objects)
+    for (const FBox2D& BoxInsideNode : Objects)
     {
-        if (Existing.Intersect(Object))
+        if (BoxInsideNode.Intersect(Object))
             return true;
     }
 
@@ -61,8 +69,7 @@ bool UCCBoxQuadTreeNode::IsColliding(const FBox2D& Object) const
 
 void UCCBoxQuadTreeNode::Subdivide()
 {
-    FVector2D HalfSize = (BoundsMax - BoundsMin) / 2.0f;
-    FVector2D Mid = BoundsMin + HalfSize;
+    FVector2D Mid = BoundsMin + (BoundsMax - BoundsMin) / 2.0f;
 
     Children[0] = NewObject<UCCBoxQuadTreeNode>();
     Children[0]->Initialize(BoundsMin, Mid, Depth + 1);

@@ -22,14 +22,14 @@ ACCPaperPlayer::ACCPaperPlayer()
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
 	// CharacterMovement
-	GetCharacterMovement()->MaxWalkSpeed = 3000.0f;
+	GetCharacterMovement()->MaxWalkSpeed = 5000.0f;
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
-	GetCharacterMovement()->JumpZVelocity = 2000.f;
+	GetCharacterMovement()->JumpZVelocity = 15000.f;
 	GetCharacterMovement()->AirControl = 100.0f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
-	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
-	GetCharacterMovement()->GravityScale = 5.0f; 
+	GetCharacterMovement()->BrakingDecelerationWalking = 4000.f;
+	GetCharacterMovement()->GravityScale = 8.0f; 
 	GetCharacterMovement()->MaxAcceleration = 10000;
 	GetCharacterMovement()->BrakingFrictionFactor = 2.0f;
 
@@ -50,7 +50,7 @@ ACCPaperPlayer::ACCPaperPlayer()
 	FollowCamera->bUsePawnControlRotation = false;
 	FollowCamera->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
 	FollowCamera->ProjectionMode = ECameraProjectionMode::Orthographic;
-	FollowCamera->OrthoWidth = 8000.0;
+	FollowCamera->OrthoWidth = 15000.0;
 
 	// Input
 	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionJumpRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/InputAction/IA_Jump.IA_Jump'"));

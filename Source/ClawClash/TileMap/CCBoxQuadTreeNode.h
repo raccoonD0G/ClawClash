@@ -20,14 +20,17 @@ protected:
 
     FVector2D BoundsMin, BoundsMax;
     TArray<FBox2D> Objects;
-    static const int MaxObjects = 4;
-    static const int MaxDepth = 4;
     int Depth;
+
+    static const int MaxObjects = 8;
+    static const int MaxDepth = 8;
+    
 
 public:
     void Initialize(const FVector2D& InBoundsMin, const FVector2D& InBoundsMax, int InDepth);
     bool Insert(const FBox2D& Object);
     bool IsColliding(const FBox2D& Object) const;
+
 protected:
     void Subdivide();
     int GetChildIndex(const FBox2D& Object) const;

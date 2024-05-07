@@ -48,7 +48,7 @@ protected:
 protected:
 
 	float JumpStrength = 0.0f;
-	float JumpHeight = 5000.0f;
+	float JumpHeight = 8000.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> JumpAction;

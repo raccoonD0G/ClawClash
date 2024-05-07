@@ -54,3 +54,23 @@ enum class EBasicFeature : uint8
     Grass3Feature UMETA(DisplayName = "Grass3"),
 };
 
+UENUM(BlueprintType)
+enum class EAsphaltFeature : uint8
+{
+    NoneFeature UMETA(DisplayName = "None"),
+    ShortLightFeature UMETA(DisplayName = "ShortLightFeature"),
+    LongLightFeature UMETA(DisplayName = "LongLightFeature"),
+};
+
+UENUM(BlueprintType)
+enum class ECaveFeature : uint8
+{
+    NoneFeature UMETA(DisplayName = "None"),
+    Stone0Feature UMETA(DisplayName = "Stone0Feature"),
+    Stone1Feature UMETA(DisplayName = "Stone1Feature"),
+    Stone2Feature UMETA(DisplayName = "Stone2Feature"),
+    Stone3Feature UMETA(DisplayName = "Stone3Feature"),
+    Stone4Feature UMETA(DisplayName = "Stone4Feature"),
+};
+
+

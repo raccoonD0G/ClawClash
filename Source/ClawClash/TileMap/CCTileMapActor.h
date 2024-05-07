@@ -44,6 +44,23 @@ protected:
 
     int32 GetEnumLength(TObjectPtr<UEnum> TargetEnum);
 
+// Background Section
+protected:
+    UPROPERTY()
+    TObjectPtr<class UPaperSpriteComponent> BackgroundComponent;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sprite")
+    TObjectPtr<class UPaperSprite> BackGroundSprite;
+
+    UPROPERTY()
+    TObjectPtr<class ACharacter> Player;
+
+    int32 LastPlayerX;
+    int32 LastPlayerZ;
+
+    int32 LastBackgroundX;
+    int32 LastBackgroundZ;
+
 // Sprite Section
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sprite")
@@ -52,9 +69,38 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sprite")
     TArray<TObjectPtr<class UPaperSprite>> BasicSpriteArr;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sprite")
+    TArray<TObjectPtr<class UPaperSprite>> AsphaltSpriteArr;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sprite")
+    TArray<TObjectPtr<class UPaperSprite>> CaveSpriteArr;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sprite")
+    TObjectPtr<class UMaterialInterface> DefaultSpriteMaterial;
 
 // TileMap Section
 protected:
+    // Creat TileMap
+    const int32 TileMapWeidth = 128;
+    const int32 TileMapHeight = 64;
+    const int32 NumOfFloor = 4;
+
+    // Create Field
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    TObjectPtr<class UPaperTileMapComponent> FieldTileMapComponent;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TileMap")
+    TObjectPtr<class UPaperTileSet> FieldTileSet;
+
+    UPROPERTY()
+    TArray<float> FieldRatio;
+
+    UPROPERTY()
+    TArray<struct FCCFieldInfo> FieldInfoArr;
+
+    UPROPERTY()
+    TArray<struct FPaperTileInfo> TileInfoArr;
+
     UFUNCTION()
     void CreateFieldByType(EFieldType CurrentType, int32 Column, int32 Row);
     UFUNCTION()
@@ -63,38 +109,20 @@ protected:
     void CreatWaterSide(int32 Column, int32 Row);
     UFUNCTION()
     void CreateAsphalt(int32 Column, int32 Row);
+    UFUNCTION()
+    void CreateCave(int32 Column, int32 Row);
 
     void SetTileIfPossible(TObjectPtr<class UPaperTileMapComponent> TileMapComponent, int32 Column, int32 Row, int32 Layer, FPaperTileInfo TileToSet, bool bEmptyOnly = true);
     UFUNCTION()
     bool CheckAllEmpty(int32 Column, int32 Row, int32 Length);
-    UFUNCTION()
-    void CreateCave(int32 Column, int32 Row);
-
-    void PlaceSpritesOnTileMap(TObjectPtr<class UPaperTileMap> UPaperTileMap, FVector2D StartingTile, int32 OffsetTiles, TArray<TObjectPtr<class UPaperSprite>> SpriteToPlace, TArray<float> RatioArr, bool bAllowOverlap = false, bool bAddToCollisionTree = true);
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-    TObjectPtr<class UPaperTileMapComponent> FieldTileMapComponent;
+    
+    // Creat Feature
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     TArray<TObjectPtr<class UPaperSpriteComponent>> FeatureSpriteComponentArr;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TileMap")
-    TObjectPtr<class UPaperTileSet> FieldTileSet;
-
-    UPROPERTY()
-    TArray<struct FCCFieldInfo> FieldInfoArr;
-    UPROPERTY()
-    TArray<struct FPaperTileInfo> TileInfoArr;
-    UPROPERTY()
-    TArray<struct FPaperTileInfo> WaterSideFeatureInfoArr;
-
-    UPROPERTY()
-    TArray<float> FieldRatio;
 
     UPROPERTY()
     TObjectPtr<class UCCBoxQuadTreeNode> RootNode;
 
-    int32 TileMapWeidth = 256;
-    int32 TileMapHeight = 64;
-    int32 NumOfFloor = 4;
+    void PlaceSpritesOnTileMap(TObjectPtr<class UPaperTileMap> UPaperTileMap, FVector2D StartingTile, int32 OffsetTiles, TArray<TObjectPtr<class UPaperSprite>> SpriteToPlace, TArray<float> RatioArr, bool bAllowOverlap = false, bool bAddToCollisionTree = true);
 };
 
