@@ -21,6 +21,20 @@ struct FCCFieldInfo
     TArray<float> FeatureRatio;
 };
 
+USTRUCT()
+struct FCCFeatureInfo
+{
+    GENERATED_BODY()
+
+    int32 FeatureNum;
+
+    UPROPERTY()
+    TArray<TObjectPtr<class UPaperSprite>> SpriteArr;
+
+    UPROPERTY()
+    TArray<float> FeatureRatio;
+};
+
 UCLASS()
 class CLAWCLASH_API ACCTileMapActor : public AActor
 {
@@ -44,6 +58,8 @@ protected:
 
     int32 GetEnumLength(TObjectPtr<UEnum> TargetEnum);
 
+    TArray<UPaperSprite*> GetAllSpritesFromFolder(const FString& FolderPath);
+
 // Background Section
 protected:
     UPROPERTY()
@@ -63,6 +79,21 @@ protected:
 
 // Sprite Section
 protected:
+    UPROPERTY()
+    FCCFeatureInfo WeedFeatureInfo;
+
+    UPROPERTY()
+    FCCFeatureInfo RockFeatureInfo;
+
+    UPROPERTY()
+    FCCFeatureInfo BuildingFeatureInfo;
+
+    UPROPERTY()
+    FCCFeatureInfo CarFeatureInfo;
+
+    UPROPERTY()
+    FCCFeatureInfo LightFeatureInfo;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sprite")
     TArray<TObjectPtr<class UPaperSprite>> WaterSideSpriteArr;
 
@@ -113,6 +144,7 @@ protected:
     void CreateCave(int32 Column, int32 Row);
 
     void SetTileIfPossible(TObjectPtr<class UPaperTileMapComponent> TileMapComponent, int32 Column, int32 Row, int32 Layer, FPaperTileInfo TileToSet, bool bEmptyOnly = true);
+    
     UFUNCTION()
     bool CheckAllEmpty(int32 Column, int32 Row, int32 Length);
     
@@ -123,6 +155,6 @@ protected:
     UPROPERTY()
     TObjectPtr<class UCCBoxQuadTreeNode> RootNode;
 
-    void PlaceSpritesOnTileMap(TObjectPtr<class UPaperTileMap> UPaperTileMap, FVector2D StartingTile, int32 OffsetTiles, TArray<TObjectPtr<class UPaperSprite>> SpriteToPlace, TArray<float> RatioArr, bool bAllowOverlap = false, bool bAddToCollisionTree = true);
+    void PlaceSpritesOnTileMap(TObjectPtr<class UPaperTileMap> UPaperTileMap, FVector2D StartingTile, int32 OffsetTiles, TArray<TObjectPtr<class UPaperSprite>> SpriteToPlace, TArray<float> RatioArr, float YPos = 0.0, bool bAllowOverlap = false, bool bAddToCollisionTree = true);
 };
 

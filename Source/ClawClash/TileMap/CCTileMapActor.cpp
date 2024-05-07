@@ -13,6 +13,7 @@
 #include "CCBoxQuadTreeNode.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
+#include "AssetRegistry/AssetRegistryModule.h"
 
 
 // Sets default values
@@ -49,8 +50,8 @@ void ACCTileMapActor::BeginPlay()
 
         BackgroundComponent->SetSprite(BackGroundSprite);
         FVector2D OriginalSize = BackgroundComponent->GetSprite()->GetSourceSize();
-        BackgroundComponent->SetRelativeLocation(FVector(Player->GetActorLocation().X, -1, Player->GetActorLocation().Z));
-        BackgroundComponent->SetRelativeScale3D(FVector(TileMapWidthInPixels / (1 * OriginalSize.X), 1.0f, TileMapWidthInPixels / (1 * OriginalSize.X)));
+        BackgroundComponent->SetRelativeLocation(FVector(Player->GetActorLocation().X, -5, Player->GetActorLocation().Z));
+        BackgroundComponent->SetRelativeScale3D(FVector(TileMapWidthInPixels / (2.0 * OriginalSize.X), 1.0f, TileMapWidthInPixels / (2.0 * OriginalSize.X)));
         BackgroundComponent->SetCollisionProfileName(TEXT("NoCollision"));
     }
 
@@ -76,11 +77,54 @@ void ACCTileMapActor::BeginPlay()
     FieldInfoArr[(int32)EFieldType::AsphaltField].MinLenght = 10;
 
     // Initialize Feature
+    WeedFeatureInfo.FeatureRatio.SetNum(GetEnumLength(StaticEnum<EWeedFeature>()));
+    WeedFeatureInfo.FeatureRatio[(int32)EWeedFeature::NoneFeature] = 2.3f;
+    WeedFeatureInfo.FeatureRatio[(int32)EWeedFeature::Weed0Feature] = 0.3f;
+    WeedFeatureInfo.FeatureRatio[(int32)EWeedFeature::Weed1Feature] = 0.3f;
+    WeedFeatureInfo.FeatureRatio[(int32)EWeedFeature::Weed2Feature] = 0.3f;
+    WeedFeatureInfo.FeatureRatio[(int32)EWeedFeature::Weed3Feature] = 0.3f;
+    WeedFeatureInfo.SpriteArr = GetAllSpritesFromFolder("/Game/Sprite/Map/Feature/Weed");
+
+    RockFeatureInfo.FeatureRatio.SetNum(GetEnumLength(StaticEnum<ERockFeature>()));
+    RockFeatureInfo.FeatureRatio[(int32)ERockFeature::NoneFeature] = 2.3f;
+    RockFeatureInfo.FeatureRatio[(int32)ERockFeature::Stone0Feature] = 0.3f;
+    RockFeatureInfo.FeatureRatio[(int32)ERockFeature::Stone1Feature] = 0.3f;
+    RockFeatureInfo.FeatureRatio[(int32)ERockFeature::Stone2Feature] = 0.3f;
+    RockFeatureInfo.FeatureRatio[(int32)ERockFeature::Stone3Feature] = 0.3f;
+    RockFeatureInfo.FeatureRatio[(int32)ERockFeature::Stone4Feature] = 0.3f;
+    RockFeatureInfo.SpriteArr = GetAllSpritesFromFolder("/Game/Sprite/Map/Feature/Rock");
+
+    BuildingFeatureInfo.FeatureRatio.SetNum(GetEnumLength(StaticEnum<EBuildingFeature>()));
+    BuildingFeatureInfo.FeatureRatio[(int32)EBuildingFeature::NoneFeature] = 1.3f;
+    BuildingFeatureInfo.FeatureRatio[(int32)EBuildingFeature::House0Feature] = 0.3f;
+    BuildingFeatureInfo.FeatureRatio[(int32)EBuildingFeature::House1Feature] = 0.3f;
+    BuildingFeatureInfo.FeatureRatio[(int32)EBuildingFeature::House2Feature] = 0.3f;
+    BuildingFeatureInfo.FeatureRatio[(int32)EBuildingFeature::House3Feature] = 0.3f;
+    BuildingFeatureInfo.FeatureRatio[(int32)EBuildingFeature::House4Feature] = 0.3f;
+    BuildingFeatureInfo.FeatureRatio[(int32)EBuildingFeature::House5Feature] = 0.3f;
+    BuildingFeatureInfo.FeatureRatio[(int32)EBuildingFeature::House6Feature] = 0.3f;
+    BuildingFeatureInfo.SpriteArr = GetAllSpritesFromFolder("/Game/Sprite/Map/Feature/Building");
+
+    CarFeatureInfo.FeatureRatio.SetNum(GetEnumLength(StaticEnum<ECarFeature>()));
+    CarFeatureInfo.FeatureRatio[(int32)ECarFeature::NoneFeature] = 2.3f;
+    CarFeatureInfo.FeatureRatio[(int32)ECarFeature::Car0Feature] = 0.3f;
+    CarFeatureInfo.FeatureRatio[(int32)ECarFeature::Car1Feature] = 0.3f;
+    CarFeatureInfo.SpriteArr = GetAllSpritesFromFolder("/Game/Sprite/Map/Feature/Car");
+
+    LightFeatureInfo.FeatureRatio.SetNum(GetEnumLength(StaticEnum<ELightFeature>()));
+    LightFeatureInfo.FeatureRatio[(int32)ELightFeature::NoneFeature] = 2.3f;
+    LightFeatureInfo.FeatureRatio[(int32)ELightFeature::ShortLightFeature] = 0.3f;
+    LightFeatureInfo.FeatureRatio[(int32)ELightFeature::MiddleLightFeature] = 0.3f;
+    LightFeatureInfo.FeatureRatio[(int32)ELightFeature::LongLightFeature] = 0.3f;
+    LightFeatureInfo.SpriteArr = GetAllSpritesFromFolder("/Game/Sprite/Map/Feature/Light");
+
+
+    // Legacy
     FieldInfoArr[(int32)EFieldType::WatersideField].FeatureRatio.SetNum(GetEnumLength(StaticEnum<EWaterSideFeature>()));
     FieldInfoArr[(int32)EFieldType::WatersideField].FeatureRatio[(int32)EWaterSideFeature::NoneFeature] = 0.3f;
     FieldInfoArr[(int32)EFieldType::WatersideField].FeatureRatio[(int32)EWaterSideFeature::Weed0Feature] = 0.1f;
     FieldInfoArr[(int32)EFieldType::WatersideField].FeatureRatio[(int32)EWaterSideFeature::Weed1Feature] = 0.1f;
-     
+
     FieldInfoArr[(int32)EFieldType::BasicField].FeatureRatio.SetNum(GetEnumLength(StaticEnum<EBasicFeature>()));
     FieldInfoArr[(int32)EFieldType::BasicField].FeatureRatio[(int32)EBasicFeature::NoneFeature] = 0.5f;
     FieldInfoArr[(int32)EFieldType::BasicField].FeatureRatio[(int32)EBasicFeature::Grass0Feature] = 0.1f;
@@ -259,61 +303,65 @@ void ACCTileMapActor::CreatHill(int32 Column, int32 Row, int32 StairLength)
 
 void ACCTileMapActor::CreatWaterSide(int32 Column, int32 Row)
 {
-    int32 LengthOfWaterSide = FMath::RandRange(FieldInfoArr[(int32)EFieldType::WatersideField].MinLenght, FieldInfoArr[(int32)EFieldType::WatersideField].MaxLength);
-    if (CheckAllEmpty(Column, Row, LengthOfWaterSide) == false)
+    int32 LengthOfField = FMath::RandRange(FieldInfoArr[(int32)EFieldType::WatersideField].MinLenght, FieldInfoArr[(int32)EFieldType::WatersideField].MaxLength);
+    if (CheckAllEmpty(Column, Row, LengthOfField) == false)
     {
         SetTileIfPossible(FieldTileMapComponent, Column, Row, 0, TileInfoArr[(int32)ETileType::Basic]);
         return;
     }
     SetTileIfPossible(FieldTileMapComponent, Column, Row, 0, TileInfoArr[(int32)ETileType::WatersideLeft]);
-    for (int32 i = Column + 1; i < Column + LengthOfWaterSide - 1; i++)
+    for (int32 i = Column + 1; i < Column + LengthOfField - 1; i++)
     {
         SetTileIfPossible(FieldTileMapComponent, i, Row, 0, TileInfoArr[(int32)ETileType::Waterside]);
     }
-    SetTileIfPossible(FieldTileMapComponent, Column + LengthOfWaterSide - 1, Row, 0, TileInfoArr[(int32)ETileType::WatersideRight]);
+    SetTileIfPossible(FieldTileMapComponent, Column + LengthOfField - 1, Row, 0, TileInfoArr[(int32)ETileType::WatersideRight]);
 
-    PlaceSpritesOnTileMap(FieldTileMapComponent->TileMap, FVector2D(Column, Row), LengthOfWaterSide, WaterSideSpriteArr, FieldInfoArr[(int32)EFieldType::WatersideField].FeatureRatio, true);
+    //PlaceSpritesOnTileMap(FieldTileMapComponent->TileMap, FVector2D(Column, Row), LengthOfField, WaterSideSpriteArr, FieldInfoArr[(int32)EFieldType::WatersideField].FeatureRatio, true);
+    PlaceSpritesOnTileMap(FieldTileMapComponent->TileMap, FVector2D(Column, Row), LengthOfField, WeedFeatureInfo.SpriteArr, WeedFeatureInfo.FeatureRatio, true);
+
 }
 
 void ACCTileMapActor::CreateCave(int32 Column, int32 Row)
 {
-    int32 LengthOfWaterSide = FMath::RandRange(FieldInfoArr[(int32)EFieldType::CaveField].MinLenght, FieldInfoArr[(int32)EFieldType::CaveField].MaxLength);
-    if (CheckAllEmpty(Column, Row, LengthOfWaterSide) == false)
+    int32 LengthOfField = FMath::RandRange(FieldInfoArr[(int32)EFieldType::CaveField].MinLenght, FieldInfoArr[(int32)EFieldType::CaveField].MaxLength);
+    if (CheckAllEmpty(Column, Row, LengthOfField) == false)
     {
         SetTileIfPossible(FieldTileMapComponent, Column, Row, 0, TileInfoArr[(int32)ETileType::Basic]);
         return;
     }
 
     SetTileIfPossible(FieldTileMapComponent, Column, Row, 0, TileInfoArr[(int32)ETileType::CaveLeft]);
-    for (int32 i = Column + 1; i < Column + LengthOfWaterSide - 1; i++)
+    for (int32 i = Column + 1; i < Column + LengthOfField - 1; i++)
     {
         SetTileIfPossible(FieldTileMapComponent, i, Row, 0, TileInfoArr[(int32)ETileType::Cave]);
     }
-    SetTileIfPossible(FieldTileMapComponent, Column + LengthOfWaterSide - 1, Row, 0, TileInfoArr[(int32)ETileType::CaveRight]);
+    SetTileIfPossible(FieldTileMapComponent, Column + LengthOfField - 1, Row, 0, TileInfoArr[(int32)ETileType::CaveRight]);
 
-    PlaceSpritesOnTileMap(FieldTileMapComponent->TileMap, FVector2D(Column, Row), LengthOfWaterSide, CaveSpriteArr, FieldInfoArr[(int32)EFieldType::CaveField].FeatureRatio, true);
+    PlaceSpritesOnTileMap(FieldTileMapComponent->TileMap, FVector2D(Column, Row), LengthOfField, RockFeatureInfo.SpriteArr, RockFeatureInfo.FeatureRatio, true);
 }
 
 void ACCTileMapActor::CreateAsphalt(int32 Column, int32 Row)
 {
-    int32 LengthOfWaterSide = FMath::RandRange(FieldInfoArr[(int32)EFieldType::AsphaltField].MinLenght, FieldInfoArr[(int32)EFieldType::AsphaltField].MaxLength);
-    if (CheckAllEmpty(Column, Row, LengthOfWaterSide) == false)
+    int32 LengthOfField = FMath::RandRange(FieldInfoArr[(int32)EFieldType::AsphaltField].MinLenght, FieldInfoArr[(int32)EFieldType::AsphaltField].MaxLength);
+    if (CheckAllEmpty(Column, Row, LengthOfField) == false)
     {
         SetTileIfPossible(FieldTileMapComponent, Column, Row, 0, TileInfoArr[(int32)ETileType::Basic]);
         return;
     }
 
     SetTileIfPossible(FieldTileMapComponent, Column, Row, 0, TileInfoArr[(int32)ETileType::AsphaltLeft]);
-    for (int32 i = Column + 1; i < Column + LengthOfWaterSide - 1; i++)
+    for (int32 i = Column + 1; i < Column + LengthOfField - 1; i++)
     {
         SetTileIfPossible(FieldTileMapComponent, i, Row, 0, TileInfoArr[(int32)ETileType::Asphalt]);
     }
-    SetTileIfPossible(FieldTileMapComponent, Column + LengthOfWaterSide - 1, Row, 0, TileInfoArr[(int32)ETileType::AsphaltRight]);
+    SetTileIfPossible(FieldTileMapComponent, Column + LengthOfField - 1, Row, 0, TileInfoArr[(int32)ETileType::AsphaltRight]);
 
-    PlaceSpritesOnTileMap(FieldTileMapComponent->TileMap, FVector2D(Column, Row), LengthOfWaterSide, AsphaltSpriteArr, FieldInfoArr[(int32)EFieldType::AsphaltField].FeatureRatio, true);
+    PlaceSpritesOnTileMap(FieldTileMapComponent->TileMap, FVector2D(Column, Row), LengthOfField, BuildingFeatureInfo.SpriteArr, BuildingFeatureInfo.FeatureRatio, -1.0, false, true);
+    PlaceSpritesOnTileMap(FieldTileMapComponent->TileMap, FVector2D(Column, Row), LengthOfField, CarFeatureInfo.SpriteArr, CarFeatureInfo.FeatureRatio, -0.5, true);
+    PlaceSpritesOnTileMap(FieldTileMapComponent->TileMap, FVector2D(Column, Row), LengthOfField, LightFeatureInfo.SpriteArr, LightFeatureInfo.FeatureRatio, 0.0, true);
 }
 
-void ACCTileMapActor::PlaceSpritesOnTileMap(TObjectPtr<UPaperTileMap> TileMap, FVector2D StartingTile, int32 OffsetTiles, TArray<TObjectPtr<UPaperSprite>> SpriteToPlace, TArray<float> RatioArr, bool bAllowOverlap, bool bAddToCollisionTree)
+void ACCTileMapActor::PlaceSpritesOnTileMap(TObjectPtr<UPaperTileMap> TileMap, FVector2D StartingTile, int32 OffsetTiles, TArray<TObjectPtr<UPaperSprite>> SpriteToPlace, TArray<float> RatioArr, float YPos, bool bAllowOverlap, bool bAddToCollisionTree)
 {
     OffsetTiles--;
 
@@ -328,7 +376,7 @@ void ACCTileMapActor::PlaceSpritesOnTileMap(TObjectPtr<UPaperTileMap> TileMap, F
     if (OffsetTiles * TileSize.X < TileMap->TileWidth * TileMapWeidth - StartLocalPos.X)
         EndLocalPos = StartLocalPos + FVector2D(OffsetTiles * TileSize.X, 0);
     else
-        EndLocalPos = StartLocalPos + FVector2D(TileMap->TileWidth * TileMapWeidth - StartLocalPos.X, 0);
+        EndLocalPos = StartLocalPos + FVector2D(TileMap->TileWidth * (TileMapWeidth - 1) - StartLocalPos.X, 0);
 
     FTransform ActorTransform = GetActorTransform();
     FVector StartWorldPos = ActorTransform.TransformPosition(FVector(StartLocalPos, 0.0f));
@@ -340,7 +388,7 @@ void ACCTileMapActor::PlaceSpritesOnTileMap(TObjectPtr<UPaperTileMap> TileMap, F
         if (Index != 0)
         {
             Index--;
-            FVector WorldPos(i, 0.0f, -StartWorldPos.Y + TileSize.Y + (SpriteToPlace[Index]->GetSourceSize().Y - 512) / 2);
+            FVector WorldPos(i, YPos, -StartWorldPos.Y + TileSize.Y + (SpriteToPlace[Index]->GetSourceSize().Y - 512) / 2);
             FBox2D BoxForSprite(FVector2D(WorldPos.X, WorldPos.Z), FVector2D(WorldPos.X + SpriteToPlace[Index]->GetSourceSize().X, WorldPos.Z + SpriteToPlace[Index]->GetSourceSize().Y));
 
             if (bAllowOverlap || !RootNode->IsColliding(BoxForSprite))
@@ -391,10 +439,12 @@ bool ACCTileMapActor::CheckAllEmpty(int32 Column, int32 Row, int32 Length)
 
     return true;
 }
+
 int32 ACCTileMapActor::GetEnumLength(TObjectPtr<UEnum> TargetEnum)
 {
     return TargetEnum->NumEnums() - 1;
 }
+
 void ACCTileMapActor::SetTileIfPossible(TObjectPtr<UPaperTileMapComponent> TileMapComponent, int32 Column, int32 Row, int32 Layer, FPaperTileInfo TileInfo, bool bEmptyOnly)
 {
     switch (Layer)
@@ -412,5 +462,30 @@ void ACCTileMapActor::SetTileIfPossible(TObjectPtr<UPaperTileMapComponent> TileM
     }
 }
 
+TArray<UPaperSprite*> ACCTileMapActor::GetAllSpritesFromFolder(const FString& SpritePath)
+{
+    TArray<UPaperSprite*> Sprites;
 
+    FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
 
+    FARFilter Filter;
+    Filter.PackagePaths.Add(FName(*SpritePath));
+    Filter.ClassNames.Add(UPaperSprite::StaticClass()->GetFName());
+    Filter.bRecursivePaths = true;
+
+    TArray<FAssetData> AssetDataList;
+    AssetRegistryModule.Get().GetAssets(Filter, AssetDataList);
+
+    for (const FAssetData& AssetData : AssetDataList)
+    {
+        TObjectPtr<UObject> AssetObject = AssetData.GetAsset();
+        UPaperSprite* Sprite = Cast<UPaperSprite>(AssetObject);
+        if (Sprite)
+        {
+            Sprites.Add(Sprite);
+            UE_LOG(LogTemp, Log, TEXT("Found Sprite: %s"), *Sprite->GetName());
+        }
+    }
+
+    return Sprites;
+}
