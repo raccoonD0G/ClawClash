@@ -36,6 +36,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	EPlayerState CurrentState;
 
+
+// Material Section
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sprite")
+	TObjectPtr<class UMaterialInterface> DefaultSpriteMaterial;
+
 // Camera Section
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))

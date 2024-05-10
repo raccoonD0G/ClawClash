@@ -32,23 +32,29 @@ ACCPaperPlayer::ACCPaperPlayer()
 	GetCharacterMovement()->GravityScale = 8.0f; 
 	GetCharacterMovement()->MaxAcceleration = 10000;
 	GetCharacterMovement()->BrakingFrictionFactor = 2.0f;
+	GetCharacterMovement()->SetPlaneConstraintAxisSetting(EPlaneConstraintAxisSetting::Y);
+	GetCharacterMovement()->bConstrainToPlane = true;
+	GetCharacterMovement()->SetPlaneConstraintNormal(FVector(0.0f, 1.0f, 0.0f));
 
 	// Capsule
 	GetCapsuleComponent()->SetCapsuleRadius(200.0f);
 	GetCapsuleComponent()->SetCapsuleHalfHeight(200.0f);
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Pawn"));
+	GetCapsuleComponent()->BodyInstance.bLockYTranslation = true;
 
 	// Camera
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 5000.0f;
+	CameraBoom->TargetArmLength = 7000.0f;
 	CameraBoom->bUsePawnControlRotation = true;
-	CameraBoom->SocketOffset = FVector(5000.0f, 5000.0f, 0.f);
+	CameraBoom->SocketOffset = FVector(7000.0f, 7000.0f, 0.f);
 
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 	FollowCamera->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+	FollowCamera->PostProcessSettings.bOverride_MotionBlurAmount = true;
+	FollowCamera->PostProcessSettings.MotionBlurAmount = 0.0f;
 	FollowCamera->ProjectionMode = ECameraProjectionMode::Orthographic;
 	FollowCamera->OrthoWidth = 15000.0;
 
@@ -110,6 +116,9 @@ ACCPaperPlayer::ACCPaperPlayer()
 	{
 		FallingAnimation = FlipbookFallingRef.Object;
 	}
+
+	//Material
+	GetSprite()->SetMaterial(0, DefaultSpriteMaterial);
 }
 
 void ACCPaperPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -214,7 +223,7 @@ void ACCPaperPlayer::UpdateJump()
 	int32 CurrentFrame = PlayerFlipbook->GetPlaybackPositionInFrames();
 	if (CurrentFrame == 3 && ShouldJump == true)
 	{
-		Jump();
+		if (GetCharacterMovement()->IsFalling() == false) Jump();
 		ShouldJump = false;
 	}
 	else if (CurrentFrame > 3)

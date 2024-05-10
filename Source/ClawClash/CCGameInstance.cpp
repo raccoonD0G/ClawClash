@@ -4,6 +4,7 @@
 #include "CCGameInstance.h"
 #include "CCTimerWidget.h"
 #include "Blueprint/UserWidget.h"
+#include "GameFramework/GameUserSettings.h"
 
 UCCGameInstance::UCCGameInstance()
 {
@@ -21,6 +22,10 @@ void UCCGameInstance::OnStart()
 
     InitializeUI();
     StartGameTimer();
+
+    UGameUserSettings* UserSettings = GEngine->GetGameUserSettings();
+    UserSettings->SetScreenResolution(FIntPoint(1920, 1200));
+    UserSettings->ApplySettings(true);
 }
 
 void UCCGameInstance::InitializeUI()
