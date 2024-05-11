@@ -279,7 +279,7 @@ void ACCTileMapActor::CreateFieldByType(EFieldType CurrentType, int32 Column, in
 void ACCTileMapActor::CreatBasic(int32 Column, int32 Row)
 {
     SetTileIfPossible(FieldTileMapComponent, Column, Row, 0, TileInfoArr[(int32)EFieldType::BasicField]);
-    PlaceSpritesOnTileMap(FieldTileMapComponent->TileMap, FVector2D(Column, Row), 1, 0.5, GrassFeatureInfo.SpriteArr, GrassFeatureInfo.FeatureRatio, 1.0, true);
+    PlaceSpritesOnTileMap(FieldTileMapComponent->TileMap, FVector2D(Column, Row), 1, 0.5, GrassFeatureInfo.SpriteArr, GrassFeatureInfo.FeatureRatio, 51.0, true);
     PlaceSpritesOnTileMap(FieldTileMapComponent->TileMap, FVector2D(Column, Row), 1, 0.2, PlantFeatureInfo.SpriteArr, PlantFeatureInfo.FeatureRatio, 2.0, true);
 }
 

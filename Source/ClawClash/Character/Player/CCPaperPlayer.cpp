@@ -56,7 +56,7 @@ ACCPaperPlayer::ACCPaperPlayer()
 	FollowCamera->PostProcessSettings.bOverride_MotionBlurAmount = true;
 	FollowCamera->PostProcessSettings.MotionBlurAmount = 0.0f;
 	FollowCamera->ProjectionMode = ECameraProjectionMode::Orthographic;
-	FollowCamera->OrthoWidth = 15000.0;
+	FollowCamera->OrthoWidth = 12000.0;
 
 	// Input
 	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionJumpRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/InputAction/IA_Jump.IA_Jump'"));
