@@ -7,6 +7,8 @@
 #include "ClawClash/TileMap/CCStageMap.h"
 #include "CCTileMapActor.generated.h"
 
+class UPaperTileMap;
+
 USTRUCT()
 struct FCCFieldTileSet
 {
@@ -69,6 +71,12 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TileMap")
     TObjectPtr<class UPaperTileSet> FieldTileSet;
 
+    UPROPERTY()
+    TMap<EFieldType, FCCFieldTileSet> TileSetPerFieldDic;
+
+    UPROPERTY()
+    TMap<ETileType, FPaperTileInfo> TileInfoPerTileDic;
+
     UFUNCTION()
     void CreateFieldByType(EFieldType CurrentType, int32 Column, int32 Row, int32 Length);
 
@@ -95,12 +103,7 @@ protected:
     UPROPERTY()
     TObjectPtr<class UCCBoxQuadTreeNode> RootNode;
 
-    void PlaceSpritesOnTileMap(TObjectPtr<class UPaperTileMap> UPaperTileMap, FVector2D StartingTile, int32 OffsetTiles, float TileInterval, const TArray<struct FCCFeatureInfo>& FeatureInfoArr, bool bIsBeforePlayer, bool bAllowOverlap, bool bAddToCollisionTree = true);
-    
-    UPROPERTY()
-    TMap<EFieldType, FCCFieldTileSet> TileSetPerFieldDic;
-
-    UPROPERTY()
-    TMap<ETileType, FPaperTileInfo> TileInfoPerTileDic;
+    UFUNCTION()
+    void PlaceSpritesOnTileMap(UPaperTileMap* UPaperTileMap, FVector2D StartingTile, int32 OffsetTiles, float TileInterval, const TArray<struct FCCFeatureInfo>& FeatureInfoArr, bool bIsBeforePlayer, bool bAllowOverlap, bool bAddToCollisionTree = true);
 };
 

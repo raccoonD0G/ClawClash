@@ -234,7 +234,7 @@ void ACCTileMapActor::CreateAsphalt(int32 Column, int32 Row, int32 Length)
     PlaceSpritesOnTileMap(FieldTileMapComponent->TileMap, FVector2D(Column, Row), Length, 0.5, UCCManagers::GetInstance()->GetStageMapManager()->FeatureInfoMap.Find(EFeatureType::LightFeature)->FeatureInfoArr, true, true);
 }
 
-void ACCTileMapActor::PlaceSpritesOnTileMap(TObjectPtr<UPaperTileMap> TileMap, FVector2D StartingTile, int32 OffsetTiles, float TileInterval, const TArray<FCCFeatureInfo>& FeatureInfoArr, bool bIsBeforePlayer, bool bAllowOverlap, bool bAddToCollisionTree)
+void ACCTileMapActor::PlaceSpritesOnTileMap(UPaperTileMap* TileMap, FVector2D StartingTile, int32 OffsetTiles, float TileInterval, const TArray<FCCFeatureInfo>& FeatureInfoArr, bool bIsBeforePlayer, bool bAllowOverlap, bool bAddToCollisionTree)
 {
     OffsetTiles--;
 
