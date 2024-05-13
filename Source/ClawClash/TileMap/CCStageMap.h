@@ -28,8 +28,7 @@ enum class ETileType : uint8
 UENUM(BlueprintType)
 enum class EFieldType : uint8
 {
-    EmptyField UMETA(DisplayName = "Empty"),
-    BasicField UMETA(DisplayName = "Basic"),
+    NoneField  UMETA(DisplayName = "NoneField"),
     WatersideField UMETA(DisplayName = "Waterside"),
     AsphaltField UMETA(DisplayName = "Asphalt"),
     CaveField UMETA(DisplayName = "Cave"),
@@ -56,6 +55,20 @@ enum class ECarFeature : uint8
     NoneFeature UMETA(DisplayName = "None"),
     Car0Feature UMETA(DisplayName = "Car0"),
     Car1Feature UMETA(DisplayName = "Car1"),
+};
+
+UENUM(BlueprintType)
+enum class EFeatureType : uint8
+{
+    BuildingFeature UMETA(DisplayName = "BuildingFeature"),
+    CarFeature UMETA(DisplayName = "CarFeature"),
+    WeedFeature UMETA(DisplayName = "WeedFeature"),
+    LightFeature UMETA(DisplayName = "LightFeature"),
+    RockFeature UMETA(DisplayName = "RockFeature"),
+    StoneFeature UMETA(DisplayName = "StoneFeature"),
+    PlantFeature UMETA(DisplayName = "PlantFeature"),
+    GrassFeature UMETA(DisplayName = "GrassFeature"),
+    WaterFeature UMETA(DisplayName = "WaterFeature"),
 };
 
 UENUM(BlueprintType)

@@ -4,8 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+
 #include "CCGameInstance.generated.h"
 
+
+class UCCStageMapManager;
 /**
  * 
  */
@@ -16,8 +19,10 @@ class CLAWCLASH_API UCCGameInstance : public UGameInstance
 	
 public:
     UCCGameInstance();
+
     virtual void Init() override;
     virtual void OnStart() override;
+    virtual void Shutdown() override;
 
     UFUNCTION(BlueprintCallable, Category = "UI Management")
     void InitializeUI();

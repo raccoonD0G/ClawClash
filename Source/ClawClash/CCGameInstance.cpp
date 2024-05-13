@@ -2,9 +2,13 @@
 
 
 #include "CCGameInstance.h"
+#include "GameFramework/GameUserSettings.h"
+
+#include "ClawClash/Managers/CCManagers.h"
+
 #include "CCTimerWidget.h"
 #include "Blueprint/UserWidget.h"
-#include "GameFramework/GameUserSettings.h"
+
 
 UCCGameInstance::UCCGameInstance()
 {
@@ -20,12 +24,25 @@ void UCCGameInstance::OnStart()
 {
     Super::OnStart();
 
+    // Initialize
     InitializeUI();
+
     StartGameTimer();
 
     UGameUserSettings* UserSettings = GEngine->GetGameUserSettings();
     UserSettings->SetScreenResolution(FIntPoint(1920, 1200));
     UserSettings->ApplySettings(true);
+}
+
+void UCCGameInstance::Shutdown()
+{
+    if (UCCManagers::GetInstance())
+    {
+        UCCManagers::GetInstance()->RemoveFromRoot();
+        UCCManagers::GetInstance()->SetInstanceNull();
+    }
+
+    Super::Shutdown();
 }
 
 void UCCGameInstance::InitializeUI()
