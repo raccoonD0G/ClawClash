@@ -82,6 +82,9 @@ protected:
 
     UFUNCTION()
     bool CreatNoneBasicFieldTile(EFieldType CurrentType, int32 Column, int32 Row, int32 LengthOfField);
+
+    UFUNCTION()
+    void CreateEmpty(int32 Column, int32 Row, int32 Length);
     UFUNCTION()
     void CreateBasic(int32 Column, int32 Row, int32 Length);
     UFUNCTION()

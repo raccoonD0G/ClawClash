@@ -28,5 +28,6 @@ public:
 	void AddStartPos(int32 AddedNum);
 	int32 GetLength();
 	EFieldType GetFieldType();
+	void SetStartPos(int32 NewStartPos);
 	void Init(int32 NewStartPos, int32 NewLength, EFieldType NewFieldType);
 };

@@ -6,8 +6,6 @@
 #include "UObject/NoExportTypes.h"
 #include "CCFloor.generated.h"
 
-class UCCField;
-
 /**
  * 
  */
@@ -18,10 +16,7 @@ class CLAWCLASH_API UCCFloor : public UObject
 	
 public:
 	void Init(int32 FloorLength, bool bIsBottomOrNot);
-	void CreateNecessaryHill();
 	void DividePlatform();
-	int32 GetNecessaryHillLength();
-	int32 GetNecessaryHillStartPos();
 	bool GetIsBottom();
 
 	UPROPERTY()
@@ -29,7 +24,7 @@ public:
 	
 protected:
 	UPROPERTY()
-	TObjectPtr<UCCField> NecessaryHill;
+	TArray<TObjectPtr<class UCCField>> EmptyField;
 
 	bool bIsBottom;
 	int32 Length;

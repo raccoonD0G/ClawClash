@@ -22,6 +22,7 @@ enum class ETileType : uint8
     Hill UMETA(DisplayName = "Hill"),
     HillRight UMETA(DisplayName = "Hill"),
     HillSpace UMETA(DisplayName = "HillSpace"),
+    None UMETA(DisplayName = "None"),
     
 };
 

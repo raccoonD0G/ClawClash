@@ -31,6 +31,11 @@ EFieldType UCCField::GetFieldType()
 	return FieldType;
 }
 
+void UCCField::SetStartPos(int32 NewStartPos)
+{
+	StartPos = NewStartPos;
+}
+
 void UCCField::Init(int32 NewStartPos, int32 NewLength, EFieldType NewFieldType)
 {
 	FieldType = NewFieldType;

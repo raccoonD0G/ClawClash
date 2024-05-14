@@ -17,46 +17,22 @@ void UCCFloor::Init(int32 FloorLength, bool bIsBottomOrNot)
 {
 	Length = FloorLength;
 	bIsBottom = bIsBottomOrNot;
-	if (bIsBottom == false) CreateNecessaryHill();
 	DividePlatform();
-}
-
-void UCCFloor::CreateNecessaryHill()
-{
-	NecessaryHill = NewObject<UCCField>(this);
-	FCCFieldInfo* HillInfo = UCCManagers::GetInstance()->GetStageMapManager()->FieldInfoMap.Find(EFieldType::HillField);
-	int32 LengthOfHill = FMath::RandRange(HillInfo->MinLength, HillInfo->MaxLength);
-	int32 StartPos = FMath::RandRange(0, Length - LengthOfHill);
-	NecessaryHill->Init(StartPos, LengthOfHill, EFieldType::HillField);
 }
 
 void UCCFloor::DividePlatform()
 {
-	if (bIsBottom == false)
+	int32 LastFieldEnd = 0;
+	for (int32 i = 0; i < EmptyField.Num(); i++)
 	{
-		TObjectPtr<UCCPlatform> BeforeHill = NewObject<UCCPlatform>();
-		BeforeHill->Init(0, NecessaryHill->GetStartPos() + 1, false);
-		TObjectPtr<UCCPlatform> AfterHill = NewObject<UCCPlatform>();
-		AfterHill->Init(NecessaryHill->GetStartPos() + NecessaryHill->GetLength() + 1, Length - NecessaryHill->GetStartPos() - NecessaryHill->GetLength(), false);
-		PlatformArr.Add(BeforeHill);
-		PlatformArr.Add(AfterHill);
+		TObjectPtr<UCCPlatform> NewPlatform = NewObject<UCCPlatform>(this);
+		NewPlatform->Init(LastFieldEnd + 1, EmptyField[i]->GetStartPos() - LastFieldEnd, bIsBottom);
+		PlatformArr.Add(NewPlatform);
+		LastFieldEnd = EmptyField[i]->GetStartPos() + EmptyField[i]->GetLength();
 	}
-	else
-	{
-		TObjectPtr<UCCPlatform> SinglePlatform = NewObject<UCCPlatform>();
-		SinglePlatform->Init(0, Length, true);
-		PlatformArr.Add(SinglePlatform);
-	}
-}
-
-int32 UCCFloor::GetNecessaryHillLength()
-{
-	return NecessaryHill->GetLength();
-}
-
-int32 UCCFloor::GetNecessaryHillStartPos()
-{
-	return NecessaryHill->GetStartPos();
+	TObjectPtr<UCCPlatform> NewPlatform = NewObject<UCCPlatform>(this);
+	NewPlatform->Init(LastFieldEnd, Length - LastFieldEnd, bIsBottom);
+	PlatformArr.Add(NewPlatform);
 }
 
 bool UCCFloor::GetIsBottom()

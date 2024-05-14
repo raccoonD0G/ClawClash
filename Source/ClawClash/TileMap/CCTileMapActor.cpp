@@ -105,19 +105,13 @@ void ACCTileMapActor::BeginPlay()
         {
             for (int32 Column = 0; Column < UCCManagers::GetInstance()->GetStageMapManager()->TileMapWidth; Column++)
             {
-                SetTileIfPossible(FieldTileMapComponent, Column, Row, 0, *(TileInfoPerTileDic.Find(ETileType::Empty)), false);
+                SetTileIfPossible(FieldTileMapComponent, Column, Row, 0, *(TileInfoPerTileDic.Find(ETileType::None)), false);
             }
         }
 
-        int FloorNum = 0;
+        int32 FloorNum = 0;
         for (int32 Row = (UCCManagers::GetInstance()->GetStageMapManager()->TileMapHeight / UCCManagers::GetInstance()->GetStageMapManager()->NumOfFloor) - 1; Row <= UCCManagers::GetInstance()->GetStageMapManager()->TileMapHeight; Row += UCCManagers::GetInstance()->GetStageMapManager()->TileMapHeight / UCCManagers::GetInstance()->GetStageMapManager()->NumOfFloor)
         {
-            if (UCCManagers::GetInstance()->GetStageMapManager()->FloorArr[FloorNum]->GetIsBottom() == false)
-            {
-                int32 hillStartPos = UCCManagers::GetInstance()->GetStageMapManager()->FloorArr[FloorNum]->GetNecessaryHillStartPos();
-                int32 hillLength = UCCManagers::GetInstance()->GetStageMapManager()->FloorArr[FloorNum]->GetNecessaryHillLength();
-                CreateFieldByType(EFieldType::HillField, hillStartPos, Row, hillLength);
-            }
             for (TObjectPtr<UCCPlatform> Platform : UCCManagers::GetInstance()->GetStageMapManager()->FloorArr[FloorNum]->PlatformArr)
             {
                 for (TObjectPtr<UCCField> Field : Platform->FieldsInPlatformArr)
@@ -129,11 +123,23 @@ void ACCTileMapActor::BeginPlay()
             FloorNum++;
         }
 
+        FloorNum = 0;
+        for (int32 Row = (UCCManagers::GetInstance()->GetStageMapManager()->TileMapHeight / UCCManagers::GetInstance()->GetStageMapManager()->NumOfFloor) - 1; Row <= UCCManagers::GetInstance()->GetStageMapManager()->TileMapHeight; Row += UCCManagers::GetInstance()->GetStageMapManager()->TileMapHeight / UCCManagers::GetInstance()->GetStageMapManager()->NumOfFloor)
+        {
+            for (int32 i = 0; i < UCCManagers::GetInstance()->GetStageMapManager()->FloorArr[FloorNum]->PlatformArr.Num() - 1; i++)
+            {
+                TObjectPtr<UCCPlatform> Platform = UCCManagers::GetInstance()->GetStageMapManager()->FloorArr[FloorNum]->PlatformArr[i];
+                TObjectPtr<UCCPlatform> NextPlatform = UCCManagers::GetInstance()->GetStageMapManager()->FloorArr[FloorNum]->PlatformArr[i + 1];
+                CreateEmpty(Platform->GetStartPos() + Platform->GetLength(), Row, NextPlatform->GetStartPos() - Platform->GetStartPos() + Platform->GetLength());
+            }
+            FloorNum++;
+        }
+
         for (int32 Row = (UCCManagers::GetInstance()->GetStageMapManager()->TileMapHeight / UCCManagers::GetInstance()->GetStageMapManager()->NumOfFloor) - 1; Row <= UCCManagers::GetInstance()->GetStageMapManager()->TileMapHeight; Row += UCCManagers::GetInstance()->GetStageMapManager()->TileMapHeight / UCCManagers::GetInstance()->GetStageMapManager()->NumOfFloor)
         {
             for (int32 Column = 0; Column < UCCManagers::GetInstance()->GetStageMapManager()->TileMapWidth; Column++)
             {   
-                if (FieldTileMapComponent->GetTile(Column, Row, 0).GetTileIndex() == (int32)ETileType::Empty)
+                if (FieldTileMapComponent->GetTile(Column, Row, 0).GetTileIndex() == (int32)ETileType::None)
                 {
                     CreateBasic(Column, Row, 1);
                 }
@@ -202,6 +208,11 @@ void ACCTileMapActor::CreatHill(int32 Column, int32 Row, int32 Length, int32 Sta
         SetTileIfPossible(FieldTileMapComponent, i, Row + (UCCManagers::GetInstance()->GetStageMapManager()->TileMapHeight / UCCManagers::GetInstance()->GetStageMapManager()->NumOfFloor) / 4 * 3, 0, TileSetPerFieldDic.Find(EFieldType::HillField)->MiddleTile);
     }
     SetTileIfPossible(FieldTileMapComponent, Column + Length - 1, Row, 0, TileSetPerFieldDic.Find(EFieldType::HillField)->RightTile);
+}
+
+void ACCTileMapActor::CreateEmpty(int32 Column, int32 Row, int32 Length)
+{
+    for (int32 i = 0; i < Length; i++) SetTileIfPossible(FieldTileMapComponent, Column + i, Row, 0, *(TileInfoPerTileDic.Find(ETileType::Empty)));
 }
 
 void ACCTileMapActor::CreateBasic(int32 Column, int32 Row, int32 Length)
@@ -340,7 +351,7 @@ void ACCTileMapActor::SetTileIfPossible(UPaperTileMapComponent* TileMapComponent
     {
     case 0:
         if (Column >= 0 && Column < TileMapComponent->TileMap->MapWidth && Row >= 0 && Row < TileMapComponent->TileMap->MapHeight)
-            if (bEmptyOnly == false || TileMapComponent->GetTile(Column, Row, 0).GetTileIndex() == (int32)ETileType::Empty)
+            if (bEmptyOnly == false || TileMapComponent->GetTile(Column, Row, 0).GetTileIndex() == (int32)ETileType::None)
             {
                 TileMapComponent->SetTile(Column, Row, 0, TileInfo);
             }

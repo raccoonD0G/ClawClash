@@ -50,38 +50,71 @@ void UCCPlatform::Init(int32 NewStartPos, int32 NewLength, bool NewIsBottom)
 void UCCPlatform::CreatFieldOnPlatform()
 {
     const TMap<EFieldType, float>& FieldRatioMap = UCCManagers::GetInstance()->GetStageMapManager()->FieldRatioMap;
-    int32 i;
-	for (i = 0; i < Length; i++)
-	{
+    int32 TotalFieldLength = 0;
+
+    if (bIsBottom == false)
+    {
+        FCCFieldInfo* FieldInfo = UCCManagers::GetInstance()->GetStageMapManager()->FieldInfoMap.Find(EFieldType::HillField);
+        int32 FieldLength = FMath::RandRange(FieldInfo->MinLength, FieldInfo->MaxLength);
+
+        UCCField* NewField = NewObject<UCCField>(this);
+        NewField->Init(0, FieldLength, EFieldType::HillField);
+        FieldsInPlatformArr.Add(NewField);
+        TotalFieldLength += FieldLength;
+    }
+
+    while (true)
+    {
         EFieldType FieldType;
         do
         {
             FieldType = GetRandomField(FieldRatioMap);
         } while (bIsBottom == true && FieldType == EFieldType::HillField);
-        
+
         FCCFieldInfo* FieldInfo = UCCManagers::GetInstance()->GetStageMapManager()->FieldInfoMap.Find(FieldType);
         int32 FieldLength = FMath::RandRange(FieldInfo->MinLength, FieldInfo->MaxLength);
-        if (i + FieldLength < Length)
+
+        if (TotalFieldLength + FieldLength < Length)
         {
             UCCField* NewField = NewObject<UCCField>(this);
-            NewField->Init(i, FieldLength, FieldType);
+            NewField->Init(0, FieldLength, FieldType);
             FieldsInPlatformArr.Add(NewField);
-            i += FieldLength;
+            TotalFieldLength += FieldLength;
         }
-        else
-        {
-            break;
-        }
-	}
-    TArray<int32> DecomposeNumArr = UCCManagers::GetInstance()->DecomposeNumberToKParts(Length - i, FieldsInPlatformArr.Num());
+        else break;
+    }
+
+    ShuffleArray(FieldsInPlatformArr);
+
+    int32 NewStartPos = 0;
+    for (int32 i = 0; i < FieldsInPlatformArr.Num(); i++)
+    {
+        FieldsInPlatformArr[i]->SetStartPos(NewStartPos);
+        NewStartPos += FieldsInPlatformArr[i]->GetLength();
+    }
+
+    TArray<int32> DecomposeNumArr = UCCManagers::GetInstance()->DecomposeNumberToKParts(Length - TotalFieldLength, FieldsInPlatformArr.Num());
     for (int32 j = 0; j < FieldsInPlatformArr.Num(); j++)
     {
         for (int32 k = j; k < FieldsInPlatformArr.Num(); k++) FieldsInPlatformArr[k]->AddStartPos(DecomposeNumArr[j]);
     }
-    return;
 }
 
 int32 UCCPlatform::GetStartPos()
 {
     return StartPos;
+}
+
+int32 UCCPlatform::GetLength()
+{
+    return Length;
+}
+
+void UCCPlatform::ShuffleArray(TArray<TObjectPtr<UCCField>>& Array)
+{
+    for (int32 Index = Array.Num() - 1; Index > 0; Index--)
+    {
+        int32 SwapIndex = FMath::RandRange(0, Index);
+        Array.Swap(Index, SwapIndex);
+    }
 }

@@ -28,7 +28,10 @@ public:
 	void Init(int32 NewStartPos, int32 NewLength, bool NewIsBottom);
 	void CreatFieldOnPlatform();
 	int32 GetStartPos();
+	int32 GetLength();
 
 	UPROPERTY()
 	TArray<TObjectPtr<class UCCField>> FieldsInPlatformArr;
+
+	void ShuffleArray(TArray<TObjectPtr<UCCField>>& Array);
 };
