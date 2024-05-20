@@ -92,5 +92,10 @@ public:
     TMap<EFeatureType, FCCFeatureInfoArrContainer> FeatureInfoMap;
 
 protected:
+    void InitFieldRatioMap();
+    void InitFieldInfoMap();
+    void InitFeatureInfoMap();
+    template <typename TEnum>
+    void AddFeatureInfo(const FString& FolderPath, TMap<EFeatureType, FCCFeatureInfoArrContainer>& FeatureInfoMap, EFeatureType FeatureType, float NoneFeatureRatio, float FeatureRatio);
     void InitStageMapInfo();
 };

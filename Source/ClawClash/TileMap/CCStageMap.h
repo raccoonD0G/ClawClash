@@ -34,6 +34,8 @@ enum class EFieldType : uint8
     AsphaltField UMETA(DisplayName = "Asphalt"),
     CaveField UMETA(DisplayName = "Cave"),
     HillField UMETA(DisplayName = "Hill"),
+    RaccoonHouseField UMETA(DisplayName = "RaccoonHouse"),
+    DogHouseField UMETA(DisplayName = "DogHouse")
 };
 
 // Feature
@@ -70,6 +72,9 @@ enum class EFeatureType : uint8
     PlantFeature UMETA(DisplayName = "PlantFeature"),
     GrassFeature UMETA(DisplayName = "GrassFeature"),
     WaterFeature UMETA(DisplayName = "WaterFeature"),
+    RatCaveFeature UMETA(DisplayName = "RatCaveFeature"),
+    RacconHouseFeature UMETA(DisplayName = "RacconHouseFeature"),
+    DogHouseFeature UMETA(DisplayName = "RacconHouseFeature"),
 };
 
 UENUM(BlueprintType)
@@ -144,5 +149,36 @@ enum class EWaterFeature : uint8
 
 };
 
+UENUM(BlueprintType)
+enum class ERatCaveFeature : uint8
+{
+    NoneFeature UMETA(DisplayName = "None"),
+    RatCave0Feature UMETA(DisplayName = "RatCave0Feature"),
+    RatCave1Feature UMETA(DisplayName = "RatCave1Feature"),
+    RatCave2Feature UMETA(DisplayName = "RatCave2Feature"),
+    RatCave3Feature UMETA(DisplayName = "RatCave3Feature"),
+    RatCave4Feature UMETA(DisplayName = "RatCave4Feature"),
+    RatCave5Feature UMETA(DisplayName = "RatCave5Feature"),
+};
 
+UENUM(BlueprintType)
+enum class ERaccooHouseFeature : uint8
+{
+    NoneFeature UMETA(DisplayName = "None"),
+    Raccoon0HouseFeature UMETA(DisplayName = "Raccoon0House"),
+    Raccoon1HouseFeature UMETA(DisplayName = "Raccoon1House"),
+    Raccoon2HouseFeature UMETA(DisplayName = "Raccoon2House"),
+    Raccoon3HouseFeature UMETA(DisplayName = "Raccoon3House"),
+    Raccoon4HouseFeature UMETA(DisplayName = "Raccoon4House"),
+    Raccoon5HouseFeature UMETA(DisplayName = "Raccoon5House"),
+};
 
+UENUM(BlueprintType)
+enum class EDogHouseFeature : uint8
+{
+    NoneFeature UMETA(DisplayName = "None"),
+    DogHouse0Feature UMETA(DisplayName = "EDogHouse0Feature"),
+    DogHouse1Feature UMETA(DisplayName = "EDogHouse1Feature"),
+    DogHouse2Feature UMETA(DisplayName = "EDogHouse2Feature"),
+    DogHouse3Feature UMETA(DisplayName = "EDogHouse3Feature"),
+};

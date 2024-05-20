@@ -95,6 +95,10 @@ protected:
     void CreateAsphalt(int32 Column, int32 Row, int32 Length);
     UFUNCTION()
     void CreateCave(int32 Column, int32 Row, int32 Length);
+    UFUNCTION()
+    void CreateRaccoonHouse(int32 Column, int32 Row, int32 Length);
+    UFUNCTION()
+    void CreateDogHouse(int32 Column, int32 Row, int32 Length);
 
     UFUNCTION()
     void SetTileIfPossible(class UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Layer, FPaperTileInfo TileToSet, bool bEmptyOnly = true);
@@ -107,6 +111,20 @@ protected:
     TObjectPtr<class UCCBoxQuadTreeNode> RootNode;
 
     UFUNCTION()
-    void PlaceSpritesOnTileMap(UPaperTileMap* UPaperTileMap, FVector2D StartingTile, int32 OffsetTiles, float TileInterval, const TArray<struct FCCFeatureInfo>& FeatureInfoArr, bool bIsBeforePlayer, bool bAllowOverlap, bool bAddToCollisionTree = true);
+    void PlaceSpritesOnTileMap(FVector2D StartingTile, int32 OffsetTiles, float TileInterval, const TArray<struct FCCFeatureInfo>& FeatureInfoArr, bool bIsBeforePlayer, bool bAllowOverlap, bool bAddToCollisionTree = true, int32 MinSpriteNum = 0, int32 MaxSpriteNum = 100);
+    UFUNCTION()
+    FVector2D GetTileSize();
+    UFUNCTION()
+    FVector2D CalculateEndLocalPos(int32 OffsetTiles, FVector2D TileSize, FVector2D StartLocalPos);
+    UFUNCTION()
+    void PlaceSpriteAtPosition(float XPos, FVector StartPos, FVector2D TileSize, float TileInterval, const TArray<FCCFeatureInfo>& FeatureInfoArr, bool bIsBeforePlayer, bool bAllowOverlap, bool bAddToCollisionTree, int32& SpriteNum, int32 MaxSpriteNum);
+    UFUNCTION()
+    float CalculateYPos(bool bIsBeforePlayer);
+    UFUNCTION()
+    FVector CalculateLocalPos(float XPos, FVector StartPos, FVector2D TileSize, UPaperSprite* FeatureSprite);
+    UFUNCTION()
+    void CreateAndAttachSpriteComponent(UPaperSprite* FeatureSprite, FVector LocalPos, bool bAddToCollisionTree, const FBox2D& BoxForSprite);
+
+
 };
 
