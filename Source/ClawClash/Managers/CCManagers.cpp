@@ -125,14 +125,27 @@ int32 UCCManagers::GetEnumLength(UEnum* TargetEnum)
 
 TArray<int32> UCCManagers::DecomposeNumberToKParts(int32 N, int32 K)
 {
-    K++;
     TArray<int32> Result;
+    Result.Init(N / K, K);
 
-    Result.Init(0, K);
+    int32 Remaining = N % K;
     for (int32& Num : Result)
     {
-        Num = FMath::RandRange(0, N);
-        N -= Num;
+        if (Remaining > 0)
+        {
+            Num += 1;
+            Remaining -= 1;
+        }
+    }
+
+    int32 Index1, Index2, Temp;
+    for (int32 i = 0; i < K * 10; ++i)
+    {
+        Index1 = FMath::RandRange(0, K - 1);
+        Index2 = FMath::RandRange(0, K - 1);
+        Temp = Result[Index1];
+        Result[Index1] = Result[Index2];
+        Result[Index2] = Temp;
     }
 
     return Result;

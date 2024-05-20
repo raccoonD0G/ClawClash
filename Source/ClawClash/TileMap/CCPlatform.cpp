@@ -93,7 +93,7 @@ void UCCPlatform::CreatFieldOnPlatform()
         NewStartPos += FieldsInPlatformArr[i]->GetLength();
     }
 
-    TArray<int32> DecomposeNumArr = UCCManagers::GetInstance()->DecomposeNumberToKParts(Length - TotalFieldLength, FieldsInPlatformArr.Num());
+    TArray<int32> DecomposeNumArr = UCCManagers::GetInstance()->DecomposeNumberToKParts(Length - TotalFieldLength, FieldsInPlatformArr.Num() + 1);
     for (int32 j = 0; j < FieldsInPlatformArr.Num(); j++)
     {
         for (int32 k = j; k < FieldsInPlatformArr.Num(); k++) FieldsInPlatformArr[k]->AddStartPos(DecomposeNumArr[j]);
