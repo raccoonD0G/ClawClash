@@ -57,6 +57,12 @@ public:
 
 protected:
 
+ // Layer Section
+public:
+    const float BackgroundY = -200;
+    const float PlayerY = 50;
+    const float FieldTileY = 50.1f;
+
 // Creat Section
 public:
     UPROPERTY()
@@ -64,7 +70,6 @@ public:
 
     void CreateStageMap();
 
-    
 // Info Section
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageMap")

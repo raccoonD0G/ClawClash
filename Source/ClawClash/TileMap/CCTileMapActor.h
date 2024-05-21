@@ -9,27 +9,6 @@
 
 class UPaperTileMap;
 
-USTRUCT()
-struct FCCFieldTileSet
-{
-    GENERATED_BODY()
- public:
-     FPaperTileInfo LeftTile;
-     FPaperTileInfo MiddleTile;
-     FPaperTileInfo RightTile;
-};
-
-USTRUCT()
-struct FCCFieldWorldInfo
-{
-    GENERATED_BODY()
-public:
-    FVector MiddlePos;
-    float LeftXPos;
-    float RightXPos;
-    EFieldType FieldType;
-};
-
 UCLASS()
 class CLAWCLASH_API ACCTileMapActor : public AActor
 {
@@ -44,12 +23,34 @@ protected:
 public:
     virtual void Tick(float DeltaTime) override;
 
+
+// Layer Section
 protected:
-    const float BackgroundY = -200;
-    const float PlayerY = 50;
-    const float FieldTileY = 50.1f;
-    float CurrentBeforePlayerFeatureY;
-    float CurrentAfterPlayerFeatureY;
+    float BackgroundY;
+    float PlayerY;
+    float FieldTileY;
+
+// Init Section
+protected:
+    void InitializeTileMap();
+    void InitializeBackground();
+    void PlaceFieldSprites();
+
+// Placer Section
+protected:
+    UPROPERTY()
+    TObjectPtr<class UCCTilePlacer> TilePlacer;
+
+    UPROPERTY()
+    TObjectPtr<class UCCSpritePlacer> SpritePlacer;
+
+// FieldTile Section
+protected:
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    TObjectPtr<class UPaperTileMapComponent> FieldTileMapComponent;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TileMap")
+    TObjectPtr<class UPaperTileSet> FieldTileSet;
 
 // Background Section
 protected:
@@ -67,82 +68,5 @@ protected:
 
     int32 LastBackgroundX;
     int32 LastBackgroundZ;
-
-// Sprite Section
-protected:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sprite")
-    TObjectPtr<class UMaterialInterface> DefaultSpriteMaterial;
-
-    UPROPERTY()
-    TArray<FVector> TreePosArr;
-
-// TileMap Section
-protected:
-    // Create Field
-    TArray<FCCFieldWorldInfo> FieldWorldInfoArr;
-
-    FVector ConvertTileToWorld(int32 Column, int32 Row) const;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-    TObjectPtr<class UPaperTileMapComponent> FieldTileMapComponent;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TileMap")
-    TObjectPtr<class UPaperTileSet> FieldTileSet;
-
-    UPROPERTY()
-    TMap<EFieldType, FCCFieldTileSet> TileSetPerFieldDic;
-
-    UPROPERTY()
-    TMap<ETileType, FPaperTileInfo> TileInfoPerTileDic;
-
-    UFUNCTION()
-    void CreateFieldByType(EFieldType CurrentType, int32 Column, int32 Row, int32 Length);
-
-    UFUNCTION()
-    bool CreatNoneBasicFieldTile(EFieldType CurrentType, int32 Column, int32 Row, int32 LengthOfField);
-
-    UFUNCTION()
-    void CreateEmpty(int32 Column, int32 Row, int32 Length);
-    UFUNCTION()
-    void CreateBasic(int32 Column, int32 Row, int32 Length);
-    UFUNCTION()
-    void CreatHill(int32 Column, int32 Row, int32 Length, int32 StairLength);
-    UFUNCTION()
-    void CreatWaterSide(int32 Column, int32 Row, int32 Length);
-    UFUNCTION()
-    void CreateAsphalt(int32 Column, int32 Row, int32 Length);
-    UFUNCTION()
-    void CreateCave(int32 Column, int32 Row, int32 Length);
-    UFUNCTION()
-    void CreateRaccoonHouse(int32 Column, int32 Row, int32 Length);
-    UFUNCTION()
-    void CreateDogHouse(int32 Column, int32 Row, int32 Length);
-
-    UFUNCTION()
-    void SetTileIfPossible(class UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Layer, FPaperTileInfo TileToSet, bool bEmptyOnly = true);
-
-    // Creat Feature
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-    TArray<TObjectPtr<class UPaperSpriteComponent>> FeatureSpriteComponentArr;
-
-    UPROPERTY()
-    TObjectPtr<class UCCBoxQuadTreeNode> RootNode;
-
-    UFUNCTION()
-    TArray<FVector> PlaceSpritesOnTileMap(FVector2D StartingTile, int32 OffsetTiles, float TileInterval, const TArray<struct FCCFeatureInfo>& FeatureInfoArr, bool bIsBeforePlayer, bool bAllowOverlap, bool bAddToCollisionTree = true, int32 MinSpriteNum = 0, int32 MaxSpriteNum = 100);
-    UFUNCTION()
-    FVector2D GetTileSize();
-    UFUNCTION()
-    FVector2D CalculateEndLocalPos(int32 OffsetTiles, FVector2D TileSize, FVector2D StartLocalPos);
-    UFUNCTION()
-    void PlaceSpriteAtPosition(float XPos, FVector StartPos, FVector2D TileSize, float TileInterval, const TArray<FCCFeatureInfo>& FeatureInfoArr, bool bIsBeforePlayer, bool bAllowOverlap, bool bAddToCollisionTree, int32& SpriteNum, int32 MaxSpriteNum, TArray<FVector>& PlacedSpritePositions);
-    UFUNCTION()
-    float CalculateYPos(bool bIsBeforePlayer);
-    UFUNCTION()
-    FVector CalculateLocalPos(float XPos, FVector StartPos, FVector2D TileSize, UPaperSprite* FeatureSprite);
-    UFUNCTION()
-    void CreateAndAttachSpriteComponent(UPaperSprite* FeatureSprite, FVector LocalPos, bool bAddToCollisionTree, const FBox2D& BoxForSprite);
-
-
 };
 

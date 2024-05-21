@@ -188,5 +188,6 @@ UENUM(BlueprintType)
 enum class ETreeFeature : uint8
 {
     NoneFeature UMETA(DisplayName = "None"),
-    Tree0Feature UMETA(DisplayName = "Tree0Feature")
+    Tree0Feature UMETA(DisplayName = "Tree0Feature"),
+    Tree1Feature UMETA(DisplayName = "Tree1Feature")
 };
