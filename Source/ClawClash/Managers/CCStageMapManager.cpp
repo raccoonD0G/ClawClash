@@ -11,6 +11,7 @@
 #include "PaperSpriteComponent.h"
 #include "PaperSprite.h"
 
+
 UCCStageMapManager::UCCStageMapManager()
 {
 }
@@ -102,6 +103,7 @@ void UCCStageMapManager::InitFeatureInfoMap()
     AddFeatureInfo<ERatCaveFeature>("/Game/Sprite/Map/Feature/RatCave", FeatureInfoMap, EFeatureType::RatCaveFeature, 1.0f, 0.3f);
     AddFeatureInfo<ERaccooHouseFeature>("/Game/Sprite/Map/Feature/RaccoonHouse", FeatureInfoMap, EFeatureType::RacconHouseFeature, 1.0f, 0.001f);
     AddFeatureInfo<EDogHouseFeature>("/Game/Sprite/Map/Feature/DogHouse", FeatureInfoMap, EFeatureType::DogHouseFeature, 1.0f, 0.001f);
+    AddFeatureInfo<ETreeFeature>("/Game/Sprite/Map/Feature/Tree", FeatureInfoMap, EFeatureType::TreeFeature, 1.0f, 1.0f);
 }
 
 template <typename TEnum>

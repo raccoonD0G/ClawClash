@@ -126,10 +126,10 @@ void ACCTileMapActor::BeginPlay()
         {
             for (TObjectPtr<UCCPlatform> Platform : UCCManagers::GetInstance()->GetStageMapManager()->FloorArr[FloorNum]->PlatformArr)
             {
+                //PlaceSpritesOnTileMap(FVector2D(Platform->GetStartPos(), Row), Platform->GetLength(), 0.5, UCCManagers::GetInstance()->GetStageMapManager()->FeatureInfoMap.Find(EFeatureType::TreeFeature)->FeatureInfoArr, true, true, false, 4, 5);
                 for (TObjectPtr<UCCField> Field : Platform->FieldsInPlatformArr)
                 {
                     CreateFieldByType(Field->GetFieldType(), Platform->GetStartPos() + Field->GetStartPos(), Row, Field->GetLength());
-                    
                 }
             }
             FloorNum++;
@@ -157,6 +157,8 @@ void ACCTileMapActor::BeginPlay()
                 }
             }
         }
+
+
     }
 
     FieldTileMapComponent->RebuildCollision();
@@ -197,9 +199,10 @@ void ACCTileMapActor::CreateFieldByType(EFieldType CurrentType, int32 Column, in
     case EFieldType::DogHouseField:
         CreateDogHouse(Column, Row, Length);
         break;
+    default:
+        break;
     }
 }
-
 
 void ACCTileMapActor::CreatHill(int32 Column, int32 Row, int32 Length, int32 StairLength)
 {
@@ -233,9 +236,25 @@ void ACCTileMapActor::CreateEmpty(int32 Column, int32 Row, int32 Length)
     for (int32 i = 0; i < Length; i++) SetTileIfPossible(FieldTileMapComponent, Column + i, Row, 0, *(TileInfoPerTileDic.Find(ETileType::Empty)));
 }
 
+FVector ACCTileMapActor::ConvertTileToWorld(int32 Column, int32 Row) const
+{
+    float TileWidth = FieldTileMapComponent->TileMap->TileWidth;
+    float TileHeight = FieldTileMapComponent->TileMap->TileHeight;
+
+    FVector2D TilePosition2D(Column * TileWidth, Row * TileHeight);
+
+    FVector TileMapLocation = FieldTileMapComponent->GetComponentLocation();
+
+    FRotator TileMapRotation = FieldTileMapComponent->GetComponentRotation();
+
+    FVector LocalTilePosition(TilePosition2D.X, TilePosition2D.Y, 0.0f);
+    FVector WorldTilePosition = TileMapLocation + TileMapRotation.RotateVector(LocalTilePosition);
+
+    return WorldTilePosition;
+}
+
 void ACCTileMapActor::CreateBasic(int32 Column, int32 Row, int32 Length)
 {
-    
     for (int32 i = 0; i < Length; i++) SetTileIfPossible(FieldTileMapComponent, Column + i, Row, 0, *(TileInfoPerTileDic.Find(ETileType::Basic)));
     PlaceSpritesOnTileMap(FVector2D(Column, Row), Length, 0.5, UCCManagers::GetInstance()->GetStageMapManager()->FeatureInfoMap.Find(EFeatureType::GrassFeature)->FeatureInfoArr, false, true);
     PlaceSpritesOnTileMap(FVector2D(Column, Row), Length, 0.2, UCCManagers::GetInstance()->GetStageMapManager()->FeatureInfoMap.Find(EFeatureType::PlantFeature)->FeatureInfoArr, true, true);
@@ -244,30 +263,59 @@ void ACCTileMapActor::CreateBasic(int32 Column, int32 Row, int32 Length)
 void ACCTileMapActor::CreateRaccoonHouse(int32 Column, int32 Row, int32 Length)
 {
     if (!CreatNoneBasicFieldTile(EFieldType::RaccoonHouseField, Column, Row, Length)) return;
+
+    FCCFieldWorldInfo RaccoonField;
+    RaccoonField.FieldType = EFieldType::RaccoonHouseField;
+    RaccoonField.MiddlePos = ConvertTileToWorld(Column, Row + Length / 2);
+    RaccoonField.LeftXPos = ConvertTileToWorld(Column, Row).X;
+    RaccoonField.RightXPos = ConvertTileToWorld(Column, Row + Length).X;
+    FieldWorldInfoArr.Add(RaccoonField);
+
     PlaceSpritesOnTileMap(FVector2D(Column, Row), Length, 1.0, UCCManagers::GetInstance()->GetStageMapManager()->FeatureInfoMap.Find(EFeatureType::RacconHouseFeature)->FeatureInfoArr, true, true, false, 1, 1);
     PlaceSpritesOnTileMap(FVector2D(Column, Row), Length, 0.5, UCCManagers::GetInstance()->GetStageMapManager()->FeatureInfoMap.Find(EFeatureType::RockFeature)->FeatureInfoArr, false, true);
+    TreePosArr.Append(PlaceSpritesOnTileMap(FVector2D(Column, Row), Length, FMath::RandRange(5.0, 10.0), UCCManagers::GetInstance()->GetStageMapManager()->FeatureInfoMap.Find(EFeatureType::TreeFeature)->FeatureInfoArr, true, true, false));
 }
 
 void ACCTileMapActor::CreateDogHouse(int32 Column, int32 Row, int32 Length)
 {
     if (!CreatNoneBasicFieldTile(EFieldType::DogHouseField, Column, Row, Length)) return;
+
+    FCCFieldWorldInfo DogHouseField;
+    DogHouseField.FieldType = EFieldType::DogHouseField;
+    DogHouseField.MiddlePos = ConvertTileToWorld(Column, Row + Length / 2);
+    DogHouseField.LeftXPos = ConvertTileToWorld(Column, Row).X;
+    DogHouseField.RightXPos = ConvertTileToWorld(Column, Row + Length).X;
+    FieldWorldInfoArr.Add(DogHouseField);
+
     PlaceSpritesOnTileMap(FVector2D(Column, Row), Length, 1.0, UCCManagers::GetInstance()->GetStageMapManager()->FeatureInfoMap.Find(EFeatureType::DogHouseFeature)->FeatureInfoArr, true, true, false, 1, 1);
     PlaceSpritesOnTileMap(FVector2D(Column, Row), Length, 0.5, UCCManagers::GetInstance()->GetStageMapManager()->FeatureInfoMap.Find(EFeatureType::RockFeature)->FeatureInfoArr, false, true);
+    TreePosArr.Append(PlaceSpritesOnTileMap(FVector2D(Column, Row), Length, FMath::RandRange(5.0, 10.0), UCCManagers::GetInstance()->GetStageMapManager()->FeatureInfoMap.Find(EFeatureType::TreeFeature)->FeatureInfoArr, true, true, false));
 }
 
 void ACCTileMapActor::CreatWaterSide(int32 Column, int32 Row, int32 Length)
 {
     if (!CreatNoneBasicFieldTile(EFieldType::WatersideField, Column, Row, Length)) return;
+
     PlaceSpritesOnTileMap(FVector2D(Column, Row), Length, 1.0, UCCManagers::GetInstance()->GetStageMapManager()->FeatureInfoMap.Find(EFeatureType::WaterFeature)->FeatureInfoArr, false, true);
     PlaceSpritesOnTileMap(FVector2D(Column, Row), Length, 0.5, UCCManagers::GetInstance()->GetStageMapManager()->FeatureInfoMap.Find(EFeatureType::WeedFeature)->FeatureInfoArr, true, true);
     PlaceSpritesOnTileMap(FVector2D(Column, Row), Length, 0.5, UCCManagers::GetInstance()->GetStageMapManager()->FeatureInfoMap.Find(EFeatureType::StoneFeature)->FeatureInfoArr, true, true);
+    TreePosArr.Append(PlaceSpritesOnTileMap(FVector2D(Column, Row), Length, FMath::RandRange(5.0, 10.0), UCCManagers::GetInstance()->GetStageMapManager()->FeatureInfoMap.Find(EFeatureType::TreeFeature)->FeatureInfoArr, true, true, false));
 }
 
 void ACCTileMapActor::CreateCave(int32 Column, int32 Row, int32 Length)
 {
     if (!CreatNoneBasicFieldTile(EFieldType::CaveField, Column, Row, Length)) return;
+
+    FCCFieldWorldInfo RatCaveField;
+    RatCaveField.FieldType = EFieldType::CaveField;
+    RatCaveField.MiddlePos = ConvertTileToWorld(Column, Row + Length / 2);
+    RatCaveField.LeftXPos = ConvertTileToWorld(Column, Row).X;
+    RatCaveField.RightXPos = ConvertTileToWorld(Column, Row + Length).X;
+    FieldWorldInfoArr.Add(RatCaveField);
+
     PlaceSpritesOnTileMap(FVector2D(Column, Row), Length, 1.0, UCCManagers::GetInstance()->GetStageMapManager()->FeatureInfoMap.Find(EFeatureType::RatCaveFeature)->FeatureInfoArr, true, true, false, 1, 4);
     PlaceSpritesOnTileMap(FVector2D(Column, Row), Length, 0.5, UCCManagers::GetInstance()->GetStageMapManager()->FeatureInfoMap.Find(EFeatureType::RockFeature)->FeatureInfoArr, false, true);
+    TreePosArr.Append(PlaceSpritesOnTileMap(FVector2D(Column, Row), Length, FMath::RandRange(5.0, 10.0), UCCManagers::GetInstance()->GetStageMapManager()->FeatureInfoMap.Find(EFeatureType::TreeFeature)->FeatureInfoArr, true, true, false));
 }
 
 void ACCTileMapActor::CreateAsphalt(int32 Column, int32 Row, int32 Length)
@@ -276,17 +324,19 @@ void ACCTileMapActor::CreateAsphalt(int32 Column, int32 Row, int32 Length)
     PlaceSpritesOnTileMap(FVector2D(Column, Row), Length, 0.5, UCCManagers::GetInstance()->GetStageMapManager()->FeatureInfoMap.Find(EFeatureType::BuildingFeature)->FeatureInfoArr, true, false, true);
     PlaceSpritesOnTileMap(FVector2D(Column, Row), Length, 0.5, UCCManagers::GetInstance()->GetStageMapManager()->FeatureInfoMap.Find(EFeatureType::CarFeature)->FeatureInfoArr, true, true);
     PlaceSpritesOnTileMap(FVector2D(Column, Row), Length, 0.5, UCCManagers::GetInstance()->GetStageMapManager()->FeatureInfoMap.Find(EFeatureType::LightFeature)->FeatureInfoArr, true, true);
+    TreePosArr.Append(PlaceSpritesOnTileMap(FVector2D(Column, Row), Length, FMath::RandRange(5.0, 10.0), UCCManagers::GetInstance()->GetStageMapManager()->FeatureInfoMap.Find(EFeatureType::TreeFeature)->FeatureInfoArr, true, true, false));
 }
 
-void ACCTileMapActor::PlaceSpritesOnTileMap(FVector2D StartingTile, int32 OffsetTiles, float TileInterval, const TArray<FCCFeatureInfo>& FeatureInfoArr, bool bIsBeforePlayer, bool bAllowOverlap, bool bAddToCollisionTree, int32 MinSpriteNum, int32 MaxSpriteNum)
+TArray<FVector> ACCTileMapActor::PlaceSpritesOnTileMap(FVector2D StartingTile, int32 OffsetTiles, float TileInterval, const TArray<FCCFeatureInfo>& FeatureInfoArr, bool bIsBeforePlayer, bool bAllowOverlap, bool bAddToCollisionTree, int32 MinSpriteNum, int32 MaxSpriteNum)
 {
     OffsetTiles--;
 
     int32 SpriteNum = 0;
+    TArray<FVector> PlacedSpritePositions;
 
     if (!FieldTileMapComponent->TileMap)
     {
-        return;
+        return PlacedSpritePositions;
     }
 
     FVector2D TileSize = GetTileSize();
@@ -301,9 +351,11 @@ void ACCTileMapActor::PlaceSpritesOnTileMap(FVector2D StartingTile, int32 Offset
     {
         for (float i = StartPos.X; i <= EndPos.X; i += TileSize.X * TileInterval)
         {
-            PlaceSpriteAtPosition(i, StartPos, TileSize, TileInterval, FeatureInfoArr, bIsBeforePlayer, bAllowOverlap, bAddToCollisionTree, SpriteNum, MaxSpriteNum);
+            PlaceSpriteAtPosition(i, StartPos, TileSize, TileInterval, FeatureInfoArr, bIsBeforePlayer, bAllowOverlap, bAddToCollisionTree, SpriteNum, MaxSpriteNum, PlacedSpritePositions);
         }
     } while (SpriteNum < MinSpriteNum);
+
+    return PlacedSpritePositions;
 }
 
 FVector2D ACCTileMapActor::GetTileSize()
@@ -319,7 +371,7 @@ FVector2D ACCTileMapActor::CalculateEndLocalPos(int32 OffsetTiles, FVector2D Til
         return StartLocalPos + FVector2D(FieldTileMapComponent->TileMap->TileWidth * (UCCManagers::GetInstance()->GetStageMapManager()->TileMapWidth - 1) - StartLocalPos.X, 0);
 }
 
-void ACCTileMapActor::PlaceSpriteAtPosition(float XPos, FVector StartPos, FVector2D TileSize, float TileInterval, const TArray<FCCFeatureInfo>& FeatureInfoArr, bool bIsBeforePlayer, bool bAllowOverlap, bool bAddToCollisionTree, int32& SpriteNum, int32 MaxSpriteNum)
+void ACCTileMapActor::PlaceSpriteAtPosition(float XPos, FVector StartPos, FVector2D TileSize, float TileInterval, const TArray<FCCFeatureInfo>& FeatureInfoArr, bool bIsBeforePlayer, bool bAllowOverlap, bool bAddToCollisionTree, int32& SpriteNum, int32 MaxSpriteNum, TArray<FVector>& PlacedSpritePositions)
 {
     int32 Index = UCCManagers::GetInstance()->GetRandomIndexByProbability(FeatureInfoArr);
     if (Index != 0)
@@ -336,6 +388,8 @@ void ACCTileMapActor::PlaceSpriteAtPosition(float XPos, FVector StartPos, FVecto
             if (SpriteNum >= MaxSpriteNum) return;
             SpriteNum++;
             CreateAndAttachSpriteComponent(FeatureInfoArr[Index].FeatureSprite, LocalPos, bAddToCollisionTree, BoxForSprite);
+            LocalPos.Y = FieldTileY;
+            PlacedSpritePositions.Add(LocalPos);
         }
     }
 }

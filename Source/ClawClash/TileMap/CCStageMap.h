@@ -75,6 +75,7 @@ enum class EFeatureType : uint8
     RatCaveFeature UMETA(DisplayName = "RatCaveFeature"),
     RacconHouseFeature UMETA(DisplayName = "RacconHouseFeature"),
     DogHouseFeature UMETA(DisplayName = "RacconHouseFeature"),
+    TreeFeature UMETA(DisplayName = "TreeFeature"),
 };
 
 UENUM(BlueprintType)
@@ -181,4 +182,11 @@ enum class EDogHouseFeature : uint8
     DogHouse1Feature UMETA(DisplayName = "EDogHouse1Feature"),
     DogHouse2Feature UMETA(DisplayName = "EDogHouse2Feature"),
     DogHouse3Feature UMETA(DisplayName = "EDogHouse3Feature"),
+};
+
+UENUM(BlueprintType)
+enum class ETreeFeature : uint8
+{
+    NoneFeature UMETA(DisplayName = "None"),
+    Tree0Feature UMETA(DisplayName = "Tree0Feature")
 };

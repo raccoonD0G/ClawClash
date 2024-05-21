@@ -42,26 +42,36 @@ int32 UCCManagers::GetRandomIndexByProbability(const TArray<float>& Probabilitie
         return -1;
     }
 
+    TArray<float> CumulativeProbabilities;
     float TotalProbability = 0.f;
+
     for (float Probability : Probabilities)
     {
         TotalProbability += Probability;
+        CumulativeProbabilities.Add(TotalProbability);
     }
 
     float RandomNumber = FMath::FRandRange(0.0f, TotalProbability);
 
-    float AccumulatedProbability = 0.f;
-    for (int32 i = 0; i < Probabilities.Num(); ++i)
+    int32 Low = 0;
+    int32 High = CumulativeProbabilities.Num() - 1;
+
+    while (Low < High)
     {
-        AccumulatedProbability += Probabilities[i];
-        if (RandomNumber <= AccumulatedProbability)
+        int32 Mid = (Low + High) / 2;
+        if (RandomNumber <= CumulativeProbabilities[Mid])
         {
-            return i;
+            High = Mid;
+        }
+        else
+        {
+            Low = Mid + 1;
         }
     }
 
-    return Probabilities.Num() - 1;
+    return Low;
 }
+
 
 int32 UCCManagers::GetRandomIndexByProbability(const TArray<FCCFeatureInfo>& Probabilities)
 {
@@ -70,26 +80,36 @@ int32 UCCManagers::GetRandomIndexByProbability(const TArray<FCCFeatureInfo>& Pro
         return -1;
     }
 
+    TArray<float> CumulativeProbabilities;
     float TotalProbability = 0.f;
-    for (FCCFeatureInfo Probability : Probabilities)
+
+    for (const FCCFeatureInfo& Probability : Probabilities)
     {
         TotalProbability += Probability.FeatureRatio;
+        CumulativeProbabilities.Add(TotalProbability);
     }
 
     float RandomNumber = FMath::FRandRange(0.0f, TotalProbability);
 
-    float AccumulatedProbability = 0.f;
-    for (int32 i = 0; i < Probabilities.Num(); ++i)
+    int32 Low = 0;
+    int32 High = CumulativeProbabilities.Num() - 1;
+
+    while (Low < High)
     {
-        AccumulatedProbability += Probabilities[i].FeatureRatio;
-        if (RandomNumber <= AccumulatedProbability)
+        int32 Mid = (Low + High) / 2;
+        if (RandomNumber <= CumulativeProbabilities[Mid])
         {
-            return i;
+            High = Mid;
+        }
+        else
+        {
+            Low = Mid + 1;
         }
     }
 
-    return Probabilities.Num() - 1;
+    return Low;
 }
+
 
 TArray<class UPaperSprite*> UCCManagers::GetAllSpritesFromFolder(const FString& SpritePath)
 {

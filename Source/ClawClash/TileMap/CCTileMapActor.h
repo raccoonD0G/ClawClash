@@ -19,6 +19,17 @@ struct FCCFieldTileSet
      FPaperTileInfo RightTile;
 };
 
+USTRUCT()
+struct FCCFieldWorldInfo
+{
+    GENERATED_BODY()
+public:
+    FVector MiddlePos;
+    float LeftXPos;
+    float RightXPos;
+    EFieldType FieldType;
+};
+
 UCLASS()
 class CLAWCLASH_API ACCTileMapActor : public AActor
 {
@@ -36,7 +47,7 @@ public:
 protected:
     const float BackgroundY = -200;
     const float PlayerY = 50;
-    const float FieldTileY = 200;
+    const float FieldTileY = 50.1f;
     float CurrentBeforePlayerFeatureY;
     float CurrentAfterPlayerFeatureY;
 
@@ -62,9 +73,16 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sprite")
     TObjectPtr<class UMaterialInterface> DefaultSpriteMaterial;
 
+    UPROPERTY()
+    TArray<FVector> TreePosArr;
+
 // TileMap Section
 protected:
     // Create Field
+    TArray<FCCFieldWorldInfo> FieldWorldInfoArr;
+
+    FVector ConvertTileToWorld(int32 Column, int32 Row) const;
+
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     TObjectPtr<class UPaperTileMapComponent> FieldTileMapComponent;
 
@@ -111,13 +129,13 @@ protected:
     TObjectPtr<class UCCBoxQuadTreeNode> RootNode;
 
     UFUNCTION()
-    void PlaceSpritesOnTileMap(FVector2D StartingTile, int32 OffsetTiles, float TileInterval, const TArray<struct FCCFeatureInfo>& FeatureInfoArr, bool bIsBeforePlayer, bool bAllowOverlap, bool bAddToCollisionTree = true, int32 MinSpriteNum = 0, int32 MaxSpriteNum = 100);
+    TArray<FVector> PlaceSpritesOnTileMap(FVector2D StartingTile, int32 OffsetTiles, float TileInterval, const TArray<struct FCCFeatureInfo>& FeatureInfoArr, bool bIsBeforePlayer, bool bAllowOverlap, bool bAddToCollisionTree = true, int32 MinSpriteNum = 0, int32 MaxSpriteNum = 100);
     UFUNCTION()
     FVector2D GetTileSize();
     UFUNCTION()
     FVector2D CalculateEndLocalPos(int32 OffsetTiles, FVector2D TileSize, FVector2D StartLocalPos);
     UFUNCTION()
-    void PlaceSpriteAtPosition(float XPos, FVector StartPos, FVector2D TileSize, float TileInterval, const TArray<FCCFeatureInfo>& FeatureInfoArr, bool bIsBeforePlayer, bool bAllowOverlap, bool bAddToCollisionTree, int32& SpriteNum, int32 MaxSpriteNum);
+    void PlaceSpriteAtPosition(float XPos, FVector StartPos, FVector2D TileSize, float TileInterval, const TArray<FCCFeatureInfo>& FeatureInfoArr, bool bIsBeforePlayer, bool bAllowOverlap, bool bAddToCollisionTree, int32& SpriteNum, int32 MaxSpriteNum, TArray<FVector>& PlacedSpritePositions);
     UFUNCTION()
     float CalculateYPos(bool bIsBeforePlayer);
     UFUNCTION()
