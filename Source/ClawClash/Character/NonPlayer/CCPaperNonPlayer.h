@@ -14,4 +14,11 @@ class CLAWCLASH_API ACCPaperNonPlayer : public ACCPaperCharacter
 {
 	GENERATED_BODY()
 	
+protected:
+	float MaxLeftXPos;
+	float MaxRightXPos;
+public:
+	float GetMaxLeftXPos();
+	float GetMaxRightXPos();
+	
 };

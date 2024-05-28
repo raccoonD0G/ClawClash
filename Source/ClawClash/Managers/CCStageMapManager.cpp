@@ -11,6 +11,8 @@
 #include "PaperSpriteComponent.h"
 #include "PaperSprite.h"
 
+#include "ClawClash/TileMap/CCRoom.h"
+
 
 UCCStageMapManager::UCCStageMapManager()
 {
@@ -21,19 +23,53 @@ void UCCStageMapManager::Init()
     InitStageMapInfo();
 }
 
+void UCCStageMapManager::SplitSpace(TArray<UCCRoom*>& OutRooms, UCCRoom* Space, int32 MinWidth, int32 MinHeight, int32 Depth)
+{
+    if (Depth <= 0 || Space->Width <= MinWidth * 2 || Space->Height <= MinHeight * 2)
+    {
+        OutRooms.Add(Space);
+        return;
+    }
+
+    bool SplitHorizontally = (Space->Width > Space->Height);
+    if (SplitHorizontally)
+    {
+        int32 SplitPoint = FMath::RandRange(MinWidth, Space->Width - MinWidth);
+        TObjectPtr<UCCRoom> Room1 = NewObject<UCCRoom>();
+        Room1->Init(Space->X, Space->Y, SplitPoint, Space->Height);
+        TObjectPtr<UCCRoom> Room2 = NewObject<UCCRoom>();
+        Room2->Init(Space->X + SplitPoint, Space->Y, Space->Width - SplitPoint, Space->Height);
+        SplitSpace(OutRooms, Room1, MinWidth, MinHeight, Depth - 1);
+        SplitSpace(OutRooms, Room2, MinWidth, MinHeight, Depth - 1);
+    }
+    else
+    {
+        int32 SplitPoint = FMath::RandRange(MinHeight, Space->Height - MinHeight);
+        TObjectPtr<UCCRoom> Room1 = NewObject<UCCRoom>();
+        Room1->Init(Space->X, Space->Y, Space->Width, SplitPoint);
+        TObjectPtr<UCCRoom> Room2 = NewObject<UCCRoom>();
+        Room2->Init(Space->X, Space->Y + SplitPoint, Space->Width, Space->Height - SplitPoint);
+        SplitSpace(OutRooms, Room1, MinWidth, MinHeight, Depth - 1);
+        SplitSpace(OutRooms, Room2, MinWidth, MinHeight, Depth - 1);
+    }
+}
+
+void UCCStageMapManager::GenerateRooms(TArray<UCCRoom*>& OutRooms, int32 MapWidth, int32 MapHeight, int32 MinWidth, int32 MinHeight)
+{
+    TObjectPtr<UCCRoom> InitialSpace = NewObject<UCCRoom>();
+    InitialSpace->Init(0, 0, MapWidth, MapHeight);
+    int32 MaxDepth = 20; // ¿Á±Õ ±Ì¿Ã ¡∂¡§
+    SplitSpace(OutRooms, InitialSpace, MinWidth, MinHeight, MaxDepth);
+}
+
+
 void UCCStageMapManager::CreateStageMap()
 {
-    for (int32 i = 0; i < 3; i++)
+    GenerateRooms(RoomArr, TileMapWidth, TileMapHeight, MinFloorHeight, MinFloorLength);
+    for (UCCRoom* Room : RoomArr)
     {
-        TObjectPtr<UCCFloor> Floor;
-        Floor = NewObject<UCCFloor>(this);
-        Floor->Init(TileMapWidth, false);
-        FloorArr.Add(Floor);
+        Room->GenerateFloor();
     }
-    TObjectPtr<UCCFloor> ButtomFloor;
-    ButtomFloor = NewObject<UCCFloor>(this);
-    ButtomFloor->Init(TileMapWidth, true);
-    FloorArr.Add(ButtomFloor);
 }
 
 void UCCStageMapManager::InitStageMapInfo()

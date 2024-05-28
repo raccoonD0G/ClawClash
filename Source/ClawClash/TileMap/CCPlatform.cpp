@@ -55,12 +55,12 @@ void UCCPlatform::CreatFieldOnPlatform()
     if (bIsBottom == false)
     {
         FCCFieldInfo* FieldInfo = UCCManagers::GetInstance()->GetStageMapManager()->FieldInfoMap.Find(EFieldType::HillField);
-        int32 FieldLength = FMath::RandRange(FieldInfo->MinLength, FieldInfo->MaxLength);
+        int32 HillFieldLength = FMath::RandRange(FieldInfo->MinLength, FieldInfo->MaxLength);
 
         UCCField* NewField = NewObject<UCCField>(this);
-        NewField->Init(0, FieldLength, EFieldType::HillField);
+        NewField->Init(0, HillFieldLength, EFieldType::HillField);
         FieldsInPlatformArr.Add(NewField);
-        TotalFieldLength += FieldLength;
+        TotalFieldLength += HillFieldLength;
     }
 
     while (true)
@@ -72,9 +72,18 @@ void UCCPlatform::CreatFieldOnPlatform()
         } while (bIsBottom == true && FieldType == EFieldType::HillField);
 
         FCCFieldInfo* FieldInfo = UCCManagers::GetInstance()->GetStageMapManager()->FieldInfoMap.Find(FieldType);
-        int32 FieldLength = FMath::RandRange(FieldInfo->MinLength, FieldInfo->MaxLength);
+        if (FieldInfo == nullptr)
+        {
+            UE_LOG(LogTemp, Log, TEXT("FieldInfo NULL"));
+        }
 
-        if (TotalFieldLength + FieldLength < Length)
+        int32 FieldLength = FMath::RandRange(FieldInfo->MinLength, FieldInfo->MaxLength);
+        if (TotalFieldLength + FieldLength > Length && TotalFieldLength + FieldInfo->MinLength <= Length)
+        {
+            FieldLength = FMath::RandRange(FieldInfo->MinLength, Length - TotalFieldLength);
+        }
+
+        if (TotalFieldLength + FieldLength <= Length)
         {
             UCCField* NewField = NewObject<UCCField>(this);
             NewField->Init(0, FieldLength, FieldType);

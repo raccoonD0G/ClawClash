@@ -3,3 +3,12 @@
 
 #include "CCPaperNonPlayer.h"
 
+float ACCPaperNonPlayer::GetMaxLeftXPos()
+{
+	return MaxLeftXPos;
+}
+
+float ACCPaperNonPlayer::GetMaxRightXPos()
+{
+	return MaxRightXPos;
+}

@@ -42,7 +42,7 @@ public:
     TArray<FCCFeatureInfo> FeatureInfoArr;
 };
 
-
+class UCCRoom;
 /**
  * 
  */
@@ -65,9 +65,12 @@ public:
 
 // Creat Section
 public:
-    UPROPERTY()
-    TArray<TObjectPtr<class UCCFloor>> FloorArr;
 
+    UPROPERTY()
+    TArray<TObjectPtr<UCCRoom>> RoomArr;
+
+    void SplitSpace(TArray<UCCRoom*>& OutRooms, UCCRoom* Space, int32 MinWidth, int32 MinHeight, int32 Depth);
+    void GenerateRooms(TArray<UCCRoom*>& OutRooms, int32 MapWidth, int32 MapHeight, int32 MinWidth, int32 MinHeight);
     void CreateStageMap();
 
 // Info Section
@@ -86,6 +89,12 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageMap")
     int32 TileHeight = 512;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageMap")
+    int32 MinFloorHeight = 6;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageMap")
+    int32 MinFloorLength = 11;
 
     UPROPERTY()
     TMap<EFieldType, FCCFieldInfo> FieldInfoMap;

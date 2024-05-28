@@ -8,6 +8,7 @@
 
 
 class UCCStageMapManager;
+class UCCSpawnManager;
 /**
  * 
  */
@@ -23,10 +24,14 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Managers")
 	TObjectPtr<UCCStageMapManager> StageMapManager;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Managers")
+    TObjectPtr<UCCSpawnManager> SpawnManager;
+
 public:
     static UCCManagers* GetInstance();
     void SetInstanceNull();
 	UCCStageMapManager* GetStageMapManager();
+    UCCSpawnManager* GetSpawnManager();
 
 // Util Section
 public:

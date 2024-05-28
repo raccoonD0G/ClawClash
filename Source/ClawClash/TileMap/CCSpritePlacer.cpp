@@ -88,6 +88,7 @@ float UCCSpritePlacer::CalculateYPos(bool bIsBeforePlayer)
 
 void UCCSpritePlacer::InitializeSprite(UPaperTileMapComponent* TileMapComponent, int32 Rows, int32 Columns, float NewTileWidth, float NewTileHeight)
 {
+    /*
     TileMapHeight = Rows;
     TileMapWidth = Columns;
     TileWidth = NewTileWidth;
@@ -114,6 +115,7 @@ void UCCSpritePlacer::InitializeSprite(UPaperTileMapComponent* TileMapComponent,
         }
         FloorNum++;
     }
+    */
 }
 
 FVector2D UCCSpritePlacer::GetTileSize(UPaperTileMapComponent* TileMapComponent) const

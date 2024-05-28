@@ -8,10 +8,13 @@
 #include "PaperTileLayer.h"
 #include "CCStageMap.h"
 #include "ClawClash/Managers/CCStageMapManager.h"
+#include "ClawClash/Managers/CCSpawnManager.h"
+#include "ClawClash/Managers/CCSpawn.h"
 #include "ClawClash/Managers/CCManagers.h"
 #include "CCPlatform.h"
 #include "CCFloor.h"
 #include "CCField.h"
+#include "CCRoom.h"
 
 
 void UCCTilePlacer::InitializeTileMap(UPaperTileMapComponent* TileMapComponent, UPaperTileSet* TileSet, int32 Rows, int32 Columns, float NewTileWidth, float NewTileHeight)
@@ -42,17 +45,15 @@ void UCCTilePlacer::InitializeTileMap(UPaperTileMapComponent* TileMapComponent, 
 
 void UCCTilePlacer::CreatAllField(UPaperTileMapComponent* TileMapComponent)
 {
-    int32 FloorNum = 0;
-    for (int32 Row = (TileMapHeight / UCCManagers::GetInstance()->GetStageMapManager()->NumOfFloor) - 1; Row <= TileMapHeight; Row += TileMapHeight / UCCManagers::GetInstance()->GetStageMapManager()->NumOfFloor)
+    for (UCCRoom* Room : UCCManagers::GetInstance()->GetStageMapManager()->RoomArr)
     {
-        for (TObjectPtr<UCCPlatform> Platform : UCCManagers::GetInstance()->GetStageMapManager()->FloorArr[FloorNum]->PlatformArr)
+        for (TObjectPtr<UCCPlatform> Platform : Room->FloorInBox->PlatformArr)
         {
             for (TObjectPtr<UCCField> Field : Platform->FieldsInPlatformArr)
             {
-                CreateFieldByType(TileMapComponent, Field->GetFieldType(), Platform->GetStartPos() + Field->GetStartPos(), Row, Field->GetLength());
+                CreateFieldByType(TileMapComponent, Field->GetFieldType(), Room->FloorStartX + Platform->GetStartPos() + Field->GetStartPos(), Room->FloorStartY, Field->GetLength());
             }
         }
-        FloorNum++;
     }
 }
 
@@ -77,29 +78,28 @@ FVector UCCTilePlacer::GetWorldLocationFromTile(UPaperTileMapComponent* TileMapC
 
 void UCCTilePlacer::FillInEmpty(UPaperTileMapComponent* TileMapComponent)
 {
-    int32 FloorNum = 0;
-    for (int32 Row = (TileMapHeight / UCCManagers::GetInstance()->GetStageMapManager()->NumOfFloor) - 1; Row <= TileMapHeight; Row += TileMapHeight / UCCManagers::GetInstance()->GetStageMapManager()->NumOfFloor)
+    for (UCCRoom* Room : UCCManagers::GetInstance()->GetStageMapManager()->RoomArr)
     {
-        for (int32 i = 0; i < UCCManagers::GetInstance()->GetStageMapManager()->FloorArr[FloorNum]->PlatformArr.Num() - 1; i++)
+        for (int32 i = 0; i < Room->FloorInBox->PlatformArr.Num() - 1; i++)
         {
-            TObjectPtr<UCCPlatform> Platform = UCCManagers::GetInstance()->GetStageMapManager()->FloorArr[FloorNum]->PlatformArr[i];
-            TObjectPtr<UCCPlatform> NextPlatform = UCCManagers::GetInstance()->GetStageMapManager()->FloorArr[FloorNum]->PlatformArr[i + 1];
-            CreateEmpty(TileMapComponent, Platform->GetStartPos() + Platform->GetLength(), Row, NextPlatform->GetStartPos() - Platform->GetStartPos() + Platform->GetLength());
+            TObjectPtr<UCCPlatform> Platform = Room->FloorInBox->PlatformArr[i];
+            TObjectPtr<UCCPlatform> NextPlatform = Room->FloorInBox->PlatformArr[i + 1];
+            CreateEmpty(TileMapComponent, Room->FloorStartX + Platform->GetStartPos() + Platform->GetLength(), Room->FloorStartX, NextPlatform->GetStartPos() - Platform->GetStartPos() + Platform->GetLength());
         }
-        FloorNum++;
     }
 }
 
 void UCCTilePlacer::FillInBasic(UPaperTileMapComponent* TileMapComponent)
 {
-    for (int32 Row = (TileMapHeight / UCCManagers::GetInstance()->GetStageMapManager()->NumOfFloor) - 1; Row <= TileMapHeight; Row += TileMapHeight / UCCManagers::GetInstance()->GetStageMapManager()->NumOfFloor)
+    for (UCCRoom* Room : UCCManagers::GetInstance()->GetStageMapManager()->RoomArr)
     {
-        for (int32 Column = 0; Column < TileMapWidth; Column++)
+        for (UCCPlatform* Platform : Room->FloorInBox->PlatformArr)
         {
-            if (TileMapComponent->GetTile(Column, Row, 0).GetTileIndex() == (int32)ETileType::None)
+            if (Platform->FieldsInPlatformArr.Num() == 0)
             {
-                CreateBasic(TileMapComponent, Column, Row, 1);
+                UE_LOG(LogTemp, Log, TEXT("FieldsInPlatformArr Empty"));
             }
+            CreateBasic(TileMapComponent, Room->FloorStartX + Platform->GetStartPos(), Room->FloorStartY, Platform->GetLength());
         }
     }
 }
@@ -236,12 +236,18 @@ void UCCTilePlacer::CreatHill(UPaperTileMapComponent* TileMapComponent, int32 Co
 
 void UCCTilePlacer::CreateBasic(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Length)
 {
-    for (int32 i = 0; i < Length; i++) SetTileIfPossible(TileMapComponent, Column + i, Row, 0, *(TileInfoPerTileDic.Find(ETileType::Basic)));
+    for (int32 i = 0; i < Length; i++)
+    {
+        SetTileIfPossible(TileMapComponent, Column + i, Row, 0, *(TileInfoPerTileDic.Find(ETileType::Basic)));
+    }
 }
 
 void UCCTilePlacer::CreateRaccoonHouse(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Length)
 {
     if (!CreatNoneBasicFieldTile(TileMapComponent, EFieldType::RaccoonHouseField, Column, Row, Length)) return;
+    FSpawnableField NewField;
+    NewField.SpawnableType = ESpawnableType::Raccon;
+    UCCManagers::GetInstance()->GetSpawnManager()->SpawnFieldMap;
 }
 
 void UCCTilePlacer::CreateDogHouse(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Length)

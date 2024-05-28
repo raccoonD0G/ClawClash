@@ -3,6 +3,7 @@
 
 #include "CCManagers.h"
 #include "ClawClash/Managers/CCStageMapManager.h"
+#include "ClawClash/Managers/CCSpawnManager.h"
 #include "CCManagers.h"
 
 #include "AssetRegistry/AssetRegistryModule.h"
@@ -33,6 +34,15 @@ UCCStageMapManager* UCCManagers::GetStageMapManager()
         StageMapManager->Init();
     }
     return StageMapManager;
+}
+
+UCCSpawnManager* UCCManagers::GetSpawnManager()
+{
+    if (SpawnManager == NULL)
+    {
+        SpawnManager = NewObject<UCCSpawnManager>(this);
+    }
+    return SpawnManager;
 }
 
 int32 UCCManagers::GetRandomIndexByProbability(const TArray<float>& Probabilities)
