@@ -9,14 +9,6 @@
 void ACCAIController::BeginPlay()
 {
     Super::BeginPlay();
-
-    UBlackboardComponent* BlackboardComponent = Blackboard.Get();
-
-    if (BehaviorTree && BlackboardData)
-    {
-        UseBlackboard(BlackboardData, BlackboardComponent);
-        RunBehaviorTree(BehaviorTree);
-    }
 }
 
 void ACCAIController::RunAI()

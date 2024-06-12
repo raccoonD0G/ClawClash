@@ -1,14 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "BTTask_SetRandomLocation.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AIController.h"
 #include "CCNonPlayerBB.h"
 #include "CCPaperNonPlayer.h"
+#include "BehaviorTree/Blackboard/BlackboardKeyType_Vector.h"
 
 UBTTask_SetRandomLocation::UBTTask_SetRandomLocation()
 {
+    NodeName = TEXT("Set Random Location");
 }
 
 EBTNodeResult::Type UBTTask_SetRandomLocation::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -31,21 +32,19 @@ EBTNodeResult::Type UBTTask_SetRandomLocation::ExecuteTask(UBehaviorTreeComponen
         return EBTNodeResult::Failed;
     }
 
-    FBTMoveToTaskMemory* CurrentMem = (FBTMoveToTaskMemory*)NodeMemory;
-
     UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
-
-    if (BlackboardComp)
+    if (BlackboardComp == nullptr)
     {
-        CurrentMem->LeftXPos = ControlledCharacter->GetMaxLeftXPos();
-        CurrentMem->RightXPos = ControlledCharacter->GetMaxRightXPos();
-
-        float RandomX = FMath::RandRange(CurrentMem->LeftXPos, CurrentMem->RightXPos);
-        FVector CurrentLocation = OwnerComp.GetAIOwner()->GetPawn()->GetActorLocation();
-        BlackboardComp->SetValueAsVector(BBKEY_TATGETLOCATION, FVector(RandomX, CurrentLocation.Y, CurrentLocation.Z));
-
-        return EBTNodeResult::Succeeded;
+        return EBTNodeResult::Failed;
     }
 
-    return EBTNodeResult::Failed;
+    float LeftXPos = ControlledCharacter->GetMaxLeftXPos();
+    float RightXPos = ControlledCharacter->GetMaxRightXPos();
+    float RandomX = FMath::RandRange(LeftXPos, RightXPos);
+    FVector CurrentLocation = ControlledPawn->GetActorLocation();
+    FVector RandomLocation(RandomX, CurrentLocation.Y, CurrentLocation.Z);
+
+    BlackboardComp->SetValueAsVector(BBKEY_TATGETLOCATION, RandomLocation);
+
+    return EBTNodeResult::Succeeded;
 }

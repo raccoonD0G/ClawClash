@@ -41,6 +41,7 @@ UCCSpawnManager* UCCManagers::GetSpawnManager()
     if (SpawnManager == NULL)
     {
         SpawnManager = NewObject<UCCSpawnManager>(this);
+        SpawnManager->Init();
     }
     return SpawnManager;
 }

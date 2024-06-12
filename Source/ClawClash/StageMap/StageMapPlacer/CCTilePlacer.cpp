@@ -8,8 +8,8 @@
 #include "PaperTileLayer.h"
 #include "ClawClash/StageMap/CCStageMapDef.h"
 #include "ClawClash/Managers/StageMapManager/CCStageMapManager.h"
-// #include "ClawClash/Managers/CCSpawnManager.h"
-// #include "ClawClash/Managers/CCSpawn.h"
+#include "ClawClash/Managers/SpawnManager/CCSpawnManager.h"
+#include "ClawClash/Managers/SpawnManager/CCSpawn.h"
 #include "ClawClash/Managers/CCManagers.h"
 #include "ClawClash/StageMap/StageMapParts/CCPlatform.h"
 #include "ClawClash/StageMap/StageMapParts/CCField.h"
@@ -24,6 +24,8 @@ void UCCTilePlacer::InitializeTileMap(UPaperTileMapComponent* TileMapComponent, 
     TileMapWidth = Columns;
     TileWidth = NewTileWidth;
     TileHeight = NewTileHeight;
+
+    StageMapManager = UCCManagers::GetInstance()->GetStageMapManager();
 
     if (TileMapComponent && TileSet)
     {
@@ -87,18 +89,13 @@ void UCCTilePlacer::SetupTileColliders(UPaperTileMapComponent* TileMapComponent,
 {
     int32 TileSize = UCCManagers::GetInstance()->GetStageMapManager()->TileHeight;
 
-    // 새로운 콜라이더 생성
     UCCTileCollider* CustomCollider = NewObject<UCCTileCollider>(TileMapComponent->GetOwner());
     ColliderArr.Add(CustomCollider);
-
-    // 콜라이더를 타일맵 컴포넌트에 부착
     CustomCollider->AttachToComponent(TileMapComponent, FAttachmentTransformRules::KeepRelativeTransform);
 
-    // 콜라이더 설정
     CustomCollider->SetBoxExtent(FVector(TileSize / 2, 1000.0f, TileSize / 2));
     CustomCollider->SetRelativeLocation(FVector(Column * TileSize, 0, -Row * TileSize));
 
-    // 콜라이더 등록
     CustomCollider->RegisterComponent();
 }
 
@@ -246,9 +243,6 @@ void UCCTilePlacer::CreateBasic(UPaperTileMapComponent* TileMapComponent, int32 
 void UCCTilePlacer::CreateRaccoonHouse(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Length)
 {
     if (!CreatNoneBasicFieldTile(TileMapComponent, EFieldType::RaccoonHouseField, Column, Row, Length)) return;
-    // FSpawnableField NewField;
-    // NewField.SpawnableType = ESpawnableType::Raccon;
-    // UCCManagers::GetInstance()->GetSpawnManager()->SpawnFieldMap;
 }
 
 void UCCTilePlacer::CreateDogHouse(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Length)
@@ -264,6 +258,12 @@ void UCCTilePlacer::CreatWaterSide(UPaperTileMapComponent* TileMapComponent, int
 void UCCTilePlacer::CreateCave(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Length)
 {
     if (!CreatNoneBasicFieldTile(TileMapComponent, EFieldType::CaveField, Column, Row, Length)) return;
+    FSpawnableField NewField;
+    NewField.SpawnableType = ESpawnableType::Rat;
+    NewField.LeftEnd = FVector(Column * StageMapManager->TileWidth, 0, -Row * StageMapManager->TileHeight + StageMapManager->TileHeight / 2);
+    NewField.RightEnd = FVector((Column + Length - 1) * StageMapManager->TileWidth, 0, -Row * StageMapManager->TileHeight + StageMapManager->TileHeight / 2);
+    NewField.MaxCharacterNum = Length;
+    UCCManagers::GetInstance()->GetSpawnManager()->SpawnFieldMap.Find(EFieldType::CaveField)->SpawnableFieldArr.Add(NewField);
 }
 
 void UCCTilePlacer::CreateAsphalt(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Length)

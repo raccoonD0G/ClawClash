@@ -16,6 +16,7 @@ public:
 	FVector LeftEnd;
 	FVector RightEnd;
 	ESpawnableType SpawnableType;
+	int32 MaxCharacterNum;
 };
 
 USTRUCT()
@@ -35,6 +36,7 @@ class CLAWCLASH_API UCCSpawnManager : public UObject
 	
 public:
 	UCCSpawnManager();
+	void Init();
 
 public:
 	TMap<EFieldType, FSpawnableFieldArrContainer> SpawnFieldMap;

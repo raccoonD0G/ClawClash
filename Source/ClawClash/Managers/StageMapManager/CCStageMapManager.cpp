@@ -114,10 +114,6 @@ void UCCStageMapManager::AddFeatureInfo(const FString& FolderPath, TMap<EFeature
     }
 
     TArray<UPaperSprite*> SpriteArr = UCCManagers::GetInstance()->GetAllSpritesFromFolder(*FolderPath);
-    if (FeatureInfoArr.Num() != SpriteArr.Num())
-    {
-        UE_LOG(LogTemp, Log, TEXT("FeatureRatio Length and FeatureSprite Length Not Same"));
-    }
 
     for (int32 i = 0; i < SpriteArr.Num(); ++i)
     {

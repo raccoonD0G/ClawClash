@@ -45,6 +45,9 @@ protected:
 	UPROPERTY()
 	TMap<ETileType, FPaperTileInfo> TileInfoPerTileDic;
 
+	UPROPERTY()
+	TObjectPtr<class UCCStageMapManager> StageMapManager;
+
 public:
 	UPROPERTY()
 	TArray<TObjectPtr<class UCCTileCollider>> ColliderArr;

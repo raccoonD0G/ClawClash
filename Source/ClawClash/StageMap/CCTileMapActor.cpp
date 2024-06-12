@@ -30,6 +30,11 @@ ACCTileMapActor::ACCTileMapActor()
     BackgroundComponent->SetupAttachment(RootComponent);
     TilePlacer = CreateDefaultSubobject<UCCTilePlacer>(TEXT("TileMapPlacer"));
     SpritePlacer = CreateDefaultSubobject<UCCSpritePlacer>(TEXT("SpritePlacer"));
+
+    FieldTileMapComponent->SetCollisionObjectType(ECC_WorldStatic);
+    FieldTileMapComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
+    FieldTileMapComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECR_Block);
+    FieldTileMapComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 }
 
 void ACCTileMapActor::InitializeTileMap()
