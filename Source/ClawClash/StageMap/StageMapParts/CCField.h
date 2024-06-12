@@ -4,14 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "ClawClash/TileMap/CCStageMap.h"
+#include "ClawClash/StageMap/CCStageMapDef.h"
+#include "CCTileMapLineParts.h"
 #include "CCField.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class CLAWCLASH_API UCCField : public UObject
+class CLAWCLASH_API UCCField : public UCCTileMapLineParts
 {
 	GENERATED_BODY()
 	
@@ -20,14 +21,9 @@ public:
 
 protected:
 	EFieldType FieldType;
-	int32 StartPos;
-	int32 Length;
 
 public:
-	int32 GetStartPos();
 	void AddStartPos(int32 AddedNum);
-	int32 GetLength();
 	EFieldType GetFieldType();
-	void SetStartPos(int32 NewStartPos);
-	void Init(int32 NewStartPos, int32 NewLength, EFieldType NewFieldType);
+	void Init(FIntVector2 NewTileMapPos, int32 NewLength, EFieldType NewFieldTypee);
 };

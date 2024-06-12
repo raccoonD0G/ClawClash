@@ -10,17 +10,16 @@
 #include "PaperSpriteComponent.h"
 
 #include "Kismet/GameplayStatics.h"
-#include "ClawClash/CCGameInstance.h"
-#include "ClawClash/Managers/CCStageMapManager.h"
+#include "ClawClash/GameInstance/CCGameInstance.h"
+#include "ClawClash/Managers/StageMapManager/CCStageMapManager.h"
 #include "ClawClash/Managers/CCManagers.h"
 
-#include "CCFloor.h"
-#include "CCPlatform.h"
-#include "CCField.h"
-#include "ClawClash/TileMap/CCStageMap.h"
+#include "ClawClash/StageMap/StageMapParts/CCPlatform.h"
+#include "ClawClash/StageMap/StageMapParts/CCField.h"
+#include "ClawClash/StageMap/CCStageMapDef.h"
 
-#include "ClawClash/TileMap/CCSpritePlacer.h"
-#include "ClawClash/TileMap/CCTilePlacer.h"
+#include "ClawClash/StageMap/StageMapPlacer/CCSpritePlacer.h"
+#include "ClawClash/StageMap/StageMapPlacer/CCTilePlacer.h"
 
 ACCTileMapActor::ACCTileMapActor()
 {
@@ -45,8 +44,8 @@ void ACCTileMapActor::InitializeTileMap()
         TilePlacer->InitializeTileSet(FieldTileSet);
         TilePlacer->InitializeTileMap(FieldTileMapComponent, FieldTileSet, TileMapHeight, TileMapWidth, TileWidth, TileHeight);
         TilePlacer->CreatAllField(FieldTileMapComponent);
-        TilePlacer->FillInEmpty(FieldTileMapComponent);
         TilePlacer->FillInBasic(FieldTileMapComponent);
+
     }
 }
 
@@ -87,7 +86,6 @@ void ACCTileMapActor::BeginPlay()
     // Initialize Player
     Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 
-    UCCManagers::GetInstance()->GetStageMapManager()->CreateStageMap();
     InitializeTileMap();
     FieldTileMapComponent->RebuildCollision();
     PlaceFieldSprites();

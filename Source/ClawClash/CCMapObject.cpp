@@ -63,8 +63,6 @@ void ACCMapObject::NotifyActorBeginOverlap(AActor* OtherActor)
 	{
 		PlayerWho(Player);
 	}
-	int32 outer = Player->test;
-	UE_LOG(LogTemp, Warning,TEXT("%d"), outer);
 }
 
 void ACCMapObject::PlayerWho(AActor *Actor)
@@ -83,7 +81,6 @@ void ACCMapObject::PlayerWho(AActor *Actor)
 				{
 					int32 PlayerIndex = LocalPlayer->GetControllerId();
 					UE_LOG(LogTemp, Warning, TEXT("Player Index: %d"), PlayerIndex);
-					MyCharacter->test++;
 				}
 			}
 		}

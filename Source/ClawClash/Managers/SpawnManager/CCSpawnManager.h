@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "ClawClash/TileMap/CCStageMap.h"
+#include "ClawClash/StageMap/CCStageMapDef.h"
 #include "CCSpawn.h"
 #include "CCSpawnManager.generated.h"
 

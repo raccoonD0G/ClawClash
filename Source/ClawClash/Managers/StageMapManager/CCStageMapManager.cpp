@@ -6,12 +6,13 @@
 #include "Kismet/GameplayStatics.h"
 #include "ClawClash/Managers/CCManagers.h"
 
-#include "ClawClash/TileMap/CCStageMap.h"
-#include "ClawClash/TileMap/CCFloor.h"
+#include "ClawClash/StageMap/CCStageMapDef.h"
+#include "ClawClash/StageMap/StageMapParts/CCPlatform.h"
+#include "ClawClash/StageMap/CCStageMap.h"
 #include "PaperSpriteComponent.h"
 #include "PaperSprite.h"
 
-#include "ClawClash/TileMap/CCRoom.h"
+#include "ClawClash/StageMap/StageMapParts/CCRoom.h"
 
 
 UCCStageMapManager::UCCStageMapManager()
@@ -21,55 +22,13 @@ UCCStageMapManager::UCCStageMapManager()
 void UCCStageMapManager::Init()
 {
     InitStageMapInfo();
+    StageMap = NewObject<UCCStageMap>();
+    StageMap->Init();
 }
 
-void UCCStageMapManager::SplitSpace(TArray<UCCRoom*>& OutRooms, UCCRoom* Space, int32 MinWidth, int32 MinHeight, int32 Depth)
+UCCStageMap& UCCStageMapManager::GetStageMap()
 {
-    if (Depth <= 0 || Space->Width <= MinWidth * 2 || Space->Height <= MinHeight * 2)
-    {
-        OutRooms.Add(Space);
-        return;
-    }
-
-    bool SplitHorizontally = (Space->Width > Space->Height);
-    if (SplitHorizontally)
-    {
-        int32 SplitPoint = FMath::RandRange(MinWidth, Space->Width - MinWidth);
-        TObjectPtr<UCCRoom> Room1 = NewObject<UCCRoom>();
-        Room1->Init(Space->X, Space->Y, SplitPoint, Space->Height);
-        TObjectPtr<UCCRoom> Room2 = NewObject<UCCRoom>();
-        Room2->Init(Space->X + SplitPoint, Space->Y, Space->Width - SplitPoint, Space->Height);
-        SplitSpace(OutRooms, Room1, MinWidth, MinHeight, Depth - 1);
-        SplitSpace(OutRooms, Room2, MinWidth, MinHeight, Depth - 1);
-    }
-    else
-    {
-        int32 SplitPoint = FMath::RandRange(MinHeight, Space->Height - MinHeight);
-        TObjectPtr<UCCRoom> Room1 = NewObject<UCCRoom>();
-        Room1->Init(Space->X, Space->Y, Space->Width, SplitPoint);
-        TObjectPtr<UCCRoom> Room2 = NewObject<UCCRoom>();
-        Room2->Init(Space->X, Space->Y + SplitPoint, Space->Width, Space->Height - SplitPoint);
-        SplitSpace(OutRooms, Room1, MinWidth, MinHeight, Depth - 1);
-        SplitSpace(OutRooms, Room2, MinWidth, MinHeight, Depth - 1);
-    }
-}
-
-void UCCStageMapManager::GenerateRooms(TArray<UCCRoom*>& OutRooms, int32 MapWidth, int32 MapHeight, int32 MinWidth, int32 MinHeight)
-{
-    TObjectPtr<UCCRoom> InitialSpace = NewObject<UCCRoom>();
-    InitialSpace->Init(0, 0, MapWidth, MapHeight);
-    int32 MaxDepth = 20; // Àç±Í ±íÀÌ Á¶Á¤
-    SplitSpace(OutRooms, InitialSpace, MinWidth, MinHeight, MaxDepth);
-}
-
-
-void UCCStageMapManager::CreateStageMap()
-{
-    GenerateRooms(RoomArr, TileMapWidth, TileMapHeight, MinFloorHeight, MinFloorLength);
-    for (UCCRoom* Room : RoomArr)
-    {
-        Room->GenerateFloor();
-    }
+    return *StageMap;
 }
 
 void UCCStageMapManager::InitStageMapInfo()
@@ -85,7 +44,7 @@ void UCCStageMapManager::InitFieldRatioMap()
     FieldRatioMap.Add(EFieldType::WatersideField, 0.1f);
     FieldRatioMap.Add(EFieldType::AsphaltField, 0.1f);
     FieldRatioMap.Add(EFieldType::CaveField, 0.1f);
-    FieldRatioMap.Add(EFieldType::HillField, 0.03f);
+    FieldRatioMap.Add(EFieldType::HillField, 0.00f);
     FieldRatioMap.Add(EFieldType::RaccoonHouseField, 0.1f);
     FieldRatioMap.Add(EFieldType::DogHouseField, 0.1f);
 }

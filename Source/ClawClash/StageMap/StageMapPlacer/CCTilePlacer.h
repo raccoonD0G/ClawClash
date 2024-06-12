@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "CCStageMap.h"
+#include "ClawClash/StageMap/CCStageMapDef.h"
 #include "PaperTileLayer.h"
 #include "CCTilePlacer.generated.h"
 
@@ -16,16 +16,6 @@ public:
 	FPaperTileInfo LeftTile;
 	FPaperTileInfo MiddleTile;
 	FPaperTileInfo RightTile;
-};
-
-USTRUCT()
-struct FCCFieldWorldInfo
-{
-	GENERATED_BODY()
-public:
-	float LeftXPos;
-	float RightXPos;
-	EFieldType FieldType;
 };
 
 class UPaperTileMapComponent;
@@ -55,16 +45,17 @@ protected:
 	UPROPERTY()
 	TMap<ETileType, FPaperTileInfo> TileInfoPerTileDic;
 
+public:
 	UPROPERTY()
-	TArray<FCCFieldWorldInfo> FieldWorldInfoArr;
+	TArray<TObjectPtr<class UCCTileCollider>> ColliderArr;
 
 // TileMap Section
 public:
 	void InitializeTileMap(UPaperTileMapComponent* TileMapComponent, UPaperTileSet* TileSet, int32 Rows, int32 Columns, float NewTileWidth, float NewTileHeight);
 	void InitializeTileSet(UPaperTileSet* NewFieldTileSet);
 	void CreatAllField(UPaperTileMapComponent* TileMapComponent);
-	void FillInEmpty(UPaperTileMapComponent* TileMapComponent);
 	void FillInBasic(UPaperTileMapComponent* TileMapComponent);
+	void SetupTileColliders(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row);
 
 protected:
 	FVector GetWorldLocationFromTile(UPaperTileMapComponent* TileMapComponent, int32 Row, int32 Column);

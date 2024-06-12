@@ -4,13 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "ClawClash/TileMap/CCStageMap.h"
+#include "ClawClash/StageMap/CCStageMapDef.h"
+#include "CCTileMapLineParts.h"
 #include "CCPlatform.generated.h"
+
 /**
  * 
  */
 UCLASS()
-class CLAWCLASH_API UCCPlatform : public UObject
+class CLAWCLASH_API UCCPlatform : public UCCTileMapLineParts
 {
 	GENERATED_BODY()
 	
@@ -18,20 +20,17 @@ public:
 	UCCPlatform();
 
 protected:
-	int32 StartPos;
-	int32 Length;
-	bool bIsBottom;
+	bool bIsHillNecessary;
 
 	EFieldType GetRandomField(const TMap<EFieldType, float>& FieldRatioMap);
 
-public:
-	void Init(int32 NewStartPos, int32 NewLength, bool NewIsBottom);
-	void CreatFieldOnPlatform();
-	int32 GetStartPos();
-	int32 GetLength();
-
 	UPROPERTY()
-	TArray<TObjectPtr<class UCCField>> FieldsInPlatformArr;
+	TArray<TObjectPtr<class UCCField>> FieldArr;
+public:
+	void Init(FIntVector2 NewTileMapPos, int32 NewLength, bool NewIsHillNecessary);
+	void CreatFieldOnPlatform();
+
+	const TArray<class UCCField*>& GetFieldArr() const;
 
 	void ShuffleArray(TArray<TObjectPtr<UCCField>>& Array);
 };

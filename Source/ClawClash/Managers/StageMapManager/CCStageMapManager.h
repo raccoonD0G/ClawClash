@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 
-#include "ClawClash/TileMap/CCStageMap.h"
+#include "ClawClash/StageMap/CCStageMapDef.h"
 
 #include "CCStageMapManager.generated.h"
 
@@ -43,6 +43,8 @@ public:
 };
 
 class UCCRoom;
+class UCCPlatform;
+class UCCStageMap;
 /**
  * 
  */
@@ -64,14 +66,11 @@ public:
     const float FieldTileY = 50.1f;
 
 // Creat Section
+protected:
+    TObjectPtr<UCCStageMap> StageMap;
+
 public:
-
-    UPROPERTY()
-    TArray<TObjectPtr<UCCRoom>> RoomArr;
-
-    void SplitSpace(TArray<UCCRoom*>& OutRooms, UCCRoom* Space, int32 MinWidth, int32 MinHeight, int32 Depth);
-    void GenerateRooms(TArray<UCCRoom*>& OutRooms, int32 MapWidth, int32 MapHeight, int32 MinWidth, int32 MinHeight);
-    void CreateStageMap();
+    UCCStageMap& GetStageMap();
 
 // Info Section
 public:

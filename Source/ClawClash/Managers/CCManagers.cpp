@@ -2,8 +2,8 @@
 
 
 #include "CCManagers.h"
-#include "ClawClash/Managers/CCStageMapManager.h"
-#include "ClawClash/Managers/CCSpawnManager.h"
+#include "ClawClash/Managers/StageMapManager/CCStageMapManager.h"
+#include "ClawClash/Managers/SpawnManager/CCSpawnManager.h"
 #include "CCManagers.h"
 
 #include "AssetRegistry/AssetRegistryModule.h"

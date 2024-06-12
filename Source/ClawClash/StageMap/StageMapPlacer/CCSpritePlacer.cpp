@@ -5,14 +5,14 @@
 #include "PaperTileMapComponent.h"
 #include "PaperTileMap.h"
 #include "PaperSpriteComponent.h"
-#include "ClawClash/TileMap/CCBoxQuadTreeNode.h"
+#include "ClawClash/StageMap/CCBoxQuadTreeNode.h"
 #include "PaperSpriteComponent.h"
 #include "PaperSprite.h"
-#include "ClawClash/Managers/CCStageMapManager.h"
+#include "ClawClash/Managers/StageMapManager/CCStageMapManager.h"
 #include "ClawClash/Managers/CCManagers.h"
-#include "CCPlatform.h"
-#include "CCFloor.h"
-#include "CCField.h"
+#include "ClawClash/StageMap/StageMapParts/CCPlatform.h"
+#include "ClawClash/StageMap/StageMapParts/CCField.h"
+#include "ClawClash/StageMap/CCStageMap.h"
 #include "PaperTileLayer.h"
 
 TArray<FVector> UCCSpritePlacer::PlaceSprites(UPaperTileMapComponent* TileMapComponent, FVector2D StartingTile, int32 OffsetTiles, float TileInterval, const TArray<FCCFeatureInfo>& FeatureInfoArr, bool bIsBeforePlayer, bool bAllowOverlap, bool bAddToCollisionTree, int32 MinSpriteNum, int32 MaxSpriteNum)
@@ -47,8 +47,9 @@ TArray<FVector> UCCSpritePlacer::PlaceSprites(UPaperTileMapComponent* TileMapCom
                 if (Index != 0)
                 {
                     Index--;
+                    float RandomScale = FMath::RandRange(1.0f, 1.5f);
                     float YPos = CalculateYPos(bIsBeforePlayer);
-                    FVector LocalPos = CalculateLocalPos(TileMapComponent, i, StartPos, TileSize, FeatureInfoArr[Index].FeatureSprite);
+                    FVector LocalPos = CalculateLocalPos(TileMapComponent, i, StartPos, TileSize, FeatureInfoArr[Index].FeatureSprite, RandomScale);
                     LocalPos.Y = YPos;
 
                     FBox2D BoxForSprite(FVector2D(LocalPos.X, LocalPos.Z), FVector2D(LocalPos.X + FeatureInfoArr[Index].FeatureSprite->GetSourceSize().X, LocalPos.Z + FeatureInfoArr[Index].FeatureSprite->GetSourceSize().Y));
@@ -57,7 +58,7 @@ TArray<FVector> UCCSpritePlacer::PlaceSprites(UPaperTileMapComponent* TileMapCom
                     {
                         if (SpriteNum >= MaxSpriteNum) return PlacedSpritePositions;
                         SpriteNum++;
-                        CreateAndAttachSpriteComponent(TileMapComponent->GetOwner(), FeatureInfoArr[Index].FeatureSprite, LocalPos, bAddToCollisionTree, BoxForSprite);
+                        CreateAndAttachSpriteComponent(TileMapComponent->GetOwner(), FeatureInfoArr[Index].FeatureSprite, LocalPos, bAddToCollisionTree, BoxForSprite, RandomScale);
                         LocalPos.Y = FieldTileY;
                         PlacedSpritePositions.Add(LocalPos);
                     }
@@ -88,7 +89,6 @@ float UCCSpritePlacer::CalculateYPos(bool bIsBeforePlayer)
 
 void UCCSpritePlacer::InitializeSprite(UPaperTileMapComponent* TileMapComponent, int32 Rows, int32 Columns, float NewTileWidth, float NewTileHeight)
 {
-    /*
     TileMapHeight = Rows;
     TileMapWidth = Columns;
     TileWidth = NewTileWidth;
@@ -102,20 +102,14 @@ void UCCSpritePlacer::InitializeSprite(UPaperTileMapComponent* TileMapComponent,
     RootNode = NewObject<UCCBoxQuadTreeNode>();
     RootNode->Initialize(FVector2D(0, -UCCManagers::GetInstance()->GetStageMapManager()->TileMapHeight * 512), FVector2D(UCCManagers::GetInstance()->GetStageMapManager()->TileMapWidth * 512, 0), 10);
 
-    int32 FloorNum = 0;
-    for (int32 Row = (TileMapHeight / UCCManagers::GetInstance()->GetStageMapManager()->NumOfFloor) - 1; Row <= TileMapHeight; Row += TileMapHeight / UCCManagers::GetInstance()->GetStageMapManager()->NumOfFloor)
+    for (UCCPlatform* Platform : UCCManagers::GetInstance()->GetStageMapManager()->GetStageMap().GetPlatformArr())
     {
-        for (TObjectPtr<UCCPlatform> Platform : UCCManagers::GetInstance()->GetStageMapManager()->FloorArr[FloorNum]->PlatformArr)
+        TreePosArr.Append(PlaceSprites(TileMapComponent, FVector2D(Platform->GetStartPos().X, Platform->GetStartPos().Y), Platform->GetLength(), FMath::RandRange(30.0, 60.0), UCCManagers::GetInstance()->GetStageMapManager()->FeatureInfoMap.Find(EFeatureType::TreeFeature)->FeatureInfoArr, false, true, false));
+        for (UCCField* Field : Platform->GetFieldArr())
         {
-            TreePosArr.Append(PlaceSprites(TileMapComponent, FVector2D(0.0, Row), Platform->GetLength(), FMath::RandRange(30.0, 60.0), UCCManagers::GetInstance()->GetStageMapManager()->FeatureInfoMap.Find(EFeatureType::TreeFeature)->FeatureInfoArr, false, true, false));
-            for (TObjectPtr<UCCField> Field : Platform->FieldsInPlatformArr)
-            {
-                CreateSpriteByType(TileMapComponent, Field->GetFieldType(), Platform->GetStartPos() + Field->GetStartPos(), Row, Field->GetLength());
-            }
+            CreateSpriteByType(TileMapComponent, Field->GetFieldType(), Field->GetStartPos().X, Field->GetStartPos().Y, Field->GetLength());
         }
-        FloorNum++;
     }
-    */
 }
 
 FVector2D UCCSpritePlacer::GetTileSize(UPaperTileMapComponent* TileMapComponent) const
@@ -131,7 +125,7 @@ FVector2D UCCSpritePlacer::CalculateEndLocalPos(UPaperTileMapComponent* TileMapC
         return StartLocalPos + FVector2D(TileMapComponent->TileMap->TileWidth * (UCCManagers::GetInstance()->GetStageMapManager()->TileMapWidth - 1) - StartLocalPos.X, 0);
 }
 
-void UCCSpritePlacer::CreateAndAttachSpriteComponent(AActor* Owner, UPaperSprite* FeatureSprite, FVector LocalPos, bool bAddToCollisionTree, FBox2D BoxForSprite)
+void UCCSpritePlacer::CreateAndAttachSpriteComponent(AActor* Owner, UPaperSprite* FeatureSprite, FVector LocalPos, bool bAddToCollisionTree, FBox2D BoxForSprite, float RandomScale)
 {
     if (!Owner || !FeatureSprite)
     {
@@ -146,6 +140,7 @@ void UCCSpritePlacer::CreateAndAttachSpriteComponent(AActor* Owner, UPaperSprite
         NewSpriteComponent->SetSprite(FeatureSprite);
         NewSpriteComponent->SetRelativeLocation(LocalPos);
         NewSpriteComponent->SetCollisionProfileName(TEXT("NoCollision"));
+        NewSpriteComponent->SetRelativeScale3D(FVector(RandomScale, 1, RandomScale));
 
         if (bAddToCollisionTree)
         {
@@ -155,9 +150,9 @@ void UCCSpritePlacer::CreateAndAttachSpriteComponent(AActor* Owner, UPaperSprite
     }
 }
 
-FVector UCCSpritePlacer::CalculateLocalPos(UPaperTileMapComponent* TileMapComponent, float XPos, FVector StartPos, FVector2D TileSize, UPaperSprite* FeatureSprite)
+FVector UCCSpritePlacer::CalculateLocalPos(UPaperTileMapComponent* TileMapComponent, float XPos, FVector StartPos, FVector2D TileSize, UPaperSprite* FeatureSprite, float RandomScale)
 {
-    return FVector(XPos, StartPos.Y, TileMapComponent->GetRelativeLocation().Y + -StartPos.Y + TileSize.Y + (FeatureSprite->GetSourceSize().Y - 512) / 2);
+    return FVector(XPos, StartPos.Y, TileMapComponent->GetRelativeLocation().Y + TileSize.Y / 2 - StartPos.Y + (FeatureSprite->GetSourceSize().Y * RandomScale) / 2);
 }
 
 TArray<FVector> UCCSpritePlacer::CreateSpriteByType(UPaperTileMapComponent* TileMapComponent, EFieldType CurrentType, int32 Column, int32 Row, int32 Length)

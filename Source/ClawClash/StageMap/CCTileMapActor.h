@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "PaperTileLayer.h"
-#include "ClawClash/TileMap/CCStageMap.h"
+#include "ClawClash/StageMap/CCStageMapDef.h"
 #include "CCTileMapActor.generated.h"
 
 class UPaperTileMap;

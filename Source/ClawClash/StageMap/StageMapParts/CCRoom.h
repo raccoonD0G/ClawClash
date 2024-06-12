@@ -4,38 +4,34 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "CCTileMapParts.h"
 #include "CCRoom.generated.h"
 
+class UCCPlatform;
 /**
  * 
  */
 UCLASS()
-class CLAWCLASH_API UCCRoom : public UObject
+class CLAWCLASH_API UCCRoom : public UCCTileMapParts
 {
 	GENERATED_BODY()
+	
+protected:
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    TObjectPtr<UCCPlatform> Platform;
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 X;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    int32 Y;
-
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     int32 Width;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     int32 Height;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    TObjectPtr<class UCCFloor> FloorInBox;
+    const UCCPlatform* GetPlatform() const;
 
-    int32 FloorStartX;
-    int32 FloorStartY;
+    void Init(FIntVector2 NewTileMapPos, int32 InWidth, int32 InHeight);
 
-    void Init(int32 InX, int32 InY, int32 InWidth, int32 InHeight);
+    FIntVector2 GetCenter() const;
 
-    FVector2D GetCenter() const;
-
-    void GenerateFloor();
+    UCCPlatform* GeneratePlatform();
 };

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "CCStageMap.h"
+#include "ClawClash/StageMap/CCStageMapDef.h"
 #include "CCSpritePlacer.generated.h"
 
 class UPaperTileMapComponent;
@@ -46,8 +46,8 @@ protected:
     
     FVector2D GetTileSize(UPaperTileMapComponent* TileMapComponent) const;
     FVector2D CalculateEndLocalPos(UPaperTileMapComponent* TileMapComponent, int32 OffsetTiles, FVector2D TileSize, FVector2D StartLocalPos) const;
-    void CreateAndAttachSpriteComponent(AActor* Owner, UPaperSprite* FeatureSprite, FVector LocalPos, bool bAddToCollisionTree, FBox2D BoxForSprite);
-    FVector CalculateLocalPos(UPaperTileMapComponent* TileMapComponent, float XPos, FVector StartPos, FVector2D TileSize, UPaperSprite* FeatureSprite);
+    void CreateAndAttachSpriteComponent(AActor* Owner, UPaperSprite* FeatureSprite, FVector LocalPos, bool bAddToCollisionTree, FBox2D BoxForSprite, float RandomScale);
+    FVector CalculateLocalPos(UPaperTileMapComponent* TileMapComponent, float XPos, FVector StartPos, FVector2D TileSize, UPaperSprite* FeatureSprite, float RandomScale);
 
     UPROPERTY()
     TObjectPtr<class UCCBoxQuadTreeNode> RootNode;
