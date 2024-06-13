@@ -47,12 +47,12 @@ void ACCPaperNonPlayer::SetMaxRightXPos(float NewMaxRightX)
     MaxRightXPos = NewMaxRightX;
 }
 
-FVector ACCPaperNonPlayer::GetTargetLocation() const
+FVector ACCPaperNonPlayer::GetDest() const
 {
     return TargetLocation;
 }
 
-void ACCPaperNonPlayer::SetTargetLocation(FVector NewTargetLocation)
+void ACCPaperNonPlayer::SetDest(FVector NewTargetLocation)
 {
     if (NewTargetLocation.X >= GetActorLocation().X)
     {

@@ -60,9 +60,9 @@ TArray<FVector> UCCSpritePlacer::PlaceSprites(UPaperTileMapComponent* TileMapCom
         if (Index != 0)
         {
             Index--;
-            float RandomScale = FMath::RandRange(0.8f, 1.2f);
+            float RandomScale = FMath::RandRange(0.8f, 1.0f);
             FVector LocalPos = CalculateLocalPos(TileMapComponent, StartPos.X + TileSize.X * Offset, StartPos, TileSize, FeatureInfoArr[Index].FeatureSprite, RandomScale, bIsBeforePlayer);
-            FBox2D BoxForSprite(FVector2D(LocalPos.X, LocalPos.Z), FVector2D(LocalPos.X + FeatureInfoArr[Index].FeatureSprite->GetSourceSize().X, LocalPos.Z + FeatureInfoArr[Index].FeatureSprite->GetSourceSize().Y));
+            FBox2D BoxForSprite(FVector2D(LocalPos.X, LocalPos.Z), FVector2D(LocalPos.X + FeatureInfoArr[Index].FeatureSprite->GetRenderBounds().BoxExtent.X * 3, LocalPos.Z + FeatureInfoArr[Index].FeatureSprite->GetRenderBounds().BoxExtent.Z * 3));
             if (bAllowOverlap || !RootNode->IsColliding(BoxForSprite))
             {
                 if (SpriteNum >= MaxSpriteNum) return PlacedSpritePositions;
@@ -85,7 +85,7 @@ TArray<FVector> UCCSpritePlacer::PlaceSprites(UPaperTileMapComponent* TileMapCom
                 Index--;
                 float RandomScale = FMath::RandRange(1.0f, 1.5f);
                 FVector LocalPos = CalculateLocalPos(TileMapComponent, i, StartPos, TileSize, FeatureInfoArr[Index].FeatureSprite, RandomScale, bIsBeforePlayer);
-                FBox2D BoxForSprite(FVector2D(LocalPos.X, LocalPos.Z), FVector2D(LocalPos.X + FeatureInfoArr[Index].FeatureSprite->GetSourceSize().X, LocalPos.Z + FeatureInfoArr[Index].FeatureSprite->GetSourceSize().Y));
+                FBox2D BoxForSprite(FVector2D(LocalPos.X, LocalPos.Z), FVector2D(LocalPos.X + FeatureInfoArr[Index].FeatureSprite->GetRenderBounds().BoxExtent.X * 3, LocalPos.Z + FeatureInfoArr[Index].FeatureSprite->GetRenderBounds().BoxExtent.Z * 3));
 
                 if (bAllowOverlap || !RootNode->IsColliding(BoxForSprite))
                 {
@@ -184,7 +184,7 @@ void UCCSpritePlacer::CreateAndAttachSpriteComponent(AActor* Owner, UPaperSprite
 
 FVector UCCSpritePlacer::CalculateLocalPos(UPaperTileMapComponent* TileMapComponent, float XPos, FVector StartPos, FVector2D TileSize, UPaperSprite* FeatureSprite, float RandomScale, bool bIsBeforePlayer)
 {
-    return FVector(XPos, CalculateYPos(bIsBeforePlayer), TileMapComponent->GetRelativeLocation().Y + TileSize.Y / 2 - StartPos.Y + (FeatureSprite->GetSourceSize().Y * RandomScale) / 2);
+    return FVector(XPos, CalculateYPos(bIsBeforePlayer), TileMapComponent->GetRelativeLocation().Y + TileSize.Y / 2 - StartPos.Y);
 }
 
 TArray<FVector> UCCSpritePlacer::CreateSpriteByType(UPaperTileMapComponent* TileMapComponent, EFieldType CurrentType, int32 Column, int32 Row, int32 Length)

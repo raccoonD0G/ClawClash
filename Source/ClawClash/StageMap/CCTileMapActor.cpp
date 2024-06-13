@@ -66,9 +66,8 @@ void ACCTileMapActor::InitializeBackground()
         float TileMapHeightInPixels = UCCManagers::GetInstance()->GetStageMapManager()->TileMapHeight * 512;
 
         BackgroundComponent->SetSprite(BackGroundSprite);
-        FVector2D OriginalSize = BackgroundComponent->GetSprite()->GetSourceSize();
         BackgroundComponent->SetRelativeLocation(FVector(Player->GetActorLocation().X, BackgroundY - FieldTileY, Player->GetActorLocation().Z));
-        BackgroundComponent->SetRelativeScale3D(FVector(TileMapWidthInPixels / (2.0 * OriginalSize.X), 1.0f, TileMapWidthInPixels / (2.0 * OriginalSize.X)));
+        BackgroundComponent->SetRelativeScale3D(FVector(TileMapWidthInPixels / (2.0 * BackgroundComponent->GetSprite()->GetRenderBounds().BoxExtent.X * 2), 1.0f, TileMapWidthInPixels / (2.0 * BackgroundComponent->GetSprite()->GetRenderBounds().BoxExtent.X * 2)));
         BackgroundComponent->SetCollisionProfileName(TEXT("NoCollision"));
     }
 }

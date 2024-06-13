@@ -34,7 +34,7 @@ public:
 	float GetMaxRightXPos() const;
 	void SetMaxLeftXPos(float NewMaxLeftX);
 	void SetMaxRightXPos(float NewMaxRightX);
-	FVector GetTargetLocation() const;
-	void SetTargetLocation(FVector NewTargetLocation);
+	FVector GetDest() const;
+	void SetDest(FVector NewTargetLocation);
 	
 };
