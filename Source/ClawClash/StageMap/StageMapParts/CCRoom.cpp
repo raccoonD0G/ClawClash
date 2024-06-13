@@ -18,7 +18,7 @@ void UCCRoom::Init(FIntVector2 NewTileMapPos, int32 InWidth, int32 InHeight)
     UCCTileMapParts::Init(NewTileMapPos);
     Width = InWidth;
     Height = InHeight;
-}
+} 
 
 FIntVector2 UCCRoom::GetCenter() const
 {
@@ -28,7 +28,7 @@ FIntVector2 UCCRoom::GetCenter() const
 UCCPlatform* UCCRoom::GeneratePlatform()
 {
     int32 FloorStartX = FMath::RandRange(TileMapPos.X, TileMapPos.X + Width - UCCManagers::GetInstance()->GetStageMapManager()->MinFloorLength);
-    int32 FloorStartY = FMath::RandRange(TileMapPos.Y + UCCManagers::GetInstance()->GetStageMapManager()->MinFloorHeight, TileMapPos.Y + Height);
+    int32 FloorStartY = FMath::RandRange(TileMapPos.Y + UCCManagers::GetInstance()->GetStageMapManager()->MinFloorHeight, TileMapPos.Y + Height - 1);
     Platform = NewObject<UCCPlatform>();
     int32 FloorLength = FMath::RandRange(UCCManagers::GetInstance()->GetStageMapManager()->MinFloorLength, Width - FloorStartX + TileMapPos.X);
     Platform->Init(FIntVector2(FloorStartX, FloorStartY), FloorLength, false);

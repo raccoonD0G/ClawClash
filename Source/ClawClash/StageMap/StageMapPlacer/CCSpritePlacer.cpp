@@ -37,31 +37,63 @@ TArray<FVector> UCCSpritePlacer::PlaceSprites(UPaperTileMapComponent* TileMapCom
     FVector StartPos = ActorTransform.TransformPosition(FVector(StartLocalPos, 0.0f));
     FVector EndPos = ActorTransform.TransformPosition(FVector(EndLocalPos, 0.0f));
 
+
+    int32 PossibleOffset = OffsetTiles / TileInterval;
+    TArray<int32> NecessarySpriteOffset;
+    while (MinSpriteNum > NecessarySpriteOffset.Num())
+    {
+        int32 Offset = FMath::RandRange(0, PossibleOffset - 1);
+        if (NecessarySpriteOffset.Contains(Offset) == false)
+        {
+            NecessarySpriteOffset.Add(Offset);
+        }
+    }
+
+    for (int32 Offset : NecessarySpriteOffset)
+    {
+        int32 Index = 0; 
+        while (Index != 0)
+        {
+            Index = UCCManagers::GetInstance()->GetRandomIndexByProbability(FeatureInfoArr);
+        }
+
+        if (Index != 0)
+        {
+            Index--;
+            float RandomScale = FMath::RandRange(0.8f, 1.2f);
+            FVector LocalPos = CalculateLocalPos(TileMapComponent, StartPos.X + TileSize.X * Offset, StartPos, TileSize, FeatureInfoArr[Index].FeatureSprite, RandomScale, bIsBeforePlayer);
+            FBox2D BoxForSprite(FVector2D(LocalPos.X, LocalPos.Z), FVector2D(LocalPos.X + FeatureInfoArr[Index].FeatureSprite->GetSourceSize().X, LocalPos.Z + FeatureInfoArr[Index].FeatureSprite->GetSourceSize().Y));
+            if (bAllowOverlap || !RootNode->IsColliding(BoxForSprite))
+            {
+                if (SpriteNum >= MaxSpriteNum) return PlacedSpritePositions;
+                SpriteNum++;
+                CreateAndAttachSpriteComponent(TileMapComponent->GetOwner(), FeatureInfoArr[Index].FeatureSprite, LocalPos, bAddToCollisionTree, BoxForSprite, RandomScale);
+                LocalPos.Y = FieldTileY;
+                PlacedSpritePositions.Add(LocalPos);
+            }
+        }
+    }
+
+
     do
     {
         for (float i = StartPos.X + TileSize.X * TileInterval; i <= EndPos.X; i += TileSize.X * TileInterval)
         {
-            if (TileMapComponent->GetTile(StartingTile.X + (i - StartPos.X) / TileSize.X, StartingTile.Y, 0).GetTileIndex() != (int32)ETileType::HillSpace)
+            int32 Index = UCCManagers::GetInstance()->GetRandomIndexByProbability(FeatureInfoArr);
+            if (Index != 0)
             {
-                int32 Index = UCCManagers::GetInstance()->GetRandomIndexByProbability(FeatureInfoArr);
-                if (Index != 0)
+                Index--;
+                float RandomScale = FMath::RandRange(1.0f, 1.5f);
+                FVector LocalPos = CalculateLocalPos(TileMapComponent, i, StartPos, TileSize, FeatureInfoArr[Index].FeatureSprite, RandomScale, bIsBeforePlayer);
+                FBox2D BoxForSprite(FVector2D(LocalPos.X, LocalPos.Z), FVector2D(LocalPos.X + FeatureInfoArr[Index].FeatureSprite->GetSourceSize().X, LocalPos.Z + FeatureInfoArr[Index].FeatureSprite->GetSourceSize().Y));
+
+                if (bAllowOverlap || !RootNode->IsColliding(BoxForSprite))
                 {
-                    Index--;
-                    float RandomScale = FMath::RandRange(1.0f, 1.5f);
-                    float YPos = CalculateYPos(bIsBeforePlayer);
-                    FVector LocalPos = CalculateLocalPos(TileMapComponent, i, StartPos, TileSize, FeatureInfoArr[Index].FeatureSprite, RandomScale);
-                    LocalPos.Y = YPos;
-
-                    FBox2D BoxForSprite(FVector2D(LocalPos.X, LocalPos.Z), FVector2D(LocalPos.X + FeatureInfoArr[Index].FeatureSprite->GetSourceSize().X, LocalPos.Z + FeatureInfoArr[Index].FeatureSprite->GetSourceSize().Y));
-
-                    if (bAllowOverlap || !RootNode->IsColliding(BoxForSprite))
-                    {
-                        if (SpriteNum >= MaxSpriteNum) return PlacedSpritePositions;
-                        SpriteNum++;
-                        CreateAndAttachSpriteComponent(TileMapComponent->GetOwner(), FeatureInfoArr[Index].FeatureSprite, LocalPos, bAddToCollisionTree, BoxForSprite, RandomScale);
-                        LocalPos.Y = FieldTileY;
-                        PlacedSpritePositions.Add(LocalPos);
-                    }
+                    if (SpriteNum >= MaxSpriteNum) return PlacedSpritePositions;
+                    SpriteNum++;
+                    CreateAndAttachSpriteComponent(TileMapComponent->GetOwner(), FeatureInfoArr[Index].FeatureSprite, LocalPos, bAddToCollisionTree, BoxForSprite, RandomScale);
+                    LocalPos.Y = FieldTileY;
+                    PlacedSpritePositions.Add(LocalPos);
                 }
             }
         }
@@ -150,9 +182,9 @@ void UCCSpritePlacer::CreateAndAttachSpriteComponent(AActor* Owner, UPaperSprite
     }
 }
 
-FVector UCCSpritePlacer::CalculateLocalPos(UPaperTileMapComponent* TileMapComponent, float XPos, FVector StartPos, FVector2D TileSize, UPaperSprite* FeatureSprite, float RandomScale)
+FVector UCCSpritePlacer::CalculateLocalPos(UPaperTileMapComponent* TileMapComponent, float XPos, FVector StartPos, FVector2D TileSize, UPaperSprite* FeatureSprite, float RandomScale, bool bIsBeforePlayer)
 {
-    return FVector(XPos, StartPos.Y, TileMapComponent->GetRelativeLocation().Y + TileSize.Y / 2 - StartPos.Y + (FeatureSprite->GetSourceSize().Y * RandomScale) / 2);
+    return FVector(XPos, CalculateYPos(bIsBeforePlayer), TileMapComponent->GetRelativeLocation().Y + TileSize.Y / 2 - StartPos.Y + (FeatureSprite->GetSourceSize().Y * RandomScale) / 2);
 }
 
 TArray<FVector> UCCSpritePlacer::CreateSpriteByType(UPaperTileMapComponent* TileMapComponent, EFieldType CurrentType, int32 Column, int32 Row, int32 Length)
@@ -200,7 +232,7 @@ TArray<FVector> UCCSpritePlacer::CreateAsphaltSprite(UPaperTileMapComponent* Til
 
 TArray<FVector> UCCSpritePlacer::CreateCaveSprite(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Length)
 {
-    PlaceSprites(TileMapComponent, FVector2D(Column, Row), Length, 1.0, UCCManagers::GetInstance()->GetStageMapManager()->FeatureInfoMap.Find(EFeatureType::RatCaveFeature)->FeatureInfoArr, true, true, false, 1, 4);
+    PlaceSprites(TileMapComponent, FVector2D(Column, Row), Length, 1.0, UCCManagers::GetInstance()->GetStageMapManager()->FeatureInfoMap.Find(EFeatureType::RatCaveFeature)->FeatureInfoArr, true, true, false, 4, 4);
     PlaceSprites(TileMapComponent, FVector2D(Column, Row), Length, 0.5, UCCManagers::GetInstance()->GetStageMapManager()->FeatureInfoMap.Find(EFeatureType::RockFeature)->FeatureInfoArr, false, true);
     return TArray<FVector>();
 }

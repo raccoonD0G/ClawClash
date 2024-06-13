@@ -47,7 +47,7 @@ protected:
     FVector2D GetTileSize(UPaperTileMapComponent* TileMapComponent) const;
     FVector2D CalculateEndLocalPos(UPaperTileMapComponent* TileMapComponent, int32 OffsetTiles, FVector2D TileSize, FVector2D StartLocalPos) const;
     void CreateAndAttachSpriteComponent(AActor* Owner, UPaperSprite* FeatureSprite, FVector LocalPos, bool bAddToCollisionTree, FBox2D BoxForSprite, float RandomScale);
-    FVector CalculateLocalPos(UPaperTileMapComponent* TileMapComponent, float XPos, FVector StartPos, FVector2D TileSize, UPaperSprite* FeatureSprite, float RandomScale);
+    FVector CalculateLocalPos(UPaperTileMapComponent* TileMapComponent, float XPos, FVector StartPos, FVector2D TileSize, UPaperSprite* FeatureSprite, float RandomScale, bool bIsBeforePlayer);
 
     UPROPERTY()
     TObjectPtr<class UCCBoxQuadTreeNode> RootNode;

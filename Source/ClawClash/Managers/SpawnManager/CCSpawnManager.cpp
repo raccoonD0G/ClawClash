@@ -3,6 +3,7 @@
 
 #include "CCSpawnManager.h"
 #include "ClawClash/Managers/SpawnManager/CCSpawn.h"
+#include "ClawClash/Managers/CCManagers.h"
 
 UCCSpawnManager::UCCSpawnManager()
 {
@@ -20,6 +21,6 @@ void UCCSpawnManager::Init()
 	FSpawnableFieldArrContainer RatFieldArr;
 	SpawnFieldMap.Add(EFieldType::CaveField, RatFieldArr);
 
-	
+	RatSpriteArr = UCCManagers::GetInstance()->GetAllResourceFromFolder<UPaperFlipbook>(TEXT("/Game/Sprite/NonPlayer/Rat"));
 }
 

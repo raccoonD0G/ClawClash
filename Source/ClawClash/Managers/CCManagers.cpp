@@ -6,10 +6,9 @@
 #include "ClawClash/Managers/SpawnManager/CCSpawnManager.h"
 #include "CCManagers.h"
 
-#include "AssetRegistry/AssetRegistryModule.h"
-#include "PaperSprite.h"
 
 TObjectPtr<UCCManagers> UCCManagers::Instance;
+
 
 UCCManagers* UCCManagers::GetInstance()
 {
@@ -119,34 +118,6 @@ int32 UCCManagers::GetRandomIndexByProbability(const TArray<FCCFeatureInfo>& Pro
     }
 
     return Low;
-}
-
-
-TArray<class UPaperSprite*> UCCManagers::GetAllSpritesFromFolder(const FString& SpritePath)
-{
-    TArray<UPaperSprite*> Sprites;
-
-    FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
-
-    FARFilter Filter;
-    Filter.PackagePaths.Add(FName(*SpritePath));
-    Filter.ClassPaths.Add(UPaperSprite::StaticClass()->GetClassPathName());
-    Filter.bRecursivePaths = true;
-
-    TArray<FAssetData> AssetDataList;
-    AssetRegistryModule.Get().GetAssets(Filter, AssetDataList);
-
-    for (const FAssetData& AssetData : AssetDataList)
-    {
-        TObjectPtr<UObject> AssetObject = AssetData.GetAsset();
-        UPaperSprite* Sprite = Cast<UPaperSprite>(AssetObject);
-        if (Sprite)
-        {
-            Sprites.Add(Sprite);
-        }
-    }
-
-    return Sprites;
 }
 
 int32 UCCManagers::GetEnumLength(UEnum* TargetEnum)

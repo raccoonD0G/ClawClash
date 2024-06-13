@@ -57,6 +57,9 @@ void ACCTileMapActor::InitializeTileMap()
 
 void ACCTileMapActor::InitializeBackground()
 {
+    int32 Index = FMath::RandRange(0, BackGroundSpriteArr.Num() - 1);
+    BackGroundSprite = BackGroundSpriteArr[Index];
+
     if (BackGroundSprite && BackgroundComponent)
     {
         float TileMapWidthInPixels = UCCManagers::GetInstance()->GetStageMapManager()->TileMapWidth * 512;
@@ -94,6 +97,7 @@ void ACCTileMapActor::BeginPlay()
     InitializeTileMap();
     FieldTileMapComponent->RebuildCollision();
     PlaceFieldSprites();
+    InitializeBackground();
 }
 
 // Called every frame

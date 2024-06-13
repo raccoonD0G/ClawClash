@@ -4,6 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+
+#include "AssetRegistry/AssetRegistryModule.h"
+#include "PaperSprite.h"
+#include "PaperFlipbook.h"
+
 #include "CCManagers.generated.h"
 
 
@@ -19,6 +24,7 @@ class CLAWCLASH_API UCCManagers : public UObject
 	
 // Managers Section
 protected:
+
     static TObjectPtr<UCCManagers> Instance;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Managers")
@@ -38,8 +44,8 @@ public:
     int32 GetRandomIndexByProbability(const TArray<float>& Probabilities);
     int32 GetRandomIndexByProbability(const TArray<struct FCCFeatureInfo>& Probabilities);
 
-    UFUNCTION()
-    TArray<class UPaperSprite*> GetAllSpritesFromFolder(const FString& SpritePath);
+    template <typename T>
+    TArray<T*> GetAllResourceFromFolder(const FString& Path);
 
     UFUNCTION()
     int32 GetEnumLength(UEnum* TargetEnum);
@@ -48,3 +54,31 @@ public:
     TArray<int32> DecomposeNumberToKParts(int32 n, int32 k);
 	
 };
+
+template <typename T>
+TArray<T*> UCCManagers::GetAllResourceFromFolder(const FString& Path)
+{
+    TArray<T*> Resources;
+
+    FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
+
+    FARFilter Filter;
+    Filter.PackagePaths.Add(FName(*Path));
+    Filter.ClassPaths.Add(T::StaticClass()->GetClassPathName());
+    Filter.bRecursivePaths = true;
+
+    TArray<FAssetData> AssetDataList;
+    AssetRegistryModule.Get().GetAssets(Filter, AssetDataList);
+
+    for (const FAssetData& AssetData : AssetDataList)
+    {
+        TObjectPtr<UObject> AssetObject = AssetData.GetAsset();
+        T* Resource = Cast<T>(AssetObject);
+        if (Resource)
+        {
+            Resources.Add(Resource);
+        }
+    }
+
+    return Resources;
+}

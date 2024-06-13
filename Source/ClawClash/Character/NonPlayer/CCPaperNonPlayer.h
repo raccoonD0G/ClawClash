@@ -18,13 +18,23 @@ public:
 	ACCPaperNonPlayer();
 	virtual void BeginPlay() override;
 
+// Sprite Section
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+	TObjectPtr<class UPaperFlipbookComponent> PlayerFlipbook;
+
+// Target Section
 protected:
 	float MaxLeftXPos;
 	float MaxRightXPos;
+	FVector TargetLocation;
+
 public:
-	float GetMaxLeftXPos();
-	float GetMaxRightXPos();
+	float GetMaxLeftXPos() const;
+	float GetMaxRightXPos() const;
 	void SetMaxLeftXPos(float NewMaxLeftX);
 	void SetMaxRightXPos(float NewMaxRightX);
+	FVector GetTargetLocation() const;
+	void SetTargetLocation(FVector NewTargetLocation);
 	
 };

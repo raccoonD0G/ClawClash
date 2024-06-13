@@ -4,7 +4,7 @@
 #include "BTTask_StraightMoveTo.h"
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "GameFramework/Character.h"
+#include "CCPaperNonPlayer.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "CCNonPlayerBB.h"
 
@@ -29,7 +29,7 @@ void UBTTask_StraightMoveTo::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* 
         return;
     }
 
-    ACharacter* ControlledCharacter = Cast<ACharacter>(AIController->GetPawn());
+    ACCPaperNonPlayer* ControlledCharacter = Cast<ACCPaperNonPlayer>(AIController->GetPawn());
     if (!ControlledCharacter)
     {
         FinishLatentTask(OwnerComp, EBTNodeResult::Failed);

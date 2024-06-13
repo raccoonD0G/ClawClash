@@ -45,6 +45,7 @@ EBTNodeResult::Type UBTTask_SetRandomLocation::ExecuteTask(UBehaviorTreeComponen
     FVector RandomLocation(RandomX, CurrentLocation.Y, CurrentLocation.Z);
 
     BlackboardComp->SetValueAsVector(BBKEY_TATGETLOCATION, RandomLocation);
+    ControlledCharacter->SetTargetLocation(RandomLocation);
 
     return EBTNodeResult::Succeeded;
 }

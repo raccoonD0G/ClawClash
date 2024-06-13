@@ -14,4 +14,6 @@ class CLAWCLASH_API ACCPaperRat : public ACCPaperNonPlayer
 {
 	GENERATED_BODY()
 	
+protected:
+	virtual void BeginPlay() override;
 };

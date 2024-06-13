@@ -40,4 +40,8 @@ public:
 
 public:
 	TMap<EFieldType, FSpawnableFieldArrContainer> SpawnFieldMap;
+
+public:
+	UPROPERTY()
+	TArray<TObjectPtr<class UPaperFlipbook>> RatSpriteArr;
 };

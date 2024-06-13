@@ -113,7 +113,7 @@ void UCCStageMapManager::AddFeatureInfo(const FString& FolderPath, TMap<EFeature
         FeatureInfoArr[i].FeatureRatio = FeatureRatio;
     }
 
-    TArray<UPaperSprite*> SpriteArr = UCCManagers::GetInstance()->GetAllSpritesFromFolder(*FolderPath);
+    TArray<UPaperSprite*> SpriteArr = UCCManagers::GetInstance()->GetAllResourceFromFolder<UPaperSprite>(*FolderPath);
 
     for (int32 i = 0; i < SpriteArr.Num(); ++i)
     {

@@ -60,6 +60,9 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sprite")
     TObjectPtr<class UPaperSprite> BackGroundSprite;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sprite")
+    TArray<TObjectPtr<class UPaperSprite>> BackGroundSpriteArr;
+
     UPROPERTY()
     TObjectPtr<class ACharacter> Player;
 
