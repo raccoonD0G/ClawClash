@@ -2,13 +2,13 @@
 
 
 #include "CCPaperRat.h"
-#include "ClawClash/Managers/CCManagers.h"
+#include "ClawClash/Managers/CCGameManager.h"
 #include "ClawClash/Managers/SpawnManager/CCSpawnManager.h"
 #include "PaperFlipbookComponent.h"
 
 void ACCPaperRat::BeginPlay()
 {
 	Super::BeginPlay();
-	int32 Index = FMath::RandRange(0, UCCManagers::GetInstance()->GetSpawnManager()->RatSpriteArr.Num() - 1);
-	PlayerFlipbook->SetFlipbook(UCCManagers::GetInstance()->GetSpawnManager()->RatSpriteArr[Index]);
+	int32 Index = FMath::RandRange(0, UCCSpawnManager::GetInstance()->RatSpriteArr.Num() - 1);
+	PlayerFlipbook->SetFlipbook(UCCSpawnManager::GetInstance()->RatSpriteArr[Index]);
 }

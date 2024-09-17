@@ -4,7 +4,7 @@
 #include "CCStageMapManager.h"
 
 #include "Kismet/GameplayStatics.h"
-#include "ClawClash/Managers/CCManagers.h"
+#include "ClawClash/Managers/CCGameManager.h"
 
 #include "ClawClash/StageMap/CCStageMapDef.h"
 #include "ClawClash/StageMap/StageMapParts/CCPlatform.h"
@@ -14,9 +14,20 @@
 
 #include "ClawClash/StageMap/StageMapParts/CCRoom.h"
 
+UCCStageMapManager* UCCStageMapManager::Instance = nullptr;
 
 UCCStageMapManager::UCCStageMapManager()
 {
+}
+
+UCCStageMapManager* UCCStageMapManager::GetInstance()
+{
+    if (Instance == nullptr || !Instance->IsValidLowLevel())
+    {
+        Instance = NewObject<UCCStageMapManager>();
+        Instance->Init();
+    }
+    return Instance;
 }
 
 void UCCStageMapManager::Init()
@@ -100,28 +111,3 @@ void UCCStageMapManager::InitFeatureInfoMap()
     AddFeatureInfo<EDogHouseFeature>("/Game/Sprite/Map/Feature/DogHouse", FeatureInfoMap, EFeatureType::DogHouseFeature, 1.0f, 0.001f);
     AddFeatureInfo<ETreeFeature>("/Game/Sprite/Map/Feature/Tree", FeatureInfoMap, EFeatureType::TreeFeature, 0.1f, 1.0f);
 }
-
-template <typename TEnum>
-void UCCStageMapManager::AddFeatureInfo(const FString& FolderPath, TMap<EFeatureType, FCCFeatureInfoArrContainer>& FeatureInfoMap, EFeatureType FeatureType, float NoneFeatureRatio, float FeatureRatio)
-{
-    TArray<FCCFeatureInfo> FeatureInfoArr;
-    FeatureInfoArr.SetNum(UCCManagers::GetInstance()->GetEnumLength(StaticEnum<TEnum>()));
-    FeatureInfoArr[(int32)TEnum::NoneFeature].FeatureRatio = NoneFeatureRatio;
-
-    for (int32 i = 1; i < FeatureInfoArr.Num(); ++i)
-    {
-        FeatureInfoArr[i].FeatureRatio = FeatureRatio;
-    }
-
-    TArray<UPaperSprite*> SpriteArr = UCCManagers::GetInstance()->GetAllResourceFromFolder<UPaperSprite>(*FolderPath);
-
-    for (int32 i = 0; i < SpriteArr.Num(); ++i)
-    {
-        FeatureInfoArr[i].FeatureSprite = SpriteArr[i];
-    }
-
-    FCCFeatureInfoArrContainer FeatureInfoArrContainer;
-    FeatureInfoArrContainer.FeatureInfoArr = FeatureInfoArr;
-    FeatureInfoMap.Add(FeatureType, FeatureInfoArrContainer);
-}
-

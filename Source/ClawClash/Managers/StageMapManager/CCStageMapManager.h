@@ -7,7 +7,9 @@
 
 #include "ClawClash/StageMap/CCStageMapDef.h"
 
+#include "ClawClash/CCUtils.h"
 #include "CCStageMapManager.generated.h"
+
 
 USTRUCT()
 struct FCCFieldInfo
@@ -31,6 +33,7 @@ public:
 
     UPROPERTY()
     float FeatureRatio;
+
 };
 
 USTRUCT()
@@ -40,7 +43,18 @@ struct FCCFeatureInfoArrContainer
 public:
     UPROPERTY()
     TArray<FCCFeatureInfo> FeatureInfoArr;
+
+    int32 GetRandomIndex() const
+    {
+        TArray<float> Probabilities;
+        for (FCCFeatureInfo Info : FeatureInfoArr)
+        {
+            Probabilities.Add(Info.FeatureRatio);
+        }
+        return UCCUtils::GetRandomIndexByProbability(Probabilities);
+    }
 };
+
 
 class UCCRoom;
 class UCCPlatform;
@@ -55,9 +69,13 @@ class CLAWCLASH_API UCCStageMapManager : public UObject
 
 public:
     UCCStageMapManager();
+    static UCCStageMapManager* GetInstance();
     void Init();
 
 protected:
+
+    static UCCStageMapManager* Instance;
+
 
  // Layer Section
 public:
@@ -108,7 +126,36 @@ protected:
     void InitFieldRatioMap();
     void InitFieldInfoMap();
     void InitFeatureInfoMap();
+
     template <typename TEnum>
     void AddFeatureInfo(const FString& FolderPath, TMap<EFeatureType, FCCFeatureInfoArrContainer>& FeatureInfoMap, EFeatureType FeatureType, float NoneFeatureRatio, float FeatureRatio);
+
     void InitStageMapInfo();
 };
+
+template <typename TEnum>
+void UCCStageMapManager::AddFeatureInfo(const FString& FolderPath, TMap<EFeatureType, FCCFeatureInfoArrContainer>& FeatureInfoMap, EFeatureType FeatureType, float NoneFeatureRatio, float FeatureRatio)
+{
+    TArray<FCCFeatureInfo> FeatureInfoArr;
+    FeatureInfoArr.SetNum(UCCUtils::GetEnumLength(StaticEnum<TEnum>()));
+    FeatureInfoArr[(int32)TEnum::NoneFeature].FeatureRatio = NoneFeatureRatio;
+
+    for (int32 i = 1; i < FeatureInfoArr.Num(); ++i)
+    {
+        FeatureInfoArr[i].FeatureRatio = FeatureRatio;
+    }
+
+    TArray<UPaperSprite*> SpriteArr;
+    SpriteArr.Add(nullptr);
+    SpriteArr.Append(UCCUtils::GetAllResourceFromFolder<UPaperSprite>(*FolderPath));
+
+    int32 Count = FMath::Min(SpriteArr.Num(), FeatureInfoArr.Num());
+    for (int32 i = 1; i < Count; ++i)
+    {
+        FeatureInfoArr[i].FeatureSprite = SpriteArr[i];
+    }
+
+    FCCFeatureInfoArrContainer FeatureInfoArrContainer;
+    FeatureInfoArrContainer.FeatureInfoArr = FeatureInfoArr;
+    FeatureInfoMap.Add(FeatureType, FeatureInfoArrContainer);
+}

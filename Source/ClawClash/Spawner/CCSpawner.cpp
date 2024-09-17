@@ -5,7 +5,7 @@
 
 #include "ClawClash/StageMap/CCStageMapDef.h"
 #include "ClawClash/Character/NonPlayer/CCPaperRat.h"
-#include "ClawClash/Managers/CCManagers.h"
+#include "ClawClash/Managers/CCGameManager.h"
 #include "ClawClash/Managers/SpawnManager/CCSpawnManager.h"
 
 // Sets default values
@@ -19,7 +19,6 @@ ACCSpawner::ACCSpawner()
 void ACCSpawner::BeginPlay()
 {
 	Super::BeginPlay();
-	SpawnManager = UCCManagers::GetInstance()->GetSpawnManager();
 	FTimerHandle Handle;
 	GetWorld()->GetTimerManager().SetTimer(Handle, this, &ACCSpawner::SpawnRat, 3.0f, true, 3.0f);
 	
@@ -34,7 +33,7 @@ void ACCSpawner::Tick(float DeltaTime)
 
 void ACCSpawner::SpawnRat()
 {
-	for (FSpawnableField Field : SpawnManager->SpawnFieldMap.Find(EFieldType::CaveField)->SpawnableFieldArr)
+	for (FSpawnableField Field : UCCSpawnManager::GetInstance()->SpawnFieldMap.Find(EFieldType::CaveField)->SpawnableFieldArr)
 	{
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;

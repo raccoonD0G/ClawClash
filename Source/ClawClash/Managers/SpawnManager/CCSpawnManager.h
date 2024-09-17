@@ -36,7 +36,11 @@ class CLAWCLASH_API UCCSpawnManager : public UObject
 	
 public:
 	UCCSpawnManager();
+	static UCCSpawnManager* GetInstance();
 	void Init();
+
+protected:
+	static UCCSpawnManager* Instance;
 
 public:
 	TMap<EFieldType, FSpawnableFieldArrContainer> SpawnFieldMap;

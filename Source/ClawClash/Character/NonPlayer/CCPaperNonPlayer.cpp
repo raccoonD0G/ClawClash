@@ -9,12 +9,6 @@
 
 ACCPaperNonPlayer::ACCPaperNonPlayer()
 {
-    GetCapsuleComponent()->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1);
-    GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
-    GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldStatic, ECollisionResponse::ECR_Block);
-    GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECollisionResponse::ECR_Block);
-    GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Overlap);
-
     GetCharacterMovement()->GravityScale = 1.0f;
 
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;

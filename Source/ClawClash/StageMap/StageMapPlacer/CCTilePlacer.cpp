@@ -10,7 +10,7 @@
 #include "ClawClash/Managers/StageMapManager/CCStageMapManager.h"
 #include "ClawClash/Managers/SpawnManager/CCSpawnManager.h"
 #include "ClawClash/Managers/SpawnManager/CCSpawn.h"
-#include "ClawClash/Managers/CCManagers.h"
+#include "ClawClash/Managers/CCGameManager.h"
 #include "ClawClash/StageMap/StageMapParts/CCPlatform.h"
 #include "ClawClash/StageMap/StageMapParts/CCField.h"
 #include "ClawClash/StageMap/StageMapParts/CCRoom.h"
@@ -24,8 +24,6 @@ void UCCTilePlacer::InitializeTileMap(UPaperTileMapComponent* TileMapComponent, 
     TileMapWidth = Columns;
     TileWidth = NewTileWidth;
     TileHeight = NewTileHeight;
-
-    StageMapManager = UCCManagers::GetInstance()->GetStageMapManager();
 
     if (TileMapComponent && TileSet)
     {
@@ -48,7 +46,7 @@ void UCCTilePlacer::InitializeTileMap(UPaperTileMapComponent* TileMapComponent, 
 
 void UCCTilePlacer::CreatAllField(UPaperTileMapComponent* TileMapComponent)
 {
-    for (UCCPlatform* Platform : UCCManagers::GetInstance()->GetStageMapManager()->GetStageMap().GetPlatformArr())
+    for (UCCPlatform* Platform : UCCStageMapManager::GetInstance()->GetStageMap().GetPlatformArr())
     {
         for (UCCField* Field : Platform->GetFieldArr())
         {
@@ -78,16 +76,15 @@ FVector UCCTilePlacer::GetWorldLocationFromTile(UPaperTileMapComponent* TileMapC
 
 void UCCTilePlacer::FillInBasic(UPaperTileMapComponent* TileMapComponent)
 {
-    for (UCCPlatform* Platform : UCCManagers::GetInstance()->GetStageMapManager()->GetStageMap().GetPlatformArr())
+    for (UCCPlatform* Platform : UCCStageMapManager::GetInstance()->GetStageMap().GetPlatformArr())
     {
         CreateBasic(TileMapComponent, Platform->GetStartPos().X, Platform->GetStartPos().Y, Platform->GetLength());
-        
     }
 }
 
 void UCCTilePlacer::SetupTileColliders(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row)
 {
-    int32 TileSize = UCCManagers::GetInstance()->GetStageMapManager()->TileHeight;
+    int32 TileSize = UCCStageMapManager::GetInstance()->TileHeight;
 
     UCCTileCollider* CustomCollider = NewObject<UCCTileCollider>(TileMapComponent->GetOwner());
     ColliderArr.Add(CustomCollider);
@@ -157,7 +154,7 @@ bool UCCTilePlacer::CreatNoneBasicFieldTile(UPaperTileMapComponent* TileMapCompo
 void UCCTilePlacer::InitializeTileSet(UPaperTileSet* NewFieldTileSet)
 {
     // Initialize Tiles
-    int32 TileTypeEnumLength = UCCManagers::GetInstance()->GetEnumLength(StaticEnum<ETileType>());
+    int32 TileTypeEnumLength = UCCUtils::GetEnumLength(StaticEnum<ETileType>());
 
     for (int32 i = 0; i < TileTypeEnumLength; i++)
     {
@@ -210,23 +207,23 @@ void UCCTilePlacer::CreatHill(UPaperTileMapComponent* TileMapComponent, int32 Co
     for (int32 i = Column + 1; i < Column + Length - 1; i++)
     {
         SetTileIfPossible(TileMapComponent, i, Row, 0, *(TileInfoPerTileDic.Find(ETileType::HillSpace)));
-        SetTileIfPossible(TileMapComponent, i, Row + TileMapHeight / UCCManagers::GetInstance()->GetStageMapManager()->NumOfFloor / 4, 0, TileSetPerFieldDic.Find(EFieldType::HillField)->MiddleTile);
+        SetTileIfPossible(TileMapComponent, i, Row + TileMapHeight / UCCStageMapManager::GetInstance()->NumOfFloor / 4, 0, TileSetPerFieldDic.Find(EFieldType::HillField)->MiddleTile);
     }
     for (int32 i = Column + 1 - StairLength; i < Column + 1; i++)
     {
-        SetTileIfPossible(TileMapComponent, i, Row + (TileMapHeight / UCCManagers::GetInstance()->GetStageMapManager()->NumOfFloor) / 4 * 2, 0, TileSetPerFieldDic.Find(EFieldType::HillField)->MiddleTile);
+        SetTileIfPossible(TileMapComponent, i, Row + (TileMapHeight / UCCStageMapManager::GetInstance()->NumOfFloor) / 4 * 2, 0, TileSetPerFieldDic.Find(EFieldType::HillField)->MiddleTile);
     }
     for (int32 i = Column + Length; i < Column + Length + StairLength; i++)
     {
-        SetTileIfPossible(TileMapComponent, i, Row + (TileMapHeight / UCCManagers::GetInstance()->GetStageMapManager()->NumOfFloor) / 4 * 2, 0, TileSetPerFieldDic.Find(EFieldType::HillField)->MiddleTile);
+        SetTileIfPossible(TileMapComponent, i, Row + (TileMapHeight / UCCStageMapManager::GetInstance()->NumOfFloor) / 4 * 2, 0, TileSetPerFieldDic.Find(EFieldType::HillField)->MiddleTile);
     }
     for (int32 i = Column + 1 - StairLength * 2; i < Column + 1 - StairLength; i++)
     {
-        SetTileIfPossible(TileMapComponent, i, Row + (TileMapHeight / UCCManagers::GetInstance()->GetStageMapManager()->NumOfFloor) / 4 * 3, 0, TileSetPerFieldDic.Find(EFieldType::HillField)->MiddleTile);
+        SetTileIfPossible(TileMapComponent, i, Row + (TileMapHeight / UCCStageMapManager::GetInstance()->NumOfFloor) / 4 * 3, 0, TileSetPerFieldDic.Find(EFieldType::HillField)->MiddleTile);
     }
     for (int32 i = Column + Length + StairLength; i < Column + Length + StairLength * 2; i++)
     {
-        SetTileIfPossible(TileMapComponent, i, Row + (TileMapHeight / UCCManagers::GetInstance()->GetStageMapManager()->NumOfFloor) / 4 * 3, 0, TileSetPerFieldDic.Find(EFieldType::HillField)->MiddleTile);
+        SetTileIfPossible(TileMapComponent, i, Row + (TileMapHeight / UCCStageMapManager::GetInstance()->NumOfFloor) / 4 * 3, 0, TileSetPerFieldDic.Find(EFieldType::HillField)->MiddleTile);
     }
     SetTileIfPossible(TileMapComponent, Column + Length - 1, Row, 0, TileSetPerFieldDic.Find(EFieldType::HillField)->RightTile);
 }
@@ -260,10 +257,10 @@ void UCCTilePlacer::CreateCave(UPaperTileMapComponent* TileMapComponent, int32 C
     if (!CreatNoneBasicFieldTile(TileMapComponent, EFieldType::CaveField, Column, Row, Length)) return;
     FSpawnableField NewField;
     NewField.SpawnableType = ESpawnableType::Rat;
-    NewField.LeftEnd = FVector(Column * StageMapManager->TileWidth, 0, -Row * StageMapManager->TileHeight + StageMapManager->TileHeight / 2);
-    NewField.RightEnd = FVector((Column + Length - 1) * StageMapManager->TileWidth, 0, -Row * StageMapManager->TileHeight + StageMapManager->TileHeight / 2);
+    NewField.LeftEnd = FVector(Column * UCCStageMapManager::GetInstance()->TileWidth, 0, -Row * UCCStageMapManager::GetInstance()->TileHeight + UCCStageMapManager::GetInstance()->TileHeight / 2);
+    NewField.RightEnd = FVector((Column + Length - 1) * UCCStageMapManager::GetInstance()->TileWidth, 0, -Row * UCCStageMapManager::GetInstance()->TileHeight + UCCStageMapManager::GetInstance()->TileHeight / 2);
     NewField.MaxCharacterNum = Length;
-    UCCManagers::GetInstance()->GetSpawnManager()->SpawnFieldMap.Find(EFieldType::CaveField)->SpawnableFieldArr.Add(NewField);
+    UCCSpawnManager::GetInstance()->SpawnFieldMap.Find(EFieldType::CaveField)->SpawnableFieldArr.Add(NewField);
 }
 
 void UCCTilePlacer::CreateAsphalt(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Length)

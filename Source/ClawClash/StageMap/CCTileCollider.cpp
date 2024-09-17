@@ -5,7 +5,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "ClawClash/Managers/StageMapManager/CCStageMapManager.h"
-#include "ClawClash/Managers/CCManagers.h"
+#include "ClawClash/Managers/CCGameManager.h"
 #include "GameFramework/PlayerController.h"
 #include <Kismet/GameplayStatics.h>
 #include "Components/CapsuleComponent.h"
@@ -14,14 +14,15 @@
 
 UCCTileCollider::UCCTileCollider()
 {
-    //OnComponentBeginOverlap.AddDynamic(this, &UCCTileCollider::BeginOverlap);
-    SetCollisionProfileName(TEXT("OverlapAllDynamic"));
     PrimaryComponentTick.bCanEverTick = true;
+    SetCollisionProfileName(TEXT("CCPathTroughGround"));
 }
 
 void UCCTileCollider::BeginPlay()
 {
     Super::BeginPlay();
+    
+
     APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
     Player = Cast<ACCPaperPlayer>(PlayerController->GetPawn());
 
@@ -33,47 +34,12 @@ void UCCTileCollider::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-    if (Player->GetActorLocation().Z - PlayerCapsuleHalfHeight> GetRelativeLocation().Z + UCCManagers::GetInstance()->GetStageMapManager()->TileHeight / 2)
+    if (Player->GetActorLocation().Z - PlayerCapsuleHalfHeight > GetRelativeLocation().Z + UCCStageMapManager::GetInstance()->TileHeight / 2)
     {
-        SetCollisionProfileName(TEXT("BlockAll"));
+        SetCollisionProfileName(TEXT("CCSolidGround"));
     }
     else
     {
-        SetCollisionProfileName(TEXT("OverlapAllDynamic"));
-    }
-    /*
-    if (NearbyActor != nullptr)
-    {
-        if (FMath::Abs(NearbyActor->GetActorLocation().X - ActorShownPos.X) > UCCManagers::GetInstance()->GetStageMapManager()->TileWidth
-            || NearbyActor->GetActorLocation().Z > ActorShownPos.Z + 100 || NearbyActor->GetActorLocation().Z < ActorShownPos.Z - 100)
-        {
-            NearbyActor = nullptr;
-            SetCollisionProfileName(TEXT("OverlapAllDynamic"));
-        }
-        
-    }
-    */
-}
-
-/*
-void UCCTileCollider::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-    if (OtherActor->IsA(ACharacter::StaticClass()))
-    {
-        ACharacter* OtherCharacter = Cast<ACharacter>(OtherActor);
-        if (OtherCharacter)
-        {
-            if (OtherCharacter->GetActorLocation().Z > GetRelativeLocation().Z + UCCManagers::GetInstance()->GetStageMapManager()->TileHeight - 1)
-            {
-                SetCollisionProfileName(TEXT("BlockAll"));
-                NearbyActor = OtherActor;
-                ActorShownPos = OtherActor->GetActorLocation();
-            }
-            else
-            {
-                SetCollisionProfileName(TEXT("OverlapAllDynamic"));
-            }
-        }
+        SetCollisionProfileName(TEXT("CCPathTroughGround"));
     }
 }
-*/

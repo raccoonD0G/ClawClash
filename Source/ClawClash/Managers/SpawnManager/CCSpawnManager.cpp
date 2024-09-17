@@ -3,11 +3,24 @@
 
 #include "CCSpawnManager.h"
 #include "ClawClash/Managers/SpawnManager/CCSpawn.h"
-#include "ClawClash/Managers/CCManagers.h"
+#include "ClawClash/Managers/CCGameManager.h"
+#include "ClawClash/CCUtils.h"
+
+UCCSpawnManager* UCCSpawnManager::Instance = nullptr;
 
 UCCSpawnManager::UCCSpawnManager()
 {
 	
+}
+
+UCCSpawnManager* UCCSpawnManager::GetInstance()
+{
+	if (Instance == nullptr || !Instance->IsValidLowLevel())
+	{
+		Instance = NewObject<UCCSpawnManager>();
+		Instance->Init();
+	}
+	return Instance;
 }
 
 void UCCSpawnManager::Init()
@@ -21,6 +34,6 @@ void UCCSpawnManager::Init()
 	FSpawnableFieldArrContainer RatFieldArr;
 	SpawnFieldMap.Add(EFieldType::CaveField, RatFieldArr);
 
-	RatSpriteArr = UCCManagers::GetInstance()->GetAllResourceFromFolder<UPaperFlipbook>(TEXT("/Game/Sprite/NonPlayer/Rat"));
+	RatSpriteArr = UCCUtils::GetAllResourceFromFolder<UPaperFlipbook>(TEXT("/Game/Sprite/NonPlayer/Rat"));
 }
 

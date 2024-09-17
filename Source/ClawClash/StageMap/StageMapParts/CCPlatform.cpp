@@ -5,7 +5,7 @@
 #include "CCField.h"
 
 #include "ClawClash/Managers/StageMapManager/CCStageMapManager.h"
-#include "ClawClash/Managers/CCManagers.h"
+#include "ClawClash/Managers/CCGameManager.h"
 #include "ClawClash/StageMap/CCStageMapDef.h"
 #include "CCTileMapParts.h"
 
@@ -48,12 +48,12 @@ void UCCPlatform::Init(FIntVector2 NewTileMapPos, int32 NewLength, bool NewIsHil
 
 void UCCPlatform::CreatFieldOnPlatform()
 {
-    const TMap<EFieldType, float>& FieldRatioMap = UCCManagers::GetInstance()->GetStageMapManager()->FieldRatioMap;
+    const TMap<EFieldType, float>& FieldRatioMap = UCCStageMapManager::GetInstance()->FieldRatioMap;
     int32 TotalFieldLength = 0;
 
     if (bIsHillNecessary == true)
     {
-        FCCFieldInfo* FieldInfo = UCCManagers::GetInstance()->GetStageMapManager()->FieldInfoMap.Find(EFieldType::HillField);
+        FCCFieldInfo* FieldInfo = UCCStageMapManager::GetInstance()->FieldInfoMap.Find(EFieldType::HillField);
         int32 HillFieldLength = FMath::RandRange(FieldInfo->MinLength, FieldInfo->MaxLength);
 
         UCCField* NewField = NewObject<UCCField>(this);
@@ -67,7 +67,7 @@ void UCCPlatform::CreatFieldOnPlatform()
         EFieldType FieldType;
         FieldType = GetRandomField(FieldRatioMap);
 
-        FCCFieldInfo* FieldInfo = UCCManagers::GetInstance()->GetStageMapManager()->FieldInfoMap.Find(FieldType);
+        FCCFieldInfo* FieldInfo = UCCStageMapManager::GetInstance()->FieldInfoMap.Find(FieldType);
         if (FieldInfo == nullptr)
         {
             UE_LOG(LogTemp, Log, TEXT("FieldInfo NULL"));
@@ -98,7 +98,7 @@ void UCCPlatform::CreatFieldOnPlatform()
         NewFieldPos.X += FieldArr[i]->GetLength();
     }
 
-    TArray<int32> DecomposeNumArr = UCCManagers::GetInstance()->DecomposeNumberToKParts(Length - TotalFieldLength, FieldArr.Num() + 1);
+    TArray<int32> DecomposeNumArr = UCCUtils::DecomposeNumberToKParts(Length - TotalFieldLength, FieldArr.Num() + 1);
     for (int32 j = 0; j < FieldArr.Num(); j++)
     {
         for (int32 k = j; k < FieldArr.Num(); k++) FieldArr[k]->AddStartPos(DecomposeNumArr[j]);

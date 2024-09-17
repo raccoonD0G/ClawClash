@@ -8,11 +8,12 @@
 #include "PaperTileLayer.h"
 #include "CCTilePlacer.generated.h"
 
+
 USTRUCT()
 struct FCCFieldTileSet
 {
 	GENERATED_BODY()
-public:
+	public:
 	FPaperTileInfo LeftTile;
 	FPaperTileInfo MiddleTile;
 	FPaperTileInfo RightTile;
@@ -44,9 +45,6 @@ protected:
 
 	UPROPERTY()
 	TMap<ETileType, FPaperTileInfo> TileInfoPerTileDic;
-
-	UPROPERTY()
-	TObjectPtr<class UCCStageMapManager> StageMapManager;
 
 public:
 	UPROPERTY()

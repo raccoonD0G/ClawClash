@@ -52,9 +52,6 @@ public:
 
 protected:
 	UPROPERTY()
-	TObjectPtr<UCCStageMapManager> StageMapManager;
-
-	UPROPERTY()
 	TArray<TObjectPtr<UCCPlatform>> PlatformArr;
 
 	void SplitSpace(TArray<UCCRoom*>& OutRooms, UCCRoom* Space, int32 MinWidth, int32 MinHeight, int32 Depth);

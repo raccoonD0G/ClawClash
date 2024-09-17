@@ -7,7 +7,7 @@
 #include "ClawClash/StageMap/StageMapParts/CCPlatform.h"
 
 #include "ClawClash/Managers/StageMapManager/CCStageMapManager.h"
-#include "ClawClash/Managers/CCManagers.h"
+#include "ClawClash/Managers/CCGameManager.h"
 
 #include "ClawClash/StageMap/CCUnionFind.h"
 
@@ -155,7 +155,6 @@ void UCCStageMap::GenerateMST()
     // MST 결과를 사용하여 플랫폼을 연결
     for (const FPlatformEdge& E : MST)
     {
-        UE_LOG(LogTemp, Warning, TEXT("Connect Platform %d to Platform %d with Distance %f"), E.PlatformIndex1, E.PlatformIndex2, E.Weight);
         if (E.Weight >= 8.0f)
         {
             CreatePlatformsAlongEdge(E);
@@ -181,16 +180,13 @@ void UCCStageMap::CreatePlatformsAlongEdge(const FPlatformEdge& Edge)
         TObjectPtr<UCCPlatform> NewPlatform = NewObject<UCCPlatform>();
         NewPlatform->Init(FIntVector2(NewPlatformPos.X, NewPlatformPos.Y), NewLength, false);
         PlatformArr.Add(NewPlatform);
-
-        UE_LOG(LogTemp, Warning, TEXT("Created new platform at (%f, %f) with length %d"), NewPlatformPos.X, NewPlatformPos.Y, NewLength);
     }
 }
 
 void UCCStageMap::Init()
 {
-    StageMapManager = UCCManagers::GetInstance()->GetStageMapManager();
     TArray<UCCRoom*> RoomArr;
-    GenerateRooms(RoomArr, StageMapManager->TileMapWidth, StageMapManager->TileMapHeight, StageMapManager->MinFloorHeight, StageMapManager->MinFloorLength);
+    GenerateRooms(RoomArr, UCCStageMapManager::GetInstance()->TileMapWidth, UCCStageMapManager::GetInstance()->TileMapHeight, UCCStageMapManager::GetInstance()->MinFloorHeight, UCCStageMapManager::GetInstance()->MinFloorLength);
     for (UCCRoom* Room : RoomArr)
     {
         PlatformArr.Add(Room->GeneratePlatform());

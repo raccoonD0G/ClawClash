@@ -12,7 +12,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "ClawClash/GameInstance/CCGameInstance.h"
 #include "ClawClash/Managers/StageMapManager/CCStageMapManager.h"
-#include "ClawClash/Managers/CCManagers.h"
+#include "ClawClash/Managers/CCGameManager.h"
 
 #include "ClawClash/StageMap/StageMapParts/CCPlatform.h"
 #include "ClawClash/StageMap/StageMapParts/CCField.h"
@@ -31,20 +31,17 @@ ACCTileMapActor::ACCTileMapActor()
     TilePlacer = CreateDefaultSubobject<UCCTilePlacer>(TEXT("TileMapPlacer"));
     SpritePlacer = CreateDefaultSubobject<UCCSpritePlacer>(TEXT("SpritePlacer"));
 
-    FieldTileMapComponent->SetCollisionObjectType(ECC_WorldStatic);
-    FieldTileMapComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
-    FieldTileMapComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECR_Block);
-    FieldTileMapComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+    FieldTileMapComponent->SetCollisionProfileName(TEXT("NoCollision"));
 }
 
 void ACCTileMapActor::InitializeTileMap()
 {
     if (TilePlacer && FieldTileMapComponent && FieldTileSet)
     {
-        int32 TileMapWidth = UCCManagers::GetInstance()->GetStageMapManager()->TileMapWidth;
-        int32 TileMapHeight = UCCManagers::GetInstance()->GetStageMapManager()->TileMapHeight;
-        float TileWidth = UCCManagers::GetInstance()->GetStageMapManager()->TileWidth;
-        float TileHeight = UCCManagers::GetInstance()->GetStageMapManager()->TileHeight;
+        int32 TileMapWidth = UCCStageMapManager::GetInstance()->TileMapWidth;
+        int32 TileMapHeight = UCCStageMapManager::GetInstance()->TileMapHeight;
+        float TileWidth = UCCStageMapManager::GetInstance()->TileWidth;
+        float TileHeight = UCCStageMapManager::GetInstance()->TileHeight;
 
         TilePlacer->InitializeTileSet(FieldTileSet);
         TilePlacer->InitializeTileMap(FieldTileMapComponent, FieldTileSet, TileMapHeight, TileMapWidth, TileWidth, TileHeight);
@@ -62,8 +59,8 @@ void ACCTileMapActor::InitializeBackground()
 
     if (BackGroundSprite && BackgroundComponent)
     {
-        float TileMapWidthInPixels = UCCManagers::GetInstance()->GetStageMapManager()->TileMapWidth * 512;
-        float TileMapHeightInPixels = UCCManagers::GetInstance()->GetStageMapManager()->TileMapHeight * 512;
+        float TileMapWidthInPixels = UCCStageMapManager::GetInstance()->TileMapWidth * 512;
+        float TileMapHeightInPixels = UCCStageMapManager::GetInstance()->TileMapHeight * 512;
 
         BackgroundComponent->SetSprite(BackGroundSprite);
         BackgroundComponent->SetRelativeLocation(FVector(Player->GetActorLocation().X, BackgroundY - FieldTileY, Player->GetActorLocation().Z));
@@ -74,10 +71,10 @@ void ACCTileMapActor::InitializeBackground()
 
 void ACCTileMapActor::PlaceFieldSprites()
 {
-    int32 TileMapWidth = UCCManagers::GetInstance()->GetStageMapManager()->TileMapWidth;
-    int32 TileMapHeight = UCCManagers::GetInstance()->GetStageMapManager()->TileMapHeight;
-    float TileWidth = UCCManagers::GetInstance()->GetStageMapManager()->TileWidth;
-    float TileHeight = UCCManagers::GetInstance()->GetStageMapManager()->TileHeight;
+    int32 TileMapWidth = UCCStageMapManager::GetInstance()->TileMapWidth;
+    int32 TileMapHeight = UCCStageMapManager::GetInstance()->TileMapHeight;
+    float TileWidth = UCCStageMapManager::GetInstance()->TileWidth;
+    float TileHeight = UCCStageMapManager::GetInstance()->TileHeight;
 
     SpritePlacer->InitializeSprite(FieldTileMapComponent, TileMapHeight, TileMapWidth, TileWidth, TileHeight);
 }
@@ -86,9 +83,9 @@ void ACCTileMapActor::BeginPlay()
 {
     Super::BeginPlay();
 
-    BackgroundY = UCCManagers::GetInstance()->GetStageMapManager()->BackgroundY;
-    PlayerY = UCCManagers::GetInstance()->GetStageMapManager()->PlayerY;
-    FieldTileY = UCCManagers::GetInstance()->GetStageMapManager()->FieldTileY;
+    BackgroundY = UCCStageMapManager::GetInstance()->BackgroundY;
+    PlayerY = UCCStageMapManager::GetInstance()->PlayerY;
+    FieldTileY = UCCStageMapManager::GetInstance()->FieldTileY;
 
     // Initialize Player
     Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);

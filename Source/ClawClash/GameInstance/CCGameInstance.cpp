@@ -4,7 +4,7 @@
 #include "CCGameInstance.h"
 #include "GameFramework/GameUserSettings.h"
 
-#include "ClawClash/Managers/CCManagers.h"
+#include "ClawClash/Managers/CCGameManager.h"
 
 #include "ClawClash/UI/CCTimerWidget.h"
 #include "Blueprint/UserWidget.h"
@@ -36,12 +36,6 @@ void UCCGameInstance::OnStart()
 
 void UCCGameInstance::Shutdown()
 {
-    if (UCCManagers::GetInstance())
-    {
-        UCCManagers::GetInstance()->RemoveFromRoot();
-        UCCManagers::GetInstance()->SetInstanceNull();
-    }
-
     Super::Shutdown();
 }
 
