@@ -20,17 +20,17 @@ public:
 	UCCPlatform();
 
 protected:
-	bool bIsHillNecessary;
 
 	EFieldType GetRandomField(const TMap<EFieldType, float>& FieldRatioMap);
 
 	UPROPERTY()
 	TArray<TObjectPtr<class UCCField>> FieldArr;
 public:
-	void Init(FIntVector2 NewTileMapPos, int32 NewLength, bool NewIsHillNecessary);
+	void Init(ACCTileMapActor* NewOwningTileMap, FIntVector2 NewTileMapPos, int32 NewLength);
 	void CreatFieldOnPlatform();
 
 	const TArray<class UCCField*>& GetFieldArr() const;
 
 	void ShuffleArray(TArray<TObjectPtr<UCCField>>& Array);
+	void FillInBasic();
 };

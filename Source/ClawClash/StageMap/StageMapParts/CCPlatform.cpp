@@ -13,6 +13,8 @@
 
 #include "Math/UnrealMathUtility.h"
 
+#include "ClawClash/StageMap/CCTileMapActor.h"
+
 UCCPlatform::UCCPlatform()
 {
 	Length = 0;
@@ -38,29 +40,19 @@ EFieldType UCCPlatform::GetRandomField(const TMap<EFieldType, float>& FieldRatio
     return EFieldType::NoneField;
 }
 
-void UCCPlatform::Init(FIntVector2 NewTileMapPos, int32 NewLength, bool NewIsHillNecessary)
+void UCCPlatform::Init(ACCTileMapActor* NewOwningTileMap, FIntVector2 NewTileMapPos, int32 NewLength)
 {
     UCCTileMapParts::Init(NewTileMapPos);
 	Length = NewLength;
-    bIsHillNecessary = NewIsHillNecessary;
+    OwningTileMap = NewOwningTileMap;
 	CreatFieldOnPlatform();
+    FillInBasic();
 }
 
 void UCCPlatform::CreatFieldOnPlatform()
 {
     const TMap<EFieldType, float>& FieldRatioMap = UCCStageMapManager::GetInstance()->FieldRatioMap;
     int32 TotalFieldLength = 0;
-
-    if (bIsHillNecessary == true)
-    {
-        FCCFieldInfo* FieldInfo = UCCStageMapManager::GetInstance()->FieldInfoMap.Find(EFieldType::HillField);
-        int32 HillFieldLength = FMath::RandRange(FieldInfo->MinLength, FieldInfo->MaxLength);
-
-        UCCField* NewField = NewObject<UCCField>(this);
-        NewField->Init(FIntVector2(0, 0), HillFieldLength, EFieldType::HillField);
-        FieldArr.Add(NewField);
-        TotalFieldLength += HillFieldLength;
-    }
 
     while (true)
     {
@@ -82,7 +74,7 @@ void UCCPlatform::CreatFieldOnPlatform()
         if (TotalFieldLength + FieldLength <= Length)
         {
             UCCField* NewField = NewObject<UCCField>(this);
-            NewField->Init(FIntVector2(0, 0), FieldLength, FieldType);
+            NewField->Init(OwningTileMap, FIntVector2(0, 0), FieldLength, FieldType);
             FieldArr.Add(NewField);
             TotalFieldLength += FieldLength;
         }
@@ -103,6 +95,11 @@ void UCCPlatform::CreatFieldOnPlatform()
     {
         for (int32 k = j; k < FieldArr.Num(); k++) FieldArr[k]->AddStartPos(DecomposeNumArr[j]);
     }
+
+    for (UCCField* Field : FieldArr)
+    {
+        Field->CreateTile();
+    }
 }
 
 const TArray<UCCField*>& UCCPlatform::GetFieldArr() const
@@ -116,5 +113,16 @@ void UCCPlatform::ShuffleArray(TArray<TObjectPtr<UCCField>>& Array)
     {
         int32 SwapIndex = FMath::RandRange(0, Index);
         Array.Swap(Index, SwapIndex);
+    }
+}
+
+void UCCPlatform::FillInBasic()
+{
+    for (int32 i = 0; i < Length; i++)
+    {
+        if (OwningTileMap->SetTileIfPossible(TileMapPos.X + i, TileMapPos.Y, 0, *(UCCStageMapManager::GetInstance()->TileInfoPerTileDic.Find(ETileType::Basic))))
+        {
+            OwningTileMap->SetupTileColliders(TileMapPos.X + i, TileMapPos.Y, 1, EFieldType::NoneField);
+        }
     }
 }

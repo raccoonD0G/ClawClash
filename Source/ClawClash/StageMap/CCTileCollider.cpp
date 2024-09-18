@@ -5,6 +5,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "ClawClash/Managers/StageMapManager/CCStageMapManager.h"
+#include "ClawClash/StageMap/CCTileMapActor.h"
 #include "ClawClash/Managers/CCGameManager.h"
 #include "GameFramework/PlayerController.h"
 #include <Kismet/GameplayStatics.h>
@@ -16,6 +17,11 @@ UCCTileCollider::UCCTileCollider()
 {
     PrimaryComponentTick.bCanEverTick = true;
     SetCollisionProfileName(TEXT("CCPathTroughGround"));
+}
+
+void UCCTileCollider::Init(EFieldType NewFieldType)
+{
+    FieldType = NewFieldType;
 }
 
 void UCCTileCollider::BeginPlay()
@@ -34,7 +40,7 @@ void UCCTileCollider::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-    if (Player->GetActorLocation().Z - PlayerCapsuleHalfHeight > GetRelativeLocation().Z + UCCStageMapManager::GetInstance()->TileHeight / 2)
+    if (Player->GetActorLocation().Z - PlayerCapsuleHalfHeight > GetRelativeLocation().Z + UCCStageMapManager::GetStageMap()->GetTileHeight() / 2)
     {
         SetCollisionProfileName(TEXT("CCSolidGround"));
     }

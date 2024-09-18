@@ -12,7 +12,7 @@
 #include "ClawClash/Managers/CCGameManager.h"
 #include "ClawClash/StageMap/StageMapParts/CCPlatform.h"
 #include "ClawClash/StageMap/StageMapParts/CCField.h"
-#include "ClawClash/StageMap/CCStageMap.h"
+#include "ClawClash/StageMap/CCTileMapActor.h"
 #include "PaperTileLayer.h"
 
 UCCSpritePlacer::UCCSpritePlacer()
@@ -114,13 +114,12 @@ float UCCSpritePlacer::CalculateYPos(bool bIsBeforePlayer)
     float YPos;
     if (bIsBeforePlayer)
     {
-        YPos = UCCStageMapManager::GetInstance()->PlayerY - 1;
+        YPos = UCCStageMapManager::GetInstance()->BeforePlayerSpriteY;
     }
     else
     {
-        YPos = UCCStageMapManager::GetInstance()->PlayerY + 1;
+        YPos = UCCStageMapManager::GetInstance()->AfterPlayerSpriteY;
     }
-    YPos -= UCCStageMapManager::GetInstance()->FieldTileY;
     return YPos;
 }
 
@@ -132,20 +131,19 @@ void UCCSpritePlacer::InitializeSprite(UPaperTileMapComponent* TileMapComponent,
     TileHeight = NewTileHeight;
 
     RootNode = NewObject<UCCBoxQuadTreeNode>();
-    RootNode->Initialize(FVector2D(0, -UCCStageMapManager::GetInstance()->TileMapHeight * 512), FVector2D(UCCStageMapManager::GetInstance()->TileMapWidth * 512, 0), 10);
+    RootNode->Initialize(FVector2D(0, -TileMapHeight * 512), FVector2D(TileMapWidth * 512, 0), 10);
 
-    for (UCCPlatform* Platform : UCCStageMapManager::GetInstance()->GetStageMap().GetPlatformArr())
+    for (UCCPlatform* Platform : UCCStageMapManager::GetStageMap()->GetPlatformArr())
     {
-        // TreePosArr.Append(PlaceSprites(TileMapComponent, FVector2D(Platform->GetStartPos().X, Platform->GetStartPos().Y), Platform->GetLength(), FMath::RandRange(30.0, 60.0), UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::TreeFeature)->FeatureInfoArr, false, true, false));
         for (UCCField* Field : Platform->GetFieldArr())
         {
             CreateSpriteByType(TileMapComponent, Field->GetFieldType(), Field->GetStartPos().X, Field->GetStartPos().Y, Field->GetLength());
         }
     }
 
-    for (int32 i = 0; i < UCCStageMapManager::GetInstance()->TileMapWidth; i++)
+    for (int32 i = 0; i < TileMapWidth; i++)
     {
-        for (int32 j = 0; j < UCCStageMapManager::GetInstance()->TileMapHeight; j++)
+        for (int32 j = 0; j < TileMapHeight; j++)
         {
             int32 k = TileMapComponent->GetTile(i, j, 0).GetTileIndex();
             if (TileMapComponent->GetTile(i, j, 0).GetTileIndex() == 1)
@@ -180,10 +178,10 @@ FVector2D UCCSpritePlacer::GetTileSize(UPaperTileMapComponent* TileMapComponent)
 /// <returns></returns>
 FVector2D UCCSpritePlacer::CalculateEndLocalPos(UPaperTileMapComponent* TileMapComponent, int32 OffsetTiles, FVector2D TileSize, FVector2D StartLocalPos) const
 {
-    if (OffsetTiles * TileSize.X < TileMapComponent->TileMap->TileWidth * UCCStageMapManager::GetInstance()->TileMapWidth - StartLocalPos.X)
+    if (OffsetTiles * TileSize.X < TileMapComponent->TileMap->TileWidth *  TileMapWidth - StartLocalPos.X)
         return StartLocalPos + FVector2D(OffsetTiles * TileSize.X, 0);
     else
-        return StartLocalPos + FVector2D(TileMapComponent->TileMap->TileWidth * (UCCStageMapManager::GetInstance()->TileMapWidth - 1) - StartLocalPos.X, 0);
+        return StartLocalPos + FVector2D(TileMapComponent->TileMap->TileWidth * ( TileMapWidth - 1) - StartLocalPos.X, 0);
 }
 
 void UCCSpritePlacer::CreateAndAttachSpriteComponent(AActor* Owner, UPaperSprite* FeatureSprite, FVector LocalPos, bool bAddToCollisionTree, FBox2D BoxForSprite, float RandomScale, bool bIsBeforePlayer)

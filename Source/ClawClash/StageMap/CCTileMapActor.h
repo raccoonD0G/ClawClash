@@ -8,6 +8,36 @@
 #include "CCTileMapActor.generated.h"
 
 class UPaperTileMap;
+class UCCPlatform;
+class UCCRoom;
+
+USTRUCT()
+struct FPlatformEdge
+{
+    GENERATED_BODY()
+public:
+
+    int32 PlatformIndex1;
+    int32 PlatformIndex2;
+    float Weight;
+    FIntVector2 Pos1;
+    FIntVector2 Pos2;
+
+    FPlatformEdge()
+    {
+
+    }
+
+    FPlatformEdge(int32 InPlatformIndex1, int32 InPlatformIndex2, float InWeight, FIntVector2 InPos1, FIntVector2 InPos2)
+        : PlatformIndex1(InPlatformIndex1), PlatformIndex2(InPlatformIndex2), Weight(InWeight), Pos1(InPos1), Pos2(InPos2)
+    {
+    }
+
+    bool operator<(const FPlatformEdge& Other) const
+    {
+        return Weight < Other.Weight;
+    }
+};
 
 UCLASS()
 class CLAWCLASH_API ACCTileMapActor : public AActor
@@ -23,23 +53,43 @@ protected:
 public:
     virtual void Tick(float DeltaTime) override;
 
-
-// Layer Section
+// Info Section
 protected:
-    float BackgroundY;
-    float PlayerY;
-    float FieldTileY;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageMap")
+    int32 TileMapWidth = 128;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageMap")
+    int32 TileMapHeight = 64;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageMap")
+    int32 TileWidth = 512;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageMap")
+    int32 TileHeight = 512;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageMap")
+    int32 MinRoomHeight = 6;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageMap")
+    int32 MinRoomWidth = 11;
+
+public:
+    int32 GetTileMapWidth();
+    int32 GetTileMapHeight();
+    int32 GetTileWidth();
+    int32 GetTileHeight();
+    int32 GetMinRoomHeight();
+    int32 GetMinRoomWidth();
 
 // Init Section
 protected:
-    void InitializeTileMap();
     void InitializeBackground();
     void PlaceFieldSprites();
 
 // Placer Section
 protected:
-    UPROPERTY()
-    TObjectPtr<class UCCTilePlacer> TilePlacer;
+    //UPROPERTY()
+    //TObjectPtr<class UCCTilePlacer> TilePlacer;
 
     UPROPERTY()
     TObjectPtr<class UCCSpritePlacer> SpritePlacer;
@@ -51,6 +101,29 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TileMap")
     TObjectPtr<class UPaperTileSet> FieldTileSet;
+
+// Create Map Section
+public:
+    const TArray<UCCPlatform*>& GetPlatformArr();
+
+protected:
+    UPROPERTY()
+    TArray<TObjectPtr<UCCPlatform>> PlatformArr;
+
+    void SplitSpace(TArray<UCCRoom*>& OutRooms, UCCRoom* Space, int32 MinWidth, int32 MinHeight, int32 Depth);
+    void GenerateRooms(TArray<UCCRoom*>& OutRooms, int32 MapWidth, int32 MapHeight, int32 MinWidth, int32 MinHeight);
+    float CalculatePlatformDistance(const UCCPlatform& Platform0, const UCCPlatform& Platform1, FIntVector2& Pos1, FIntVector2& Pos2);
+    void GenerateMST();
+
+    void CreatePlatformsAlongEdge(const FPlatformEdge& Edge);
+    void InitializeTileMap(UPaperTileSet* TileSet, int32 Rows, int32 Columns, float NewTileWidth, float NewTileHeight);
+
+public:
+    bool SetTileIfPossible(int32 Column, int32 Row, int32 Layer, FPaperTileInfo TileInfo, bool bEmptyOnly = true);
+
+    void SetupTileColliders(int32 Column, int32 Row, int32 ColliderLength, EFieldType NewFieldType);
+
+    void CreatAllField(UPaperTileMapComponent* TileMapComponent);
 
 // Background Section
 protected:
@@ -71,5 +144,9 @@ protected:
 
     int32 LastBackgroundX;
     int32 LastBackgroundZ;
-};
 
+// Collision Section
+protected:
+    UPROPERTY()
+    TArray<TObjectPtr<class UCCTileCollider>> ColliderArr;
+};

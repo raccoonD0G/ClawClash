@@ -29,7 +29,7 @@ public:
 
     const UCCPlatform* GetPlatform() const;
 
-    void Init(FIntVector2 NewTileMapPos, int32 InWidth, int32 InHeight);
+    void Init(ACCTileMapActor* NewOwningTileMap, FIntVector2 NewTileMapPos, int32 InWidth, int32 InHeight);
 
     FIntVector2 GetCenter() const;
 

@@ -8,6 +8,9 @@
 #include "ClawClash/StageMap/CCStageMapDef.h"
 
 #include "ClawClash/CCUtils.h"
+
+#include "PaperTileLayer.h"
+
 #include "CCStageMapManager.generated.h"
 
 
@@ -55,10 +58,19 @@ public:
     }
 };
 
+USTRUCT()
+struct FCCFieldTileSet
+{
+    GENERATED_BODY()
+    public:
+    FPaperTileInfo LeftTile;
+    FPaperTileInfo MiddleTile;
+    FPaperTileInfo RightTile;
+};
 
 class UCCRoom;
 class UCCPlatform;
-class UCCStageMap;
+class ACCTileMapActor;
 /**
  * 
  */
@@ -73,46 +85,27 @@ public:
     void Init();
 
 protected:
-
     static UCCStageMapManager* Instance;
-
 
  // Layer Section
 public:
     const float BackgroundY = -200;
+    const float BeforePlayerSpriteY = 48;
+    const float FieldTileY = 49;
     const float PlayerY = 50;
-    const float FieldTileY = 50.1f;
+    const float AfterPlayerSpriteY = 51;
+
 
 // Creat Section
 protected:
-    TObjectPtr<UCCStageMap> StageMap;
+    static ACCTileMapActor* StageMap;
 
 public:
-    UCCStageMap& GetStageMap();
+    static ACCTileMapActor* GetStageMap();
+    static void SetStageMap(ACCTileMapActor* NewStageMap);
 
 // Info Section
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageMap")
-    int32 TileMapWidth = 128;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageMap")
-    int32 TileMapHeight = 64;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageMap")
-    int32 NumOfFloor = 4;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageMap")
-    int32 TileWidth = 512;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageMap")
-    int32 TileHeight = 512;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageMap")
-    int32 MinFloorHeight = 6;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageMap")
-    int32 MinFloorLength = 11;
-
     UPROPERTY()
     TMap<EFieldType, FCCFieldInfo> FieldInfoMap;
 
@@ -121,6 +114,15 @@ public:
 
     UPROPERTY()
     TMap<EFeatureType, FCCFeatureInfoArrContainer> FeatureInfoMap;
+
+    UPROPERTY()
+    TMap<EFieldType, FCCFieldTileSet> TileSetPerFieldDic;
+
+    UPROPERTY()
+    TMap<ETileType, FPaperTileInfo> TileInfoPerTileDic;
+
+public:
+    void InitializeTileSet(UPaperTileSet* NewFieldTileSet);
 
 protected:
     void InitFieldRatioMap();

@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/BoxComponent.h"
+#include "ClawClash/StageMap/CCStageMapDef.h"
 #include "CCTileCollider.generated.h"
-
 /**
  * 
  */
@@ -16,8 +16,10 @@ class CLAWCLASH_API UCCTileCollider : public UBoxComponent
 	
 public:
     UCCTileCollider();
+    void Init(EFieldType NewFieldType);
 	
 protected:
+    EFieldType FieldType;
     virtual void BeginPlay() override;
     virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 

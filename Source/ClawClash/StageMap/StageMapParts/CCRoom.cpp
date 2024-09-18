@@ -6,6 +6,7 @@
 #include "ClawClash/Managers/CCGameManager.h"
 #include "ClawClash/Managers/StageMapManager/CCStageMapManager.h"
 #include "ClawClash/StageMap/StageMapParts/CCPlatform.h"
+#include "ClawClash/StageMap/CCTileMapActor.h"
 #include "CCTileMapParts.h"
 
 const UCCPlatform* UCCRoom::GetPlatform() const
@@ -13,11 +14,12 @@ const UCCPlatform* UCCRoom::GetPlatform() const
     return Platform;
 }
 
-void UCCRoom::Init(FIntVector2 NewTileMapPos, int32 InWidth, int32 InHeight)
+void UCCRoom::Init(ACCTileMapActor* NewOwningTileMap, FIntVector2 NewTileMapPos, int32 InWidth, int32 InHeight)
 {
     UCCTileMapParts::Init(NewTileMapPos);
     Width = InWidth;
     Height = InHeight;
+    OwningTileMap = NewOwningTileMap;
 } 
 
 FIntVector2 UCCRoom::GetCenter() const
@@ -27,10 +29,10 @@ FIntVector2 UCCRoom::GetCenter() const
 
 UCCPlatform* UCCRoom::GeneratePlatform()
 {
-    int32 FloorStartX = FMath::RandRange(TileMapPos.X, TileMapPos.X + Width - UCCStageMapManager::GetInstance()->MinFloorLength);
-    int32 FloorStartY = FMath::RandRange(TileMapPos.Y + UCCStageMapManager::GetInstance()->MinFloorHeight, TileMapPos.Y + Height - 1);
+    int32 FloorStartX = FMath::RandRange(TileMapPos.X, TileMapPos.X + Width - OwningTileMap->GetMinRoomWidth());
+    int32 FloorStartY = FMath::RandRange(TileMapPos.Y + OwningTileMap->GetMinRoomHeight(), TileMapPos.Y + Height - 1);
     Platform = NewObject<UCCPlatform>();
-    int32 FloorLength = FMath::RandRange(UCCStageMapManager::GetInstance()->MinFloorLength, Width - FloorStartX + TileMapPos.X);
-    Platform->Init(FIntVector2(FloorStartX, FloorStartY), FloorLength, false);
+    int32 FloorLength = FMath::RandRange(OwningTileMap->GetMinRoomWidth(), Width - FloorStartX + TileMapPos.X);
+    Platform->Init(OwningTileMap, FIntVector2(FloorStartX, FloorStartY), FloorLength);
     return Platform;
 }

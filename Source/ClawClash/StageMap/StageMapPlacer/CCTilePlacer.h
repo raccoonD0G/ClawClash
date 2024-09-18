@@ -4,6 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "CCTilePlacer.generated.h"
+
+UCLASS()
+class CLAWCLASH_API UCCTilePlacer : public UObject
+{
+	GENERATED_BODY()
+};
+/*
+#include "CoreMinimal.h"
+#include "UObject/NoExportTypes.h"
 #include "ClawClash/StageMap/CCStageMapDef.h"
 #include "PaperTileLayer.h"
 #include "CCTilePlacer.generated.h"
@@ -19,11 +29,11 @@ struct FCCFieldTileSet
 	FPaperTileInfo RightTile;
 };
 
+
+
 class UPaperTileMapComponent;
 class UPaperTileSet;
-/**
- * 
- */
+
 UCLASS()
 class CLAWCLASH_API UCCTilePlacer : public UObject
 {
@@ -72,3 +82,4 @@ protected:
 	void CreateAsphalt(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Length);
 	void CreateEmpty(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Length);
 };
+*/

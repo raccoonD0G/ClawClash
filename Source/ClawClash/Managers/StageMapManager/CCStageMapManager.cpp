@@ -8,12 +8,15 @@
 
 #include "ClawClash/StageMap/CCStageMapDef.h"
 #include "ClawClash/StageMap/StageMapParts/CCPlatform.h"
-#include "ClawClash/StageMap/CCStageMap.h"
 #include "PaperSpriteComponent.h"
 #include "PaperSprite.h"
 
 #include "ClawClash/StageMap/StageMapParts/CCRoom.h"
 
+#include <PaperTileMapComponent.h>
+#include <ClawClash/StageMap/CCTileMapActor.h>
+
+ACCTileMapActor* UCCStageMapManager::StageMap = nullptr;
 UCCStageMapManager* UCCStageMapManager::Instance = nullptr;
 
 UCCStageMapManager::UCCStageMapManager()
@@ -33,13 +36,19 @@ UCCStageMapManager* UCCStageMapManager::GetInstance()
 void UCCStageMapManager::Init()
 {
     InitStageMapInfo();
-    StageMap = NewObject<UCCStageMap>();
-    StageMap->Init();
 }
 
-UCCStageMap& UCCStageMapManager::GetStageMap()
+ACCTileMapActor* UCCStageMapManager::GetStageMap()
 {
-    return *StageMap;
+    return StageMap;
+}
+
+void UCCStageMapManager::SetStageMap(ACCTileMapActor* NewStageMap)
+{
+    if (StageMap == nullptr || !StageMap->IsValidLowLevel())
+    {
+        StageMap = NewStageMap;
+    }
 }
 
 void UCCStageMapManager::InitStageMapInfo()
@@ -110,4 +119,54 @@ void UCCStageMapManager::InitFeatureInfoMap()
     AddFeatureInfo<ERaccooHouseFeature>("/Game/Sprite/Map/Feature/RaccoonHouse", FeatureInfoMap, EFeatureType::RacconHouseFeature, 1.0f, 0.001f);
     AddFeatureInfo<EDogHouseFeature>("/Game/Sprite/Map/Feature/DogHouse", FeatureInfoMap, EFeatureType::DogHouseFeature, 1.0f, 0.001f);
     AddFeatureInfo<ETreeFeature>("/Game/Sprite/Map/Feature/Tree", FeatureInfoMap, EFeatureType::TreeFeature, 0.1f, 1.0f);
+}
+
+void UCCStageMapManager::InitializeTileSet(UPaperTileSet* NewFieldTileSet)
+{
+    // Initialize Tiles
+    int32 TileTypeEnumLength = UCCUtils::GetEnumLength(StaticEnum<ETileType>());
+
+    for (int32 i = 0; i < TileTypeEnumLength; i++)
+    {
+        FPaperTileInfo NewTileInfo;
+        NewTileInfo.TileSet = NewFieldTileSet;
+        NewTileInfo.PackedTileIndex = i;
+        TileInfoPerTileDic.Add((ETileType)i, NewTileInfo);
+    }
+
+    FCCFieldTileSet WatersideTileSet;
+    WatersideTileSet.LeftTile = *(TileInfoPerTileDic.Find(ETileType::WatersideLeft));
+    WatersideTileSet.MiddleTile = *(TileInfoPerTileDic.Find(ETileType::Waterside));
+    WatersideTileSet.RightTile = *(TileInfoPerTileDic.Find(ETileType::WatersideRight));
+    TileSetPerFieldDic.Add(EFieldType::WatersideField, WatersideTileSet);
+
+    FCCFieldTileSet AsphaltTileSet;
+    AsphaltTileSet.LeftTile = *(TileInfoPerTileDic.Find(ETileType::AsphaltLeft));
+    AsphaltTileSet.MiddleTile = *(TileInfoPerTileDic.Find(ETileType::Asphalt));
+    AsphaltTileSet.RightTile = *(TileInfoPerTileDic.Find(ETileType::AsphaltRight));
+    TileSetPerFieldDic.Add(EFieldType::AsphaltField, AsphaltTileSet);
+
+    FCCFieldTileSet CaveTileSet;
+    CaveTileSet.LeftTile = *(TileInfoPerTileDic.Find(ETileType::CaveLeft));
+    CaveTileSet.MiddleTile = *(TileInfoPerTileDic.Find(ETileType::Cave));
+    CaveTileSet.RightTile = *(TileInfoPerTileDic.Find(ETileType::CaveRight));
+    TileSetPerFieldDic.Add(EFieldType::CaveField, CaveTileSet);
+
+    FCCFieldTileSet HillTileSet;
+    HillTileSet.LeftTile = *(TileInfoPerTileDic.Find(ETileType::HillLeft));
+    HillTileSet.MiddleTile = *(TileInfoPerTileDic.Find(ETileType::Hill));
+    HillTileSet.RightTile = *(TileInfoPerTileDic.Find(ETileType::HillRight));
+    TileSetPerFieldDic.Add(EFieldType::HillField, HillTileSet);
+
+    FCCFieldTileSet RaccoonHouseTileSet;
+    RaccoonHouseTileSet.LeftTile = *(TileInfoPerTileDic.Find(ETileType::CaveLeft));
+    RaccoonHouseTileSet.MiddleTile = *(TileInfoPerTileDic.Find(ETileType::Cave));
+    RaccoonHouseTileSet.RightTile = *(TileInfoPerTileDic.Find(ETileType::CaveRight));
+    TileSetPerFieldDic.Add(EFieldType::RaccoonHouseField, RaccoonHouseTileSet);
+
+    FCCFieldTileSet DogHouseTileSet;
+    DogHouseTileSet.LeftTile = *(TileInfoPerTileDic.Find(ETileType::CaveLeft));
+    DogHouseTileSet.MiddleTile = *(TileInfoPerTileDic.Find(ETileType::Cave));
+    DogHouseTileSet.RightTile = *(TileInfoPerTileDic.Find(ETileType::CaveRight));
+    TileSetPerFieldDic.Add(EFieldType::DogHouseField, DogHouseTileSet);
 }

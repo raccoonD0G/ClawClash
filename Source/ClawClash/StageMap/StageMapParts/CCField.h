@@ -25,5 +25,13 @@ protected:
 public:
 	void AddStartPos(int32 AddedNum);
 	EFieldType GetFieldType();
-	void Init(FIntVector2 NewTileMapPos, int32 NewLength, EFieldType NewFieldTypee);
+	void Init(ACCTileMapActor* NewOwningTileMap, FIntVector2 NewTileMapPos, int32 NewLength, EFieldType NewFieldTypee);
+	void CreateTile();
+	void CreatNoneBasicFieldTile(EFieldType CurrentType);
+	void CreatHill();
+	void CreateRaccoonHouse();
+	void CreateDogHouse();
+	void CreatWaterSide();
+	void CreateCave();
+	void CreateAsphalt();
 };

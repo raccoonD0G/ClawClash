@@ -17,6 +17,9 @@ class CLAWCLASH_API UCCTileMapParts : public UObject
 protected:
 	FIntVector2 TileMapPos;
 
+	UPROPERTY()
+	TObjectPtr<class ACCTileMapActor> OwningTileMap;
+
 public:
 	void SetTileMapPos(FIntVector2 NewTileMapPos);
 	FIntVector2 GetTileMapPos() const;
