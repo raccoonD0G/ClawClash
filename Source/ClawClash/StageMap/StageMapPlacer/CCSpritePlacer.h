@@ -7,15 +7,23 @@
 #include "ClawClash/StageMap/CCStageMapDef.h"
 #include "CCSpritePlacer.generated.h"
 
+UCLASS()
+class CLAWCLASH_API UCCSpritePlacer : public UObject
+{
+    GENERATED_BODY()
+};
+/*
+#include "CoreMinimal.h"
+#include "UObject/NoExportTypes.h"
+#include "ClawClash/StageMap/CCStageMapDef.h"
+#include "CCSpritePlacer.generated.h"
+
 class UPaperTileMapComponent;
 class UPaperSprite;
 class UPaperSpriteComponent;
 struct FCCFeatureInfo;
 struct FCCFeatureInfoArrContainer;
 
-/**
- * 
- */
 UCLASS()
 class CLAWCLASH_API UCCSpritePlacer : public UObject
 {
@@ -58,11 +66,5 @@ protected:
     TArray<FVector> TreePosArr;
 
     void CreateSpriteByType(UPaperTileMapComponent* TileMapComponent, EFieldType CurrentType, int32 Column, int32 Row, int32 Length);
-    void CreatBasicSprite(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Length);
-    void CreatWaterSideSprite(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Length);
-    void CreateAsphaltSprite(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Length);
-    void CreateCaveSprite(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Length);
-    void CreatHillSprite(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Length);
-    void CreateRaccoonHouseSprite(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Length);
-    void CreateDogHouseSprite(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Length);
 };
+*/

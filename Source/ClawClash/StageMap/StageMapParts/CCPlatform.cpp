@@ -14,6 +14,13 @@
 #include "Math/UnrealMathUtility.h"
 
 #include "ClawClash/StageMap/CCTileMapActor.h"
+#include "CCBasicField.h"
+#include "CCWatersideField.h"
+#include "CCAsphaltField.h"
+#include "CCCaveField.h"
+#include "CCHillField.h"
+#include "CCRaccoonHouseField.h"
+#include "CCDogHouseField.h"
 
 UCCPlatform::UCCPlatform()
 {
@@ -37,7 +44,7 @@ EFieldType UCCPlatform::GetRandomField(const TMap<EFieldType, float>& FieldRatio
         }
     }
 
-    return EFieldType::NoneField;
+    return EFieldType::BasicField;
 }
 
 void UCCPlatform::Init(ACCTileMapActor* NewOwningTileMap, FIntVector2 NewTileMapPos, int32 NewLength)
@@ -46,7 +53,6 @@ void UCCPlatform::Init(ACCTileMapActor* NewOwningTileMap, FIntVector2 NewTileMap
 	Length = NewLength;
     OwningTileMap = NewOwningTileMap;
 	CreatFieldOnPlatform();
-    FillInBasic();
 }
 
 void UCCPlatform::CreatFieldOnPlatform()
@@ -73,7 +79,35 @@ void UCCPlatform::CreatFieldOnPlatform()
 
         if (TotalFieldLength + FieldLength <= Length)
         {
-            UCCField* NewField = NewObject<UCCField>(this);
+            UCCField* NewField;
+
+            switch (FieldType)
+            {
+            case EFieldType::BasicField:
+                NewField = NewObject<UCCBasicField>();
+                break;
+            case EFieldType::WatersideField:
+                NewField = NewObject<UCCWatersideField>();
+                break;
+            case EFieldType::AsphaltField:
+                NewField = NewObject<UCCAsphaltField>();
+                break;
+            case EFieldType::CaveField:
+                NewField = NewObject<UCCCaveField>();
+                break;
+            case EFieldType::HillField:
+                NewField = NewObject<UCCHillField>();
+                break;
+            case EFieldType::RaccoonHouseField:
+                NewField = NewObject<UCCRaccoonHouseField>();
+                break;
+            case EFieldType::DogHouseField:
+                NewField = NewObject<UCCDogHouseField>();
+                break;
+            default:
+                NewField = nullptr;
+            }
+
             NewField->Init(OwningTileMap, FIntVector2(0, 0), FieldLength, FieldType);
             FieldArr.Add(NewField);
             TotalFieldLength += FieldLength;
@@ -96,9 +130,39 @@ void UCCPlatform::CreatFieldOnPlatform()
         for (int32 k = j; k < FieldArr.Num(); k++) FieldArr[k]->AddStartPos(DecomposeNumArr[j]);
     }
 
-    for (UCCField* Field : FieldArr)
+    for (int32 j = 0; j < FieldArr.Num(); j++)
+    {
+        FIntVector2 Interval;
+        if (j + 1 != FieldArr.Num())
+        {
+            Interval = FieldArr[j]->GetEndPos() - FieldArr[j + 1]->GetStartPos();
+        }
+        else
+        {
+            Interval = GetEndPos() - FieldArr[j]->GetEndPos();
+        }
+        
+        if (Interval.X > 1)
+        {
+            UCCBasicField* BasicField = NewObject<UCCBasicField>();
+            FIntVector2 StartPos = FieldArr[j]->GetEndPos();
+            StartPos.X;
+            BasicField->Init(OwningTileMap, StartPos, Interval.X, EFieldType::BasicField);
+            FieldArr.Add(BasicField);
+        }
+    }
+
+    if (FieldArr.Num() == 0)
+    {
+        UCCBasicField* BasicField = NewObject<UCCBasicField>();
+        BasicField->Init(OwningTileMap, GetStartPos(), GetEndPos().X - GetStartPos().X, EFieldType::BasicField);
+        FieldArr.Add(BasicField);
+    }
+
+    for (UCCField *Field : FieldArr)
     {
         Field->CreateTile();
+        Field->CreateSprite();
     }
 }
 
@@ -113,16 +177,5 @@ void UCCPlatform::ShuffleArray(TArray<TObjectPtr<UCCField>>& Array)
     {
         int32 SwapIndex = FMath::RandRange(0, Index);
         Array.Swap(Index, SwapIndex);
-    }
-}
-
-void UCCPlatform::FillInBasic()
-{
-    for (int32 i = 0; i < Length; i++)
-    {
-        if (OwningTileMap->SetTileIfPossible(TileMapPos.X + i, TileMapPos.Y, 0, *(UCCStageMapManager::GetInstance()->TileInfoPerTileDic.Find(ETileType::Basic))))
-        {
-            OwningTileMap->SetupTileColliders(TileMapPos.X + i, TileMapPos.Y, 1, EFieldType::NoneField);
-        }
     }
 }

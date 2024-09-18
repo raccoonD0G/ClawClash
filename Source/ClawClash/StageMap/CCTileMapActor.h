@@ -84,15 +84,6 @@ public:
 // Init Section
 protected:
     void InitializeBackground();
-    void PlaceFieldSprites();
-
-// Placer Section
-protected:
-    //UPROPERTY()
-    //TObjectPtr<class UCCTilePlacer> TilePlacer;
-
-    UPROPERTY()
-    TObjectPtr<class UCCSpritePlacer> SpritePlacer;
 
 // FieldTile Section
 protected:
@@ -114,17 +105,13 @@ protected:
     void GenerateRooms(TArray<UCCRoom*>& OutRooms, int32 MapWidth, int32 MapHeight, int32 MinWidth, int32 MinHeight);
     float CalculatePlatformDistance(const UCCPlatform& Platform0, const UCCPlatform& Platform1, FIntVector2& Pos1, FIntVector2& Pos2);
     void GenerateMST();
-
     void CreatePlatformsAlongEdge(const FPlatformEdge& Edge);
     void InitializeTileMap(UPaperTileSet* TileSet, int32 Rows, int32 Columns, float NewTileWidth, float NewTileHeight);
 
+// Tile Section
 public:
     bool SetTileIfPossible(int32 Column, int32 Row, int32 Layer, FPaperTileInfo TileInfo, bool bEmptyOnly = true);
-
-    void SetupTileColliders(int32 Column, int32 Row, int32 ColliderLength, EFieldType NewFieldType);
-
-    void CreatAllField(UPaperTileMapComponent* TileMapComponent);
-
+    
 // Background Section
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -146,7 +133,30 @@ protected:
     int32 LastBackgroundZ;
 
 // Collision Section
+public:
+    void SetupTileColliders(int32 Column, int32 Row, int32 ColliderLength, EFieldType NewFieldType);
+
 protected:
     UPROPERTY()
     TArray<TObjectPtr<class UCCTileCollider>> ColliderArr;
+
+// Sprite Section
+public:
+    class UCCBoxQuadTreeNode* GetRootNode();
+    void AddSpriteComponentArr(UPaperSpriteComponent* NewSpriteComponent);
+
+    int32 GetBeforePlayerOrder();
+    int32 GetAfterPlayerOrder();
+
+    void AddBeforPlayerOrder();
+    void AddAfterPlayerOrder();
+
+protected:
+    UPROPERTY()
+    TObjectPtr<class UCCBoxQuadTreeNode> RootNode;
+    UPROPERTY()
+    TArray<TObjectPtr<UPaperSpriteComponent>> FeatureSpriteComponentArr;
+
+    int32 BeforePlayerOrder;
+    int32 AfterPlayerOrder;
 };

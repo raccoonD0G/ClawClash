@@ -29,7 +29,7 @@ enum class ETileType : uint8
 UENUM(BlueprintType)
 enum class EFieldType : uint8
 {
-    NoneField  UMETA(DisplayName = "NoneField"),
+    BasicField  UMETA(DisplayName = "BasicField"),
     WatersideField UMETA(DisplayName = "Waterside"),
     AsphaltField UMETA(DisplayName = "Asphalt"),
     CaveField UMETA(DisplayName = "Cave"),

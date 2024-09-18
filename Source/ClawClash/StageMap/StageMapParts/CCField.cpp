@@ -10,7 +10,7 @@
 
 UCCField::UCCField()
 {
-	FieldType = EFieldType::NoneField;
+	FieldType = EFieldType::BasicField;
 	TileMapPos = FIntVector2(0, 0);
 	Length = 0;
 }
@@ -36,30 +36,14 @@ void UCCField::Init(ACCTileMapActor* NewOwningTileMap, FIntVector2 NewTileMapPos
 
 void UCCField::CreateTile()
 {
-    switch (FieldType)
-    {
-    case EFieldType::WatersideField:
-        CreatWaterSide();
-        break;
-    case EFieldType::AsphaltField:
-        CreateAsphalt();
-        break;
-    case EFieldType::CaveField:
-        CreateCave();
-        break;
-    case EFieldType::HillField:
-        CreatHill();
-        break;
-    case EFieldType::RaccoonHouseField:
-        CreateRaccoonHouse();
-        break;
-    case EFieldType::DogHouseField:
-        CreateDogHouse();
-        break;
-    default:
-        break;
-    }
+    
 }
+
+void UCCField::CreateSprite()
+{
+
+}
+
 
 void UCCField::CreatNoneBasicFieldTile(EFieldType CurrentType)
 {
@@ -70,41 +54,4 @@ void UCCField::CreatNoneBasicFieldTile(EFieldType CurrentType)
     }
     OwningTileMap->SetTileIfPossible(TileMapPos.X + Length - 1, TileMapPos.Y, 0, UCCStageMapManager::GetInstance()->TileSetPerFieldDic.Find(CurrentType)->RightTile, false);
     OwningTileMap->SetupTileColliders(TileMapPos.X, TileMapPos.Y, Length, FieldType);
-}
-
-
-void UCCField::CreatHill()
-{
-    CreatNoneBasicFieldTile(EFieldType::HillField);
-}
-
-void UCCField::CreateRaccoonHouse()
-{
-    CreatNoneBasicFieldTile(EFieldType::RaccoonHouseField);
-}
-
-void UCCField::CreateDogHouse()
-{
-    CreatNoneBasicFieldTile(EFieldType::DogHouseField);
-}
-
-void UCCField::CreatWaterSide()
-{
-    CreatNoneBasicFieldTile(EFieldType::WatersideField);
-}
-
-void UCCField::CreateCave()
-{
-    CreatNoneBasicFieldTile(EFieldType::CaveField);
-    FSpawnableField NewField;
-    NewField.SpawnableType = ESpawnableType::Rat;
-    NewField.LeftEnd = FVector(TileMapPos.X * UCCStageMapManager::GetStageMap()->GetTileWidth(), 0, -TileMapPos.Y * UCCStageMapManager::GetStageMap()->GetTileHeight() + UCCStageMapManager::GetStageMap()->GetTileHeight() / 2);
-    NewField.RightEnd = FVector((TileMapPos.X + Length - 1) * UCCStageMapManager::GetStageMap()->GetTileWidth(), 0, -TileMapPos.Y * UCCStageMapManager::GetStageMap()->GetTileHeight() + UCCStageMapManager::GetStageMap()->GetTileHeight() / 2);
-    NewField.MaxCharacterNum = Length;
-    UCCSpawnManager::GetInstance()->SpawnFieldMap.Find(EFieldType::CaveField)->SpawnableFieldArr.Add(NewField);
-}
-
-void UCCField::CreateAsphalt()
-{
-    CreatNoneBasicFieldTile(EFieldType::AsphaltField);
 }

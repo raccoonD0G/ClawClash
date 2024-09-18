@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
+/*
 #include "CCSpritePlacer.h"
 #include "PaperTileMapComponent.h"
 #include "PaperTileMap.h"
@@ -163,11 +163,6 @@ FVector2D UCCSpritePlacer::GetTileSize(UPaperTileMapComponent* TileMapComponent)
 /// <summary>
 /// Ensure end local pos in in bound of TileMap
 /// </summary>
-/// <param name="TileMapComponent">
-/// TileMap to find end local pos of
-/// </param>
-/// <param name="OffsetTiles">
-/// tile count from start tile
 /// </param>
 /// <param name="TileSize">
 /// tile size in WorldSpace
@@ -227,69 +222,5 @@ FVector UCCSpritePlacer::CalculateLocalPos(UPaperTileMapComponent* TileMapCompon
 
 void UCCSpritePlacer::CreateSpriteByType(UPaperTileMapComponent* TileMapComponent, EFieldType CurrentType, int32 Column, int32 Row, int32 Length)
 {
-    switch (CurrentType)
-    {
-    case EFieldType::WatersideField:
-        CreatWaterSideSprite(TileMapComponent, Column, Row, Length);
-        break;
-    case EFieldType::AsphaltField:
-        CreateAsphaltSprite(TileMapComponent, Column, Row, Length);
-        break;
-    case EFieldType::CaveField:
-        CreateCaveSprite(TileMapComponent, Column, Row, Length);
-        break;
-    case EFieldType::HillField:
-        CreatHillSprite(TileMapComponent, Column, Row, Length);
-        break;
-    case EFieldType::RaccoonHouseField:
-        CreateRaccoonHouseSprite(TileMapComponent, Column, Row, Length);
-        break;
-    case EFieldType::DogHouseField:
-        CreateDogHouseSprite(TileMapComponent, Column, Row, Length);
-        break;
-    default:
-        break;
-    }
 }
-
-void UCCSpritePlacer::CreatBasicSprite(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Length)
-{
-    PlaceSprites(TileMapComponent, FVector2D(Column, Row), Length, 0.5f, *UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::GrassFeature), false, true);
-    PlaceSprites(TileMapComponent, FVector2D(Column, Row), Length, 0.5f, *UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::PlantFeature), false, true);
-}
-
-void UCCSpritePlacer::CreatWaterSideSprite(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Length)
-{
-    PlaceSprites(TileMapComponent, FVector2D(Column, Row), Length, 0.5, *UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::WeedFeature), true, true);
-    PlaceSprites(TileMapComponent, FVector2D(Column, Row), Length, 0.5, *UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::StoneFeature), true, true);
-}
-
-void UCCSpritePlacer::CreateAsphaltSprite(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Length)
-{
-    PlaceSprites(TileMapComponent, FVector2D(Column, Row), Length, 0.5, *UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::BuildingFeature), true, false);
-    PlaceSprites(TileMapComponent, FVector2D(Column, Row), Length, 0.5, *UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::CarFeature), true, true);
-    PlaceSprites(TileMapComponent, FVector2D(Column, Row), Length, 0.5, *UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::LightFeature), true, true);
-}
-
-void UCCSpritePlacer::CreateCaveSprite(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Length)
-{
-    PlaceSprites(TileMapComponent, FVector2D(Column, Row), Length, 1.0, *UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::RatCaveFeature), true, true, false, 4, 4);
-    PlaceSprites(TileMapComponent, FVector2D(Column, Row), Length, 0.5, *UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::RockFeature), false, true);
-}
-
-void UCCSpritePlacer::CreatHillSprite(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Length)
-{
-    ;
-}
-
-void UCCSpritePlacer::CreateRaccoonHouseSprite(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Length)
-{
-    PlaceSprites(TileMapComponent, FVector2D(Column, Row), Length, 1.0, *UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::RacconHouseFeature), true, true, false, 1, 1);
-    PlaceSprites(TileMapComponent, FVector2D(Column, Row), Length, 0.5, *UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::RockFeature), false, true);
-}
-
-void UCCSpritePlacer::CreateDogHouseSprite(UPaperTileMapComponent* TileMapComponent, int32 Column, int32 Row, int32 Length)
-{
-    PlaceSprites(TileMapComponent, FVector2D(Column, Row), Length, 1.0, *UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::DogHouseFeature), true, true, false, 1, 1);
-    PlaceSprites(TileMapComponent, FVector2D(Column, Row), Length, 0.5, *UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::RockFeature), false, true);
-}
+*/

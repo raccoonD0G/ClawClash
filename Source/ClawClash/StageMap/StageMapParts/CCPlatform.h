@@ -32,5 +32,4 @@ public:
 	const TArray<class UCCField*>& GetFieldArr() const;
 
 	void ShuffleArray(TArray<TObjectPtr<UCCField>>& Array);
-	void FillInBasic();
 };

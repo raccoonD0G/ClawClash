@@ -19,13 +19,14 @@
 #include "ClawClash/StageMap/CCStageMapDef.h"
 
 #include "ClawClash/StageMap/StageMapPlacer/CCSpritePlacer.h"
-#include "ClawClash/StageMap/StageMapPlacer/CCTilePlacer.h"
 
 #include "ClawClash/StageMap/StageMapParts/CCRoom.h"
 #include "ClawClash/StageMap/StageMapParts/CCPlatform.h"
 
 #include "ClawClash/StageMap/CCUnionFind.h"
 #include "ClawClash/StageMap/CCTileCollider.h"
+
+#include "ClawClash/StageMap/CCBoxQuadTreeNode.h"
 
 ACCTileMapActor::ACCTileMapActor()
 {
@@ -34,8 +35,6 @@ ACCTileMapActor::ACCTileMapActor()
 	RootComponent = FieldTileMapComponent;
     BackgroundComponent = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("BackgroundComponent"));
     BackgroundComponent->SetupAttachment(RootComponent);
-    //TilePlacer = CreateDefaultSubobject<UCCTilePlacer>(TEXT("TileMapPlacer"));
-    SpritePlacer = CreateDefaultSubobject<UCCSpritePlacer>(TEXT("SpritePlacer"));
 
     FieldTileMapComponent->SetCollisionProfileName(TEXT("NoCollision"));
 }
@@ -70,19 +69,6 @@ int32 ACCTileMapActor::GetMinRoomWidth()
     return MinRoomWidth;
 }
 
-/*
-void ACCTileMapActor::InitializeTileMap()
-{
-    if (TilePlacer && FieldTileMapComponent && FieldTileSet)
-    {
-        TilePlacer->InitializeTileSet(FieldTileSet);
-        TilePlacer->InitializeTileMap(FieldTileMapComponent, FieldTileSet, TileMapHeight, TileMapWidth, TileWidth, TileHeight);
-        TilePlacer->CreatAllField(FieldTileMapComponent);
-        TilePlacer->FillInBasic(FieldTileMapComponent);
-    }
-}
-*/
-
 
 void ACCTileMapActor::InitializeBackground()
 {
@@ -101,11 +87,6 @@ void ACCTileMapActor::InitializeBackground()
     }
 }
 
-void ACCTileMapActor::PlaceFieldSprites()
-{
-    SpritePlacer->InitializeSprite(FieldTileMapComponent, TileMapHeight, TileMapWidth, TileWidth, TileHeight);
-}
-
 void ACCTileMapActor::BeginPlay()
 {
     Super::BeginPlay();
@@ -119,6 +100,9 @@ void ACCTileMapActor::BeginPlay()
         Destroy();
         return;
     }
+
+    RootNode = NewObject<UCCBoxQuadTreeNode>();
+    RootNode->Initialize(FVector2D(0, -GetTileMapHeight() * 512), FVector2D(GetTileMapWidth() * 512, 0), 10);
 
     if (FieldTileMapComponent && FieldTileSet)
     {
@@ -138,7 +122,7 @@ void ACCTileMapActor::BeginPlay()
     Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 
     FieldTileMapComponent->RebuildCollision();
-    PlaceFieldSprites();
+
     InitializeBackground();
 }
 
@@ -383,13 +367,32 @@ void ACCTileMapActor::SetupTileColliders(int32 Column, int32 Row, int32 Collider
     CustomCollider->RegisterComponent();
 }
 
-void ACCTileMapActor::CreatAllField(UPaperTileMapComponent* TileMapComponent)
+UCCBoxQuadTreeNode* ACCTileMapActor::GetRootNode()
 {
-    for (UCCPlatform* Platform : UCCStageMapManager::GetInstance()->GetStageMap()->GetPlatformArr())
-    {
-        for (UCCField* Field : Platform->GetFieldArr())
-        {
-            Field->CreateTile();
-        }
-    }
+    return RootNode;
+}
+
+void ACCTileMapActor::AddSpriteComponentArr(UPaperSpriteComponent* NewSpriteComponent)
+{
+    FeatureSpriteComponentArr.Add(NewSpriteComponent);
+}
+
+int32 ACCTileMapActor::GetBeforePlayerOrder()
+{
+    return BeforePlayerOrder;
+}
+
+int32 ACCTileMapActor::GetAfterPlayerOrder()
+{
+    return AfterPlayerOrder;
+}
+
+void ACCTileMapActor::AddBeforPlayerOrder()
+{
+    BeforePlayerOrder++;
+}
+
+void ACCTileMapActor::AddAfterPlayerOrder()
+{
+    AfterPlayerOrder++;
 }
