@@ -6,6 +6,8 @@
 #include "PaperCharacter.h"
 #include "CCPaperCharacter.generated.h"
 
+class UPaperFlipbookComponent;
+
 /**
  * 
  */
@@ -13,5 +15,7 @@ UCLASS()
 class CLAWCLASH_API ACCPaperCharacter : public APaperCharacter
 {
 	GENERATED_BODY()
-	
+
+public:
+	ACCPaperCharacter();
 };

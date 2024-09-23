@@ -5,6 +5,7 @@
 #include "ClawClash/Managers/SpawnManager/CCSpawn.h"
 #include "ClawClash/Managers/CCGameManager.h"
 #include "ClawClash/CCUtils.h"
+#include "ClawClash/Spawner/CCSpawner.h"
 
 UCCSpawnManager* UCCSpawnManager::Instance = nullptr;
 
@@ -25,15 +26,11 @@ UCCSpawnManager* UCCSpawnManager::GetInstance()
 
 void UCCSpawnManager::Init()
 {
-	FSpawnableFieldArrContainer DogFieldArr;
-	SpawnFieldMap.Add(EFieldType::DogHouseField, DogFieldArr);
-
-	FSpawnableFieldArrContainer RaccoonFieldArr;
-	SpawnFieldMap.Add(EFieldType::RaccoonHouseField, RaccoonFieldArr);
-
-	FSpawnableFieldArrContainer RatFieldArr;
-	SpawnFieldMap.Add(EFieldType::CaveField, RatFieldArr);
-
 	RatSpriteArr = UCCUtils::GetAllResourceFromFolder<UPaperFlipbook>(TEXT("/Game/Sprite/NonPlayer/Rat"));
+}
+
+const TArray<UPaperFlipbook*>& UCCSpawnManager::GetRatSpriteArr() const
+{
+	return RatSpriteArr;
 }
 

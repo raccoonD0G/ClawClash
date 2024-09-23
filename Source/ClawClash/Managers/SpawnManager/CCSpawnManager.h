@@ -8,24 +8,10 @@
 #include "CCSpawn.h"
 #include "CCSpawnManager.generated.h"
 
-USTRUCT()
-struct FSpawnableField
-{
-	GENERATED_BODY()
-public:
-	FVector LeftEnd;
-	FVector RightEnd;
-	ESpawnableType SpawnableType;
-	int32 MaxCharacterNum;
-};
 
-USTRUCT()
-struct FSpawnableFieldArrContainer
-{
-	GENERATED_BODY()
-public:
-	TArray<FSpawnableField> SpawnableFieldArr;
-};
+
+class UPaperFlipbook;
+class ACCSpawner;
 /**
  * 
  */
@@ -42,10 +28,11 @@ public:
 protected:
 	static UCCSpawnManager* Instance;
 
+// Data Section
 public:
-	TMap<EFieldType, FSpawnableFieldArrContainer> SpawnFieldMap;
+	const TArray<UPaperFlipbook*>& GetRatSpriteArr() const;
 
-public:
+protected:
 	UPROPERTY()
-	TArray<TObjectPtr<class UPaperFlipbook>> RatSpriteArr;
+	TArray<TObjectPtr<UPaperFlipbook>> RatSpriteArr;
 };

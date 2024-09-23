@@ -116,7 +116,6 @@ enum class EStoneFeature : uint8
     Stone1Feature UMETA(DisplayName = "Stone1Feature"),
     Stone2Feature UMETA(DisplayName = "Stone2Feature"),
     Stone3Feature UMETA(DisplayName = "Stone3Feature"),
-    Stone4Feature UMETA(DisplayName = "Stone4Feature"),
 };
 
 UENUM(BlueprintType)

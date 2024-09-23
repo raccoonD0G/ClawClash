@@ -26,32 +26,9 @@ EFieldType UCCField::GetFieldType()
 	return FieldType;
 }
 
-void UCCField::Init(ACCTileMapActor* NewOwningTileMap, FIntVector2 NewTileMapPos, int32 NewLength, EFieldType NewFieldType)
+void UCCField::Init(FIntVector2 NewTileMapPos, int32 NewLength, EFieldType NewFieldType)
 {
 	UCCTileMapParts::Init(NewTileMapPos);
 	FieldType = NewFieldType;
 	Length = NewLength;
-	OwningTileMap = NewOwningTileMap;
-}
-
-void UCCField::CreateTile()
-{
-    
-}
-
-void UCCField::CreateSprite()
-{
-
-}
-
-
-void UCCField::CreatNoneBasicFieldTile(EFieldType CurrentType)
-{
-    OwningTileMap->SetTileIfPossible(TileMapPos.X, TileMapPos.Y, 0, UCCStageMapManager::GetInstance()->TileSetPerFieldDic.Find(CurrentType)->LeftTile, false);
-    for (int32 i = TileMapPos.X + 1; i < TileMapPos.X + Length - 1; i++)
-    {
-        OwningTileMap->SetTileIfPossible(i, TileMapPos.Y, 0, UCCStageMapManager::GetInstance()->TileSetPerFieldDic.Find(CurrentType)->MiddleTile);
-    }
-    OwningTileMap->SetTileIfPossible(TileMapPos.X + Length - 1, TileMapPos.Y, 0, UCCStageMapManager::GetInstance()->TileSetPerFieldDic.Find(CurrentType)->RightTile, false);
-    OwningTileMap->SetupTileColliders(TileMapPos.X, TileMapPos.Y, Length, FieldType);
 }

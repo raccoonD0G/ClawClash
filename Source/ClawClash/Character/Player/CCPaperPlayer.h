@@ -7,6 +7,8 @@
 #include "InputActionValue.h"
 #include "CCPlayerState.h"
 #include "CCPaperPlayer.generated.h"
+
+class UHealthComponent;
 /**
  * 
  */
@@ -36,12 +38,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	EPlayerState CurrentState;
 
-
-// Material Section
-protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sprite")
-	TObjectPtr<class UMaterialInterface> DefaultSpriteMaterial;
-
 // Camera Section
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))
@@ -54,41 +50,45 @@ protected:
 protected:
 
 	float JumpStrength = 0.0f;
-	float JumpHeight = 8000.0f;
+	float JumpHeight = 0.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> JumpAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> MoveAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputMappingContext> InputMappingContext;
 	
 	void Move(const FInputActionValue& Value);
-	void StartJump();
-	void Jump();
-	void StopJumping();
-
-//Flipbook Section
-protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UPaperFlipbookComponent> PlayerFlipbook;
+	void ReadyJump();
+	virtual void Jump() override;
 
 //Animation Section
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animations", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UPaperFlipbook> IdleAnimation;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animations", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UPaperFlipbook> JumpAnimation;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animations", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UPaperFlipbook> LandAnimation;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animations", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UPaperFlipbook> MoveAnimation;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animations", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UPaperFlipbook> FallingAnimation;
+
+// Damage Section
+protected:
+	UPROPERTY()
+	TObjectPtr<UHealthComponent> HealthComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 MaxHp;
+
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCause) override;
 };

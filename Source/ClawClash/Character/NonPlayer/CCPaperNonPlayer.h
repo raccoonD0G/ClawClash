@@ -4,24 +4,36 @@
 
 #include "CoreMinimal.h"
 #include "ClawClash/Character/CCPaperCharacter.h"
+#include "ClawClash/Interfaces/CCMoveable.h"
 #include "CCPaperNonPlayer.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNonPlayerCharacterDestroyed, ACCPaperNonPlayer*, DestroyedCharacter);
 
 /**
  * 
  */
 UCLASS()
-class CLAWCLASH_API ACCPaperNonPlayer : public ACCPaperCharacter
+class CLAWCLASH_API ACCPaperNonPlayer : public ACCPaperCharacter, public ICCMoveable
 {
 	GENERATED_BODY()
 	
 public:
 	ACCPaperNonPlayer();
-	virtual void BeginPlay() override;
+	FOnNonPlayerCharacterDestroyed OnNonPlayerCharacterDestroyed;
+
+protected:
+	virtual void BeginDestroy() override;
 
 // Sprite Section
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
-	TObjectPtr<class UPaperFlipbookComponent> PlayerFlipbook;
+	bool IsRightStart;
+
+public:
+	virtual void FaceDirection(FVector Dir) override;
+
+// Init Section
+public:
+	virtual void Init(float NewMaxLeftXPos, float NewMaxRightX);
 
 // Target Section
 protected:
@@ -30,11 +42,16 @@ protected:
 	FVector TargetLocation;
 
 public:
-	float GetMaxLeftXPos() const;
-	float GetMaxRightXPos() const;
-	void SetMaxLeftXPos(float NewMaxLeftX);
-	void SetMaxRightXPos(float NewMaxRightX);
-	FVector GetDest() const;
-	void SetDest(FVector NewTargetLocation);
+	FORCEINLINE float GetMaxLeftXPos() const { return MaxLeftXPos; }
+	FORCEINLINE float GetMaxRightXPos() const { return MaxRightXPos; }
+	FORCEINLINE void SetMaxLeftXPos(float NewMaxLeftX) { MaxLeftXPos = NewMaxLeftX; }
+	FORCEINLINE void SetMaxRightXPos(float NewMaxRightX) { MaxRightXPos = NewMaxRightX; }
+	FORCEINLINE FVector GetDest() const { return TargetLocation; }
+	FORCEINLINE void SetDest(FVector NewTargetLocation) { TargetLocation = NewTargetLocation; }
+
+// Move Section
+public:
+	virtual void StartMove() override;
+	virtual void EndMove() override;
 	
 };

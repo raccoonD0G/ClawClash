@@ -7,58 +7,51 @@
 #include "PaperFlipbookComponent.h"
 #include "PaperFlipbook.h"
 
-ACCPaperNonPlayer::ACCPaperNonPlayer()
+ACCPaperNonPlayer::ACCPaperNonPlayer() : Super()
 {
     GetCharacterMovement()->GravityScale = 1.0f;
 
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
-
-    PlayerFlipbook = GetSprite();
 }
 
-void ACCPaperNonPlayer::BeginPlay()
+void ACCPaperNonPlayer::BeginDestroy()
 {
-    Super::BeginPlay();
+    OnNonPlayerCharacterDestroyed.Broadcast(this);
+
+    Super::BeginDestroy();
 }
 
-float ACCPaperNonPlayer::GetMaxLeftXPos() const
+void ACCPaperNonPlayer::Init(float NewMaxLeftXPos, float NewMaxRightX)
 {
-	return MaxLeftXPos;
-}
-
-float ACCPaperNonPlayer::GetMaxRightXPos() const
-{
-	return MaxRightXPos;
-}
-
-void ACCPaperNonPlayer::SetMaxLeftXPos(float NewMaxLeftX)
-{
-    MaxLeftXPos = NewMaxLeftX;
-}
-
-void ACCPaperNonPlayer::SetMaxRightXPos(float NewMaxRightX)
-{
+    MaxLeftXPos = NewMaxLeftXPos;
     MaxRightXPos = NewMaxRightX;
 }
 
-FVector ACCPaperNonPlayer::GetDest() const
+void ACCPaperNonPlayer::FaceDirection(FVector Dir)
 {
-    return TargetLocation;
-}
-
-void ACCPaperNonPlayer::SetDest(FVector NewTargetLocation)
-{
-    if (NewTargetLocation.X >= GetActorLocation().X)
+    FVector Scale;
+    if (Dir.X >= GetActorLocation().X)
     {
-        FVector Scale = PlayerFlipbook->GetComponentScale();
+        Scale = GetSprite()->GetComponentScale();
         Scale.X = FMath::Abs(Scale.X) * 1;
-        PlayerFlipbook->SetWorldScale3D(Scale);
     }
     else
     {
-        FVector Scale = PlayerFlipbook->GetComponentScale();
-        Scale.X = FMath::Abs(Scale.X) * - 1;
-        PlayerFlipbook->SetWorldScale3D(Scale);
+        Scale = GetSprite()->GetComponentScale();
+        Scale.X = FMath::Abs(Scale.X) * -1;
     }
-    TargetLocation = NewTargetLocation;
+
+    if (!IsRightStart)
+    {
+        Scale.X *= -1.0f;
+    }
+
+    GetSprite()->SetWorldScale3D(Scale);
+}
+void ACCPaperNonPlayer::StartMove()
+{
+}
+
+void ACCPaperNonPlayer::EndMove()
+{
 }

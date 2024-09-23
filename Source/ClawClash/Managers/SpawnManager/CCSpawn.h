@@ -6,6 +6,6 @@ UENUM(BlueprintType)
 enum class ESpawnableType : uint8
 {
 	Dog,
-	Raccon,
+	Raccoon,
 	Rat,
 };

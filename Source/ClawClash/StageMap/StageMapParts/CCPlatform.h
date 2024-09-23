@@ -26,7 +26,7 @@ protected:
 	UPROPERTY()
 	TArray<TObjectPtr<class UCCField>> FieldArr;
 public:
-	void Init(ACCTileMapActor* NewOwningTileMap, FIntVector2 NewTileMapPos, int32 NewLength);
+	void Init(FIntVector2 NewTileMapPos, int32 NewLength);
 	void CreatFieldOnPlatform();
 
 	const TArray<class UCCField*>& GetFieldArr() const;

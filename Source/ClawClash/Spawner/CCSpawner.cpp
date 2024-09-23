@@ -2,44 +2,49 @@
 
 
 #include "CCSpawner.h"
+#include "ClawClash/Character/NonPlayer/CCPaperNonPlayer.h"
 
-#include "ClawClash/StageMap/CCStageMapDef.h"
-#include "ClawClash/Character/NonPlayer/CCPaperRat.h"
-#include "ClawClash/Managers/CCGameManager.h"
-#include "ClawClash/Managers/SpawnManager/CCSpawnManager.h"
-
-// Sets default values
-ACCSpawner::ACCSpawner()
-{
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-}
-
-// Called when the game starts or when spawned
 void ACCSpawner::BeginPlay()
 {
 	Super::BeginPlay();
-	FTimerHandle Handle;
-	GetWorld()->GetTimerManager().SetTimer(Handle, this, &ACCSpawner::SpawnRat, 3.0f, true, 3.0f);
-	
+
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ACCSpawner::SpawnCharacter, SpawnInterval, true, SpawnInterval);
 }
 
-// Called every frame
-void ACCSpawner::Tick(float DeltaTime)
+void ACCSpawner::Init(FSpawnableField SpawnableField)
 {
-	Super::Tick(DeltaTime);
+	LeftEnd = SpawnableField.LeftEnd;
+	RightEnd = SpawnableField.RightEnd;
+	MaxCharacterNum = SpawnableField.MaxCharacterNum;
 }
 
-
-void ACCSpawner::SpawnRat()
+void ACCSpawner::SpawnCharacter()
 {
-	for (FSpawnableField Field : UCCSpawnManager::GetInstance()->SpawnFieldMap.Find(EFieldType::CaveField)->SpawnableFieldArr)
+	if (MaxCharacterNum > Charaters.Num())
 	{
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-		ACCPaperRat* NewRat = GetWorld()->SpawnActor<ACCPaperRat>(RatClass, FVector(FMath::RandRange(Field.LeftEnd.X, Field.RightEnd.X), 0, Field.LeftEnd.Z), FRotator::ZeroRotator, SpawnParams);
-		NewRat->SetMaxLeftXPos(Field.LeftEnd.X);
-		NewRat->SetMaxRightXPos(Field.RightEnd.X);
+		float RandomX = FMath::FRandRange(LeftEnd.X, RightEnd.X);
+		FVector SpawnPos = LeftEnd;
+		SpawnPos.X = RandomX;
+
+		FActorSpawnParameters SpawnParameters;
+		ACCPaperNonPlayer* SpawnedCharacter = GetWorld()->SpawnActor<ACCPaperNonPlayer>(SpawnClass, SpawnPos, FRotator::ZeroRotator, SpawnParameters);
+		SpawnedCharacter->OnNonPlayerCharacterDestroyed.AddDynamic(this, &ACCSpawner::OnBeginDestroy);
+		SpawnedCharacter->Init(LeftEnd.X, RightEnd.X);
+		Charaters.Add(SpawnedCharacter);
+	}
+
+	if (Charaters.Num() >= MaxCharacterNum)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 	}
 }
 
+void ACCSpawner::OnBeginDestroy(ACCPaperNonPlayer* DestroyedCharacter)
+{
+	Charaters.Remove(DestroyedCharacter);
+
+	if ((!GetWorld()->GetTimerManager().IsTimerActive(TimerHandle)) && Charaters.Num() < MaxCharacterNum)
+	{
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ACCSpawner::SpawnCharacter, SpawnInterval, true, SpawnInterval);
+	}
+}

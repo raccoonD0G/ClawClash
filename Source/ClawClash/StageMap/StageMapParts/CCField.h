@@ -25,8 +25,5 @@ protected:
 public:
 	void AddStartPos(int32 AddedNum);
 	EFieldType GetFieldType();
-	void Init(ACCTileMapActor* NewOwningTileMap, FIntVector2 NewTileMapPos, int32 NewLength, EFieldType NewFieldTypee);
-	virtual void CreateTile();
-	virtual void CreateSprite();
-	void CreatNoneBasicFieldTile(EFieldType CurrentType);
+	void Init(FIntVector2 NewTileMapPos, int32 NewLength, EFieldType NewFieldTypee);
 };

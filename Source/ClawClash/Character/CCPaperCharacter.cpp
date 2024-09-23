@@ -2,4 +2,9 @@
 
 
 #include "CCPaperCharacter.h"
+#include "PaperFlipbookComponent.h"
 
+ACCPaperCharacter::ACCPaperCharacter()
+{
+	;
+}

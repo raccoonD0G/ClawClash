@@ -5,11 +5,21 @@
 #include "CoreMinimal.h"
 #include "PaperTileLayer.h"
 #include "ClawClash/StageMap/CCStageMapDef.h"
+#include "ClawClash/Managers/SpawnManager/CCSpawn.h"
 #include "CCTileMapActor.generated.h"
 
 class UPaperTileMap;
+class UCCField;
 class UCCPlatform;
 class UCCRoom;
+class UPaperSpriteComponent;
+class UCCBoxQuadTreeNode;
+class UCCTileCollider;
+class UPaperTileMapComponent;
+struct FCCFeatureInfoArrContainer;
+class UPaperSprite;
+struct FSpawnableField;
+class ACCSpawnerSpawner;
 
 USTRUCT()
 struct FPlatformEdge
@@ -50,9 +60,6 @@ public:
 protected:
     virtual void BeginPlay() override;
 
-public:
-    virtual void Tick(float DeltaTime) override;
-
 // Info Section
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StageMap")
@@ -74,63 +81,42 @@ protected:
     int32 MinRoomWidth = 11;
 
 public:
-    int32 GetTileMapWidth();
-    int32 GetTileMapHeight();
-    int32 GetTileWidth();
-    int32 GetTileHeight();
-    int32 GetMinRoomHeight();
-    int32 GetMinRoomWidth();
-
-// Init Section
-protected:
-    void InitializeBackground();
+    FORCEINLINE int32 GetTileMapWidth() const { return TileMapWidth; }
+    FORCEINLINE int32 GetTileMapHeight() const { return TileMapHeight; }
+    FORCEINLINE int32 GetTileWidth() const { return TileWidth; }
+    FORCEINLINE int32 GetTileHeight() const { return TileHeight; }
+    FORCEINLINE int32 GetMinRoomHeight() const { return MinRoomHeight; }
+    FORCEINLINE int32 GetMinRoomWidth() const { return MinRoomWidth; }
 
 // FieldTile Section
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-    TObjectPtr<class UPaperTileMapComponent> FieldTileMapComponent;
+    TObjectPtr<UPaperTileMapComponent> FieldTileMapComponent;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TileMap")
-    TObjectPtr<class UPaperTileSet> FieldTileSet;
+    TObjectPtr<UPaperTileSet> FieldTileSet;
 
 // Create Map Section
 public:
-    const TArray<UCCPlatform*>& GetPlatformArr();
+    FORCEINLINE const TArray<UCCField*>& GetFieldArr() const { return FieldArr; }
 
 protected:
     UPROPERTY()
-    TArray<TObjectPtr<UCCPlatform>> PlatformArr;
+    TArray<TObjectPtr<UCCField>> FieldArr;
+    FVector GetWorldSpaceStartPos(UCCField* Field) const;
+    FVector GetWorldSpaceEndPos(UCCField* Field) const;
 
-    void SplitSpace(TArray<UCCRoom*>& OutRooms, UCCRoom* Space, int32 MinWidth, int32 MinHeight, int32 Depth);
-    void GenerateRooms(TArray<UCCRoom*>& OutRooms, int32 MapWidth, int32 MapHeight, int32 MinWidth, int32 MinHeight);
-    float CalculatePlatformDistance(const UCCPlatform& Platform0, const UCCPlatform& Platform1, FIntVector2& Pos1, FIntVector2& Pos2);
-    void GenerateMST();
-    void CreatePlatformsAlongEdge(const FPlatformEdge& Edge);
+    void SplitSpace(TArray<UCCRoom*>& OutRooms, UCCRoom* Space, int32 MinWidth, int32 MinHeight, int32 Depth) const;
+    void GenerateRooms(TArray<UCCRoom*>& OutRooms, int32 MapWidth, int32 MapHeight, int32 MinWidth, int32 MinHeight) const;
+    float CalculatePlatformDistance(const UCCPlatform& Platform0, const UCCPlatform& Platform1, FIntVector2& Pos1, FIntVector2& Pos2) const;
+    void GenerateMST(TArray<UCCPlatform*>& PlatformArr) const;
+    void CreatePlatformsAlongEdge(TArray<UCCPlatform*>& PlatformArr, const FPlatformEdge& Edge) const;
     void InitializeTileMap(UPaperTileSet* TileSet, int32 Rows, int32 Columns, float NewTileWidth, float NewTileHeight);
 
 // Tile Section
 public:
     bool SetTileIfPossible(int32 Column, int32 Row, int32 Layer, FPaperTileInfo TileInfo, bool bEmptyOnly = true);
-    
-// Background Section
-protected:
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    TObjectPtr<class UPaperSpriteComponent> BackgroundComponent;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sprite")
-    TObjectPtr<class UPaperSprite> BackGroundSprite;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sprite")
-    TArray<TObjectPtr<class UPaperSprite>> BackGroundSpriteArr;
-
-    UPROPERTY()
-    TObjectPtr<class ACharacter> Player;
-
-    int32 LastPlayerX;
-    int32 LastPlayerZ;
-
-    int32 LastBackgroundX;
-    int32 LastBackgroundZ;
+    void CreatFieldTile(UCCField* Field);
 
 // Collision Section
 public:
@@ -138,25 +124,38 @@ public:
 
 protected:
     UPROPERTY()
-    TArray<TObjectPtr<class UCCTileCollider>> ColliderArr;
+    TArray<TObjectPtr<UCCTileCollider>> ColliderArr;
 
 // Sprite Section
 public:
-    class UCCBoxQuadTreeNode* GetRootNode();
     void AddSpriteComponentArr(UPaperSpriteComponent* NewSpriteComponent);
 
-    int32 GetBeforePlayerOrder();
-    int32 GetAfterPlayerOrder();
+    FORCEINLINE int32 GetBeforePlayerOrder() const { return BeforePlayerOrder; }
+    FORCEINLINE int32 GetAfterPlayerOrder() const { return AfterPlayerOrder; }
 
-    void AddBeforPlayerOrder();
-    void AddAfterPlayerOrder();
+    FORCEINLINE void AddBeforPlayerOrder() { BeforePlayerOrder++; }
+    FORCEINLINE void AddAfterPlayerOrder() { AfterPlayerOrder++; }
+
+    void PlaceSpriteEachField(UCCField* Field);
+    void PlaceSprites(UCCField* Field, float TileInterval, const FCCFeatureInfoArrContainer& FeatureInfoArr, bool bIsBeforePlayer, bool bAllowOverlap, bool bAddToCollisionTree = true, int32 MinSpriteNum = 0, int32 MaxSpriteNum = 100);
+    
+    FBox2D GetSpriteBox(UPaperSprite* PaperSprite, float Scale, FVector MiddleButtonPos);
+    void CreateAndAttachSpriteComponent(UPaperSprite* FeatureSprite, FVector LocalPos, bool bAddToCollisionTree, FBox2D BoxForSprite, float RandomScale, bool bIsBeforePlayer);
+    FVector CalculateSpriteWorldSpacePos(float XPos, FVector StartPos, UPaperSprite* FeatureSprite, bool bIsBeforePlayer);
 
 protected:
     UPROPERTY()
-    TObjectPtr<class UCCBoxQuadTreeNode> RootNode;
+    TObjectPtr<UCCBoxQuadTreeNode> RootNode;
     UPROPERTY()
     TArray<TObjectPtr<UPaperSpriteComponent>> FeatureSpriteComponentArr;
 
     int32 BeforePlayerOrder;
     int32 AfterPlayerOrder;
+
+// Spawn Section
+protected:
+    FSpawnableField ChangeIntoSpawnableField(UCCField* Field, ESpawnableType SpawnableType, int32 MaxCharacterNum);
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
+    TObjectPtr<ACCSpawnerSpawner> SpawnerSpawner;
 };

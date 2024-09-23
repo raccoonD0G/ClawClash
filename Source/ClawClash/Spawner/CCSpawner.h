@@ -4,32 +4,37 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "ClawClash/Spawner/CCSpawnerSpawner.h"
 #include "CCSpawner.generated.h"
+
+class ACCPaperNonPlayer;
 
 UCLASS()
 class CLAWCLASH_API ACCSpawner : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
-	ACCSpawner();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 protected:
-	UPROPERTY()
-	TObjectPtr<class UCCSpawnManager> SpawnManager;
+	FVector LeftEnd;
+	FVector RightEnd;
+	int32 MaxCharacterNum;
+	float SpawnInterval;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Class")
-	TSubclassOf<class ACCPaperRat> RatClass;
+	TSubclassOf<ACCPaperNonPlayer> SpawnClass;
 
-	void SpawnRat();
+	UPROPERTY()
+	TSet<TWeakObjectPtr<ACCPaperNonPlayer>> Charaters;
 
+	FTimerHandle TimerHandle;
+
+public:
+	void Init(FSpawnableField SpawnableField);
+	virtual void SpawnCharacter();
+
+	UFUNCTION()
+	void OnBeginDestroy(ACCPaperNonPlayer* DestroyedCharacter);
 };

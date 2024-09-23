@@ -5,86 +5,30 @@
 
 #include "PaperTileMapComponent.h"
 #include "PaperSprite.h"
-#include "GameFramework/Character.h"
 #include "PaperTileMap.h"
 #include "PaperSpriteComponent.h"
 
-#include "Kismet/GameplayStatics.h"
-#include "ClawClash/GameInstance/CCGameInstance.h"
 #include "ClawClash/Managers/StageMapManager/CCStageMapManager.h"
-#include "ClawClash/Managers/CCGameManager.h"
-
-#include "ClawClash/StageMap/StageMapParts/CCPlatform.h"
-#include "ClawClash/StageMap/StageMapParts/CCField.h"
-#include "ClawClash/StageMap/CCStageMapDef.h"
-
-#include "ClawClash/StageMap/StageMapPlacer/CCSpritePlacer.h"
 
 #include "ClawClash/StageMap/StageMapParts/CCRoom.h"
 #include "ClawClash/StageMap/StageMapParts/CCPlatform.h"
+#include "ClawClash/StageMap/StageMapParts/CCField.h"
+#include "ClawClash/StageMap/CCStageMapDef.h"
 
 #include "ClawClash/StageMap/CCUnionFind.h"
 #include "ClawClash/StageMap/CCTileCollider.h"
 
 #include "ClawClash/StageMap/CCBoxQuadTreeNode.h"
+#include "ClawClash/Managers/LayerManager/CCLayerManager.h"
+
+#include "ClawClash/Spawner/CCSpawnerSpawner.h"
 
 ACCTileMapActor::ACCTileMapActor()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
     FieldTileMapComponent = CreateDefaultSubobject<UPaperTileMapComponent>(TEXT("FieldTileMapComponent"));
 	RootComponent = FieldTileMapComponent;
-    BackgroundComponent = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("BackgroundComponent"));
-    BackgroundComponent->SetupAttachment(RootComponent);
-
     FieldTileMapComponent->SetCollisionProfileName(TEXT("NoCollision"));
-}
-
-int32 ACCTileMapActor::GetTileMapWidth()
-{
-    return TileMapWidth;
-}
-
-int32 ACCTileMapActor::GetTileMapHeight()
-{
-    return TileMapHeight;
-}
-
-int32 ACCTileMapActor::GetTileWidth()
-{
-    return TileWidth;
-}
-
-int32 ACCTileMapActor::GetTileHeight()
-{
-    return TileHeight;
-}
-
-int32 ACCTileMapActor::GetMinRoomHeight()
-{
-    return MinRoomHeight;
-}
-
-int32 ACCTileMapActor::GetMinRoomWidth()
-{
-    return MinRoomWidth;
-}
-
-
-void ACCTileMapActor::InitializeBackground()
-{
-    int32 Index = FMath::RandRange(0, BackGroundSpriteArr.Num() - 1);
-    BackGroundSprite = BackGroundSpriteArr[Index];
-
-    if (BackGroundSprite && BackgroundComponent)
-    {
-        float TileMapWidthInPixels =  TileMapWidth * 512;
-        float TileMapHeightInPixels = TileMapHeight * 512;
-
-        BackgroundComponent->SetSprite(BackGroundSprite);
-        BackgroundComponent->SetRelativeLocation(FVector(Player->GetActorLocation().X, UCCStageMapManager::GetInstance()->BackgroundY, Player->GetActorLocation().Z));
-        BackgroundComponent->SetRelativeScale3D(FVector(TileMapWidthInPixels / (2.0 * BackgroundComponent->GetSprite()->GetRenderBounds().BoxExtent.X * 2), 1.0f, TileMapWidthInPixels / (2.0 * BackgroundComponent->GetSprite()->GetRenderBounds().BoxExtent.X * 2)));
-        BackgroundComponent->SetCollisionProfileName(TEXT("NoCollision"));
-    }
 }
 
 void ACCTileMapActor::BeginPlay()
@@ -101,6 +45,11 @@ void ACCTileMapActor::BeginPlay()
         return;
     }
 
+    if (SpawnerSpawner == nullptr)
+    {
+        return;
+    }
+
     RootNode = NewObject<UCCBoxQuadTreeNode>();
     RootNode->Initialize(FVector2D(0, -GetTileMapHeight() * 512), FVector2D(GetTileMapWidth() * 512, 0), 10);
 
@@ -111,39 +60,61 @@ void ACCTileMapActor::BeginPlay()
     }
 
     TArray<UCCRoom*> RoomArr;
+    TArray<UCCPlatform*> PlatformArr;
     GenerateRooms(RoomArr, TileMapWidth, TileMapHeight, MinRoomHeight, MinRoomWidth);
     for (UCCRoom* Room : RoomArr)
     {
         PlatformArr.Add(Room->GeneratePlatform());
     }
-    GenerateMST();
+    GenerateMST(PlatformArr);
 
-    // Initialize Player
-    Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+    for (UCCPlatform* Platform : PlatformArr)
+    {
+        for (UCCField* Field : Platform->GetFieldArr())
+        {
+            FieldArr.Add(Field);
+            CreatFieldTile(Field);
+            PlaceSpriteEachField(Field);
+
+            switch (Field->GetFieldType())
+            {
+            case EFieldType::DogHouseField:
+                SpawnerSpawner->AddSpawnableField(ChangeIntoSpawnableField(Field, ESpawnableType::Dog, 1));
+                break;
+            case EFieldType::RaccoonHouseField:
+                SpawnerSpawner->AddSpawnableField(ChangeIntoSpawnableField(Field, ESpawnableType::Raccoon, 1));
+                break;
+            case EFieldType::CaveField:
+                SpawnerSpawner->AddSpawnableField(ChangeIntoSpawnableField(Field, ESpawnableType::Rat, 5));
+                break;
+            default:
+                break;
+            }
+        }
+    }
 
     FieldTileMapComponent->RebuildCollision();
-
-    InitializeBackground();
 }
 
-// Called every frame
-void ACCTileMapActor::Tick(float DeltaTime)
+FVector ACCTileMapActor::GetWorldSpaceStartPos(UCCField* Field) const
 {
-	Super::Tick(DeltaTime);
-    BackgroundComponent->SetRelativeLocation(FVector(LastBackgroundX + ((Player->GetActorLocation().X - LastPlayerX) / 1.2), UCCStageMapManager::GetInstance()->BackgroundY, LastBackgroundZ + ((Player->GetActorLocation().Z - LastPlayerZ) / 1.2)));
-    LastPlayerX = Player->GetActorLocation().X;
-    LastPlayerZ = Player->GetActorLocation().Z;
-    LastBackgroundX = BackgroundComponent->GetRelativeLocation().X;
-    LastBackgroundZ = BackgroundComponent->GetRelativeLocation().Z;
-
+    FVector WorldSpaceStartPos;
+    WorldSpaceStartPos.X = Field->GetTileMapPos().X * GetTileWidth() + GetActorLocation().X;
+    WorldSpaceStartPos.Y = GetActorLocation().Y;
+    WorldSpaceStartPos.Z = -Field->GetTileMapPos().Y * GetTileHeight() + GetActorLocation().Z;
+    return WorldSpaceStartPos;
 }
 
-const TArray<UCCPlatform*>& ACCTileMapActor::GetPlatformArr()
+FVector ACCTileMapActor::GetWorldSpaceEndPos(UCCField* Field) const
 {
-    return PlatformArr;
+    int32 DecreasedLength = Field->GetLength() - 1;
+    if (DecreasedLength * GetTileWidth() < GetTileWidth() * GetTileMapWidth() - GetWorldSpaceStartPos(Field).X)
+        return GetWorldSpaceStartPos(Field) + FVector(DecreasedLength * GetTileWidth(), 0, 0);
+    else
+        return GetWorldSpaceStartPos(Field) + FVector(GetTileWidth() * (GetTileMapWidth() - 1) - GetWorldSpaceStartPos(Field).X, 0, 0);
 }
 
-void ACCTileMapActor::SplitSpace(TArray<UCCRoom*>& OutRooms, UCCRoom* Space, int32 MinWidth, int32 MinHeight, int32 Depth)
+void ACCTileMapActor::SplitSpace(TArray<UCCRoom*>& OutRooms, UCCRoom* Space, int32 MinWidth, int32 MinHeight, int32 Depth) const
 {
     if (Depth <= 0 || Space->Width <= MinWidth * 2 || Space->Height <= MinHeight * 2)
     {
@@ -156,9 +127,9 @@ void ACCTileMapActor::SplitSpace(TArray<UCCRoom*>& OutRooms, UCCRoom* Space, int
     {
         int32 SplitPoint = FMath::RandRange(MinWidth, Space->Width - MinWidth);
         TObjectPtr<UCCRoom> Room1 = NewObject<UCCRoom>();
-        Room1->Init(this, Space->GetTileMapPos(), SplitPoint, Space->Height);
+        Room1->Init(Space->GetTileMapPos(), SplitPoint, Space->Height, GetMinRoomWidth(), GetMinRoomHeight());
         TObjectPtr<UCCRoom> Room2 = NewObject<UCCRoom>();
-        Room2->Init(this, FIntVector2(Space->GetTileMapPos().X + SplitPoint, Space->GetTileMapPos().Y), Space->Width - SplitPoint, Space->Height);
+        Room2->Init(FIntVector2(Space->GetTileMapPos().X + SplitPoint, Space->GetTileMapPos().Y), Space->Width - SplitPoint, Space->Height, GetMinRoomWidth(), GetMinRoomHeight());
         SplitSpace(OutRooms, Room1, MinWidth, MinHeight, Depth - 1);
         SplitSpace(OutRooms, Room2, MinWidth, MinHeight, Depth - 1);
     }
@@ -166,23 +137,23 @@ void ACCTileMapActor::SplitSpace(TArray<UCCRoom*>& OutRooms, UCCRoom* Space, int
     {
         int32 SplitPoint = FMath::RandRange(MinHeight, Space->Height - MinHeight);
         TObjectPtr<UCCRoom> Room1 = NewObject<UCCRoom>();
-        Room1->Init(this, FIntVector2(Space->GetTileMapPos().X, Space->GetTileMapPos().Y), Space->Width, SplitPoint);
+        Room1->Init(FIntVector2(Space->GetTileMapPos().X, Space->GetTileMapPos().Y), Space->Width, SplitPoint, GetMinRoomWidth(), GetMinRoomHeight());
         TObjectPtr<UCCRoom> Room2 = NewObject<UCCRoom>();
-        Room2->Init(this, FIntVector2(Space->GetTileMapPos().X, Space->GetTileMapPos().Y + SplitPoint), Space->Width, Space->Height - SplitPoint);
+        Room2->Init(FIntVector2(Space->GetTileMapPos().X, Space->GetTileMapPos().Y + SplitPoint), Space->Width, Space->Height - SplitPoint, GetMinRoomWidth(), GetMinRoomHeight());
         SplitSpace(OutRooms, Room1, MinWidth, MinHeight, Depth - 1);
         SplitSpace(OutRooms, Room2, MinWidth, MinHeight, Depth - 1);
     }
 }
 
-void ACCTileMapActor::GenerateRooms(TArray<UCCRoom*>& OutRooms, int32 MapWidth, int32 MapHeight, int32 MinWidth, int32 MinHeight)
+void ACCTileMapActor::GenerateRooms(TArray<UCCRoom*>& OutRooms, int32 MapWidth, int32 MapHeight, int32 MinWidth, int32 MinHeight) const
 {
     TObjectPtr<UCCRoom> InitialSpace = NewObject<UCCRoom>();
-    InitialSpace->Init(this, FIntVector2(0, 0), MapWidth, MapHeight);
+    InitialSpace->Init(FIntVector2(0, 0), MapWidth, MapHeight, MinRoomWidth, MinRoomHeight);
     int32 MaxDepth = 20; // ¿Á±Õ ±Ì¿Ã ¡∂¡§
     SplitSpace(OutRooms, InitialSpace, MinWidth, MinHeight, MaxDepth);
 }
 
-float ACCTileMapActor::CalculatePlatformDistance(const UCCPlatform& Platform0, const UCCPlatform& Platform1, FIntVector2& Pos1, FIntVector2& Pos2)
+float ACCTileMapActor::CalculatePlatformDistance(const UCCPlatform& Platform0, const UCCPlatform& Platform1, FIntVector2& Pos1, FIntVector2& Pos2) const
 {
 
     FVector2D StartPos0 = FVector2D(Platform0.GetStartPos().X, Platform0.GetStartPos().Y);
@@ -231,7 +202,7 @@ float ACCTileMapActor::CalculatePlatformDistance(const UCCPlatform& Platform0, c
 }
 
 
-void ACCTileMapActor::GenerateMST()
+void ACCTileMapActor::GenerateMST(TArray<UCCPlatform*>& PlatformArr) const
 {
     if (PlatformArr.Num() < 2)
     {
@@ -284,12 +255,12 @@ void ACCTileMapActor::GenerateMST()
     {
         if (E.Weight >= 8.0f)
         {
-            CreatePlatformsAlongEdge(E);
+            CreatePlatformsAlongEdge(PlatformArr, E);
         }
     }
 }
 
-void ACCTileMapActor::CreatePlatformsAlongEdge(const FPlatformEdge& Edge)
+void ACCTileMapActor::CreatePlatformsAlongEdge(TArray<UCCPlatform*>& PlatformArr, const FPlatformEdge& Edge) const
 {
     FVector2D FloatPos1(Edge.Pos1.X, Edge.Pos1.Y);
     FVector2D FloatPos2(Edge.Pos2.X, Edge.Pos2.Y);
@@ -303,9 +274,13 @@ void ACCTileMapActor::CreatePlatformsAlongEdge(const FPlatformEdge& Edge)
         FVector2D NewPlatformPos = FloatPos1 + Direction * CurrentDistance;
         int32 NewLength = FMath::RandRange(6, 8);
         NewPlatformPos.X -= NewLength / 2;
+        if (NewPlatformPos.X < 0)
+        {
+            NewPlatformPos.X = 0;
+        }
         // ªı «√∑ß∆˚ ª˝º∫
         TObjectPtr<UCCPlatform> NewPlatform = NewObject<UCCPlatform>();
-        NewPlatform->Init(this, FIntVector2(NewPlatformPos.X, NewPlatformPos.Y), NewLength);
+        NewPlatform->Init(FIntVector2(NewPlatformPos.X, NewPlatformPos.Y), NewLength);
         PlatformArr.Add(NewPlatform);
     }
 }
@@ -321,7 +296,7 @@ void ACCTileMapActor::InitializeTileMap(UPaperTileSet* TileSet, int32 Rows, int3
     {
         FieldTileMapComponent->CreateNewTileMap(Columns, Rows, TileWidth, TileHeight, 1.0f, true);
         FieldTileMapComponent->TileMap->SetCollisionDomain(ESpriteCollisionMode::Use3DPhysics);
-        FieldTileMapComponent->SetRelativeLocation(FVector(0, UCCStageMapManager::GetInstance()->FieldTileY, 0));
+        FieldTileMapComponent->SetRelativeLocation(FVector(0, UCCLayerManager::GetFieldTileY(), 0));
 
         for (int32 Row = 0; Row < Rows; ++Row)
         {
@@ -352,6 +327,27 @@ bool ACCTileMapActor::SetTileIfPossible(int32 Column, int32 Row, int32 Layer, FP
     return false;
 }
 
+void ACCTileMapActor::CreatFieldTile(UCCField* Field)
+{
+    if (Field->GetFieldType() != EFieldType::BasicField)
+    {
+        SetTileIfPossible(Field->GetTileMapPos().X, Field->GetTileMapPos().Y, 0, UCCStageMapManager::GetInstance()->TileSetPerFieldDic.Find(Field->GetFieldType())->LeftTile, false);
+        for (int32 i = Field->GetTileMapPos().X + 1; i < Field->GetTileMapPos().X + Field->GetLength() - 1; i++)
+        {
+            SetTileIfPossible(i, Field->GetTileMapPos().Y, 0, UCCStageMapManager::GetInstance()->TileSetPerFieldDic.Find(Field->GetFieldType())->MiddleTile);
+        }
+        SetTileIfPossible(Field->GetTileMapPos().X + Field->GetLength() - 1, Field->GetTileMapPos().Y, 0, UCCStageMapManager::GetInstance()->TileSetPerFieldDic.Find(Field->GetFieldType())->RightTile, false);
+    }
+    else
+    {
+        for (int32 i = Field->GetTileMapPos().X; i < Field->GetTileMapPos().X + Field->GetLength(); i++)
+        {
+            SetTileIfPossible(i, Field->GetTileMapPos().Y, 0, *UCCStageMapManager::GetInstance()->TileInfoPerTileDic.Find(ETileType::Basic));
+        }
+    }
+    SetupTileColliders(Field->GetTileMapPos().X, Field->GetTileMapPos().Y, Field->GetLength(), Field->GetFieldType());
+}
+
 void ACCTileMapActor::SetupTileColliders(int32 Column, int32 Row, int32 ColliderLength, EFieldType NewFieldType)
 {
     int32 TileSize = UCCStageMapManager::GetStageMap()->GetTileHeight();
@@ -367,32 +363,170 @@ void ACCTileMapActor::SetupTileColliders(int32 Column, int32 Row, int32 Collider
     CustomCollider->RegisterComponent();
 }
 
-UCCBoxQuadTreeNode* ACCTileMapActor::GetRootNode()
-{
-    return RootNode;
-}
 
 void ACCTileMapActor::AddSpriteComponentArr(UPaperSpriteComponent* NewSpriteComponent)
 {
     FeatureSpriteComponentArr.Add(NewSpriteComponent);
 }
 
-int32 ACCTileMapActor::GetBeforePlayerOrder()
+void ACCTileMapActor::PlaceSpriteEachField(UCCField* Field)
 {
-    return BeforePlayerOrder;
+    switch (Field->GetFieldType())
+    {
+    case EFieldType::BasicField:
+        PlaceSprites(Field, 0.5f, *UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::GrassFeature), false, true);
+        PlaceSprites(Field, 0.5f, *UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::PlantFeature), false, true);
+        break;
+    case EFieldType::WatersideField:
+        PlaceSprites(Field, 0.5, *UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::WeedFeature), true, true);
+        PlaceSprites(Field, 0.5, *UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::StoneFeature), true, true);
+        break;
+    case EFieldType::AsphaltField:
+        PlaceSprites(Field, 0.5, *UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::BuildingFeature), true, false);
+        PlaceSprites(Field, 0.5, *UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::CarFeature), true, true);
+        PlaceSprites(Field, 0.5, *UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::LightFeature), true, true);
+        break;
+    case EFieldType::CaveField:
+        PlaceSprites(Field, 1.0, *UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::RatCaveFeature), true, false, true, 4, 4);
+        PlaceSprites(Field, 0.5, *UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::RockFeature), false, true);
+        break;
+    case EFieldType::HillField:
+        
+        break;
+    case EFieldType::RaccoonHouseField:
+        PlaceSprites(Field, 1.0, *UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::RacconHouseFeature), true, true, false, 1, 1);
+        PlaceSprites(Field, 0.5, *UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::RockFeature), false, true);
+        break;
+    case EFieldType::DogHouseField:
+        PlaceSprites(Field, 1.0, *UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::DogHouseFeature), true, true, false, 1, 1);
+        PlaceSprites(Field, 0.5, *UCCStageMapManager::GetInstance()->FeatureInfoMap.Find(EFeatureType::RockFeature), false, true);
+        break;
+    default:
+        break;
+    }
 }
 
-int32 ACCTileMapActor::GetAfterPlayerOrder()
+void ACCTileMapActor::PlaceSprites(UCCField* Field, float TileInterval, const FCCFeatureInfoArrContainer& FeatureInfoArr, bool bIsBeforePlayer, bool bAllowOverlap, bool bAddToCollisionTree, int32 MinSpriteNum, int32 MaxSpriteNum)
 {
-    return AfterPlayerOrder;
+    int32 OffsetTiles = Field->GetLength() - 1;
+
+    int32 SpriteNum = 0;
+
+    int32 PossibleOffset = OffsetTiles / TileInterval;
+    TArray<int32> NecessarySpriteOffset;
+    while (MinSpriteNum > NecessarySpriteOffset.Num())
+    {
+        int32 Offset = FMath::RandRange(0, PossibleOffset - 1);
+        if (NecessarySpriteOffset.Contains(Offset) == false)
+        {
+            NecessarySpriteOffset.Add(Offset);
+        }
+    }
+
+    for (int32 Offset : NecessarySpriteOffset)
+    {
+        int32 Index = FeatureInfoArr.GetRandomIndex();
+        if (Index != 0)
+        {
+            float RandomScale = FMath::RandRange(1.0f, 1.5f);
+            FVector LocalPos = CalculateSpriteWorldSpacePos(GetWorldSpaceStartPos(Field).X + GetTileWidth() * Offset, GetWorldSpaceStartPos(Field), FeatureInfoArr.FeatureInfoArr[Index].FeatureSprite, bIsBeforePlayer);
+            FBox2D BoxForSprite = GetSpriteBox(FeatureInfoArr.FeatureInfoArr[Index].FeatureSprite, RandomScale, LocalPos);
+            if ((bAllowOverlap || !RootNode->IsColliding(BoxForSprite)))
+            {
+                if (SpriteNum >= MaxSpriteNum) return;
+                SpriteNum++;
+                CreateAndAttachSpriteComponent(FeatureInfoArr.FeatureInfoArr[Index].FeatureSprite, LocalPos, bAddToCollisionTree, BoxForSprite, RandomScale, bIsBeforePlayer);
+            }
+        }
+    }
+
+    do
+    {
+        for (float i = GetWorldSpaceStartPos(Field).X; i <= GetWorldSpaceEndPos(Field).X; i += GetTileWidth() * TileInterval)
+        {
+            int32 Index = FeatureInfoArr.GetRandomIndex();
+            if (Index != 0)
+            {
+                float RandomScale = FMath::RandRange(1.0f, 1.0f);
+                FVector LocalPos = CalculateSpriteWorldSpacePos(i, GetWorldSpaceStartPos(Field), FeatureInfoArr.FeatureInfoArr[Index].FeatureSprite, bIsBeforePlayer);
+                FBox2D BoxForSprite = GetSpriteBox(FeatureInfoArr.FeatureInfoArr[Index].FeatureSprite, RandomScale, LocalPos);
+                if (bAllowOverlap || !RootNode->IsColliding(BoxForSprite))
+                {
+                    if (SpriteNum >= MaxSpriteNum) return;
+                    SpriteNum++;
+                    CreateAndAttachSpriteComponent(FeatureInfoArr.FeatureInfoArr[Index].FeatureSprite, LocalPos, bAddToCollisionTree, BoxForSprite, RandomScale, bIsBeforePlayer);
+                }
+            }
+        }
+    } while (SpriteNum < MinSpriteNum);
 }
 
-void ACCTileMapActor::AddBeforPlayerOrder()
+FBox2D ACCTileMapActor::GetSpriteBox(UPaperSprite* PaperSprite, float Scale, FVector MiddleButtonPos)
 {
-    BeforePlayerOrder++;
+    FVector SpriteBoxExtent = PaperSprite->GetRenderBounds().BoxExtent;
+    SpriteBoxExtent *= Scale;
+    FVector2D LeftDown(FVector2D(MiddleButtonPos.X - SpriteBoxExtent.X, MiddleButtonPos.Z - SpriteBoxExtent.Z));
+    FVector2D RightUp(FVector2D(MiddleButtonPos.X + SpriteBoxExtent.X, MiddleButtonPos.Z + SpriteBoxExtent.Z));
+    FBox2D BoxForSprite(LeftDown, RightUp);
+    return BoxForSprite;
 }
 
-void ACCTileMapActor::AddAfterPlayerOrder()
+void ACCTileMapActor::CreateAndAttachSpriteComponent(UPaperSprite* FeatureSprite, FVector LocalPos, bool bAddToCollisionTree, FBox2D BoxForSprite, float RandomScale, bool bIsBeforePlayer)
 {
-    AfterPlayerOrder++;
+    if (!FeatureSprite)
+    {
+        return;
+    }
+
+    UPaperSpriteComponent* NewSpriteComponent = NewObject<UPaperSpriteComponent>(this);
+    if (NewSpriteComponent)
+    {
+        NewSpriteComponent->SetupAttachment(RootComponent);
+        NewSpriteComponent->RegisterComponent();
+        NewSpriteComponent->SetSprite(FeatureSprite);
+        NewSpriteComponent->SetRelativeLocation(LocalPos);
+        NewSpriteComponent->SetCollisionProfileName(TEXT("NoCollision"));
+        NewSpriteComponent->SetRelativeScale3D(FVector(RandomScale, 1, RandomScale));
+        if (bIsBeforePlayer)
+        {
+            NewSpriteComponent->SetTranslucentSortPriority(GetBeforePlayerOrder());
+            AddBeforPlayerOrder();
+        }
+        else
+        {
+            NewSpriteComponent->SetTranslucentSortPriority(GetAfterPlayerOrder());
+            AddAfterPlayerOrder();
+        }
+
+
+        if (bAddToCollisionTree)
+        {
+            RootNode->Insert(BoxForSprite);
+        }
+        AddSpriteComponentArr(NewSpriteComponent);
+    }
+}
+
+FVector ACCTileMapActor::CalculateSpriteWorldSpacePos(float XPos, FVector StartPos, UPaperSprite* FeatureSprite, bool bIsBeforePlayer)
+{
+    float YPos;
+    if (bIsBeforePlayer)
+    {
+        YPos = UCCLayerManager::GetBeforePlayerSpriteY();
+    }
+    else
+    {
+        YPos = UCCLayerManager::GetAfterPlayerSpriteY();
+    }
+
+    return FVector(XPos, YPos, GetTileHeight() / 2 + StartPos.Z);
+}
+
+FSpawnableField ACCTileMapActor::ChangeIntoSpawnableField(UCCField* Field, ESpawnableType SpawnableType, int32 MaxCharacterNum)
+{
+    FVector StartPos = GetWorldSpaceStartPos(Field);
+    StartPos.Z += GetTileWidth() / 2;
+    FVector EndPos = GetWorldSpaceEndPos(Field);
+    EndPos.Z += GetTileWidth() / 2;
+    return FSpawnableField(StartPos, EndPos, SpawnableType, MaxCharacterNum);
 }

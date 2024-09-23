@@ -20,6 +20,9 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     TObjectPtr<UCCPlatform> Platform;
 
+    int32 MinPlatformLength;
+    int32 MinPlatformHeight;
+
 public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     int32 Width;
@@ -29,7 +32,7 @@ public:
 
     const UCCPlatform* GetPlatform() const;
 
-    void Init(ACCTileMapActor* NewOwningTileMap, FIntVector2 NewTileMapPos, int32 InWidth, int32 InHeight);
+    void Init(FIntVector2 NewTileMapPos, int32 InWidth, int32 InHeight, int32 NewMinPlatformLength, int32 NewMInPlatformHeight);
 
     FIntVector2 GetCenter() const;
 

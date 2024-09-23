@@ -87,13 +87,7 @@ public:
 protected:
     static UCCStageMapManager* Instance;
 
- // Layer Section
-public:
-    const float BackgroundY = -200;
-    const float BeforePlayerSpriteY = 48;
-    const float FieldTileY = 49;
-    const float PlayerY = 50;
-    const float AfterPlayerSpriteY = 51;
+
 
 
 // Creat Section

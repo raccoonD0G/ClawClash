@@ -14,13 +14,14 @@ const UCCPlatform* UCCRoom::GetPlatform() const
     return Platform;
 }
 
-void UCCRoom::Init(ACCTileMapActor* NewOwningTileMap, FIntVector2 NewTileMapPos, int32 InWidth, int32 InHeight)
+void UCCRoom::Init(FIntVector2 NewTileMapPos, int32 InWidth, int32 InHeight, int32 NewMinPlatformLength, int32 NewMinPlatformHeight)
 {
     UCCTileMapParts::Init(NewTileMapPos);
     Width = InWidth;
     Height = InHeight;
-    OwningTileMap = NewOwningTileMap;
-} 
+    MinPlatformLength = NewMinPlatformLength;
+    MinPlatformHeight = NewMinPlatformHeight;
+}
 
 FIntVector2 UCCRoom::GetCenter() const
 {
@@ -29,10 +30,10 @@ FIntVector2 UCCRoom::GetCenter() const
 
 UCCPlatform* UCCRoom::GeneratePlatform()
 {
-    int32 FloorStartX = FMath::RandRange(TileMapPos.X, TileMapPos.X + Width - OwningTileMap->GetMinRoomWidth());
-    int32 FloorStartY = FMath::RandRange(TileMapPos.Y + OwningTileMap->GetMinRoomHeight(), TileMapPos.Y + Height - 1);
+    int32 FloorStartX = FMath::RandRange(TileMapPos.X, TileMapPos.X + Width - MinPlatformLength);
+    int32 FloorStartY = FMath::RandRange(TileMapPos.Y + MinPlatformHeight, TileMapPos.Y + Height - 1);
     Platform = NewObject<UCCPlatform>();
-    int32 FloorLength = FMath::RandRange(OwningTileMap->GetMinRoomWidth(), Width - FloorStartX + TileMapPos.X);
-    Platform->Init(OwningTileMap, FIntVector2(FloorStartX, FloorStartY), FloorLength);
+    int32 FloorLength = FMath::RandRange(MinPlatformLength, Width - FloorStartX + TileMapPos.X);
+    Platform->Init(FIntVector2(FloorStartX, FloorStartY), FloorLength);
     return Platform;
 }

@@ -14,13 +14,6 @@
 #include "Math/UnrealMathUtility.h"
 
 #include "ClawClash/StageMap/CCTileMapActor.h"
-#include "CCBasicField.h"
-#include "CCWatersideField.h"
-#include "CCAsphaltField.h"
-#include "CCCaveField.h"
-#include "CCHillField.h"
-#include "CCRaccoonHouseField.h"
-#include "CCDogHouseField.h"
 
 UCCPlatform::UCCPlatform()
 {
@@ -47,11 +40,10 @@ EFieldType UCCPlatform::GetRandomField(const TMap<EFieldType, float>& FieldRatio
     return EFieldType::BasicField;
 }
 
-void UCCPlatform::Init(ACCTileMapActor* NewOwningTileMap, FIntVector2 NewTileMapPos, int32 NewLength)
+void UCCPlatform::Init(FIntVector2 NewTileMapPos, int32 NewLength)
 {
     UCCTileMapParts::Init(NewTileMapPos);
 	Length = NewLength;
-    OwningTileMap = NewOwningTileMap;
 	CreatFieldOnPlatform();
 }
 
@@ -79,36 +71,8 @@ void UCCPlatform::CreatFieldOnPlatform()
 
         if (TotalFieldLength + FieldLength <= Length)
         {
-            UCCField* NewField;
-
-            switch (FieldType)
-            {
-            case EFieldType::BasicField:
-                NewField = NewObject<UCCBasicField>();
-                break;
-            case EFieldType::WatersideField:
-                NewField = NewObject<UCCWatersideField>();
-                break;
-            case EFieldType::AsphaltField:
-                NewField = NewObject<UCCAsphaltField>();
-                break;
-            case EFieldType::CaveField:
-                NewField = NewObject<UCCCaveField>();
-                break;
-            case EFieldType::HillField:
-                NewField = NewObject<UCCHillField>();
-                break;
-            case EFieldType::RaccoonHouseField:
-                NewField = NewObject<UCCRaccoonHouseField>();
-                break;
-            case EFieldType::DogHouseField:
-                NewField = NewObject<UCCDogHouseField>();
-                break;
-            default:
-                NewField = nullptr;
-            }
-
-            NewField->Init(OwningTileMap, FIntVector2(0, 0), FieldLength, FieldType);
+            UCCField* NewField = NewObject<UCCField>();
+            NewField->Init(FIntVector2(0, 0), FieldLength, FieldType);
             FieldArr.Add(NewField);
             TotalFieldLength += FieldLength;
         }
@@ -144,26 +108,21 @@ void UCCPlatform::CreatFieldOnPlatform()
         
         if (Interval.X > 1)
         {
-            UCCBasicField* BasicField = NewObject<UCCBasicField>();
+            UCCField* BasicField = NewObject<UCCField>();
             FIntVector2 StartPos = FieldArr[j]->GetEndPos();
             StartPos.X;
-            BasicField->Init(OwningTileMap, StartPos, Interval.X, EFieldType::BasicField);
+            BasicField->Init(StartPos, Interval.X, EFieldType::BasicField);
             FieldArr.Add(BasicField);
         }
     }
 
     if (FieldArr.Num() == 0)
     {
-        UCCBasicField* BasicField = NewObject<UCCBasicField>();
-        BasicField->Init(OwningTileMap, GetStartPos(), GetEndPos().X - GetStartPos().X, EFieldType::BasicField);
+        UCCField* BasicField = NewObject<UCCField>();
+        BasicField->Init(GetStartPos(), GetEndPos().X - GetStartPos().X, EFieldType::BasicField);
         FieldArr.Add(BasicField);
     }
 
-    for (UCCField *Field : FieldArr)
-    {
-        Field->CreateTile();
-        Field->CreateSprite();
-    }
 }
 
 const TArray<UCCField*>& UCCPlatform::GetFieldArr() const
