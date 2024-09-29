@@ -21,6 +21,20 @@ void ACCPaperNonPlayer::BeginDestroy()
     Super::BeginDestroy();
 }
 
+void ACCPaperNonPlayer::Tick(float DeltaSeconds)
+{
+    Super::Tick(DeltaSeconds);
+
+    if (GetActorLocation().X <= GetMaxLeftXPos() || GetActorLocation().X >= GetMaxRightXPos())
+    {
+        FVector NewVelocity = GetCharacterMovement()->Velocity;
+        NewVelocity.X = 0.0f;
+        NewVelocity.Y = 0.0f;
+
+        GetCharacterMovement()->Velocity = NewVelocity;
+    }
+}
+
 void ACCPaperNonPlayer::Init(float NewMaxLeftXPos, float NewMaxRightX)
 {
     MaxLeftXPos = NewMaxLeftXPos;
@@ -48,6 +62,12 @@ void ACCPaperNonPlayer::FaceDirection(FVector Dir)
 
     GetSprite()->SetWorldScale3D(Scale);
 }
+void ACCPaperNonPlayer::SetPosition(FVector NewPos)
+{
+    NewPos.X = FMath::Clamp(NewPos.X, MaxLeftXPos, MaxRightXPos);
+    SetActorLocation(NewPos);
+}
+
 void ACCPaperNonPlayer::StartMove()
 {
 }

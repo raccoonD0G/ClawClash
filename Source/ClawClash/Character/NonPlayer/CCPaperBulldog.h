@@ -34,7 +34,6 @@ public:
 	virtual void BeginPlay() override;
 
 // Sprite Section
-
 public:
 	virtual void FaceDirection(FVector Dir) override;
 
@@ -78,10 +77,10 @@ protected:
 	TObjectPtr<UDamageSphereComponent> DamageSphereComponent;
 
 public:
-	virtual void ReadyRush() override;
-	virtual bool IsReadyRush() override;
+	virtual void StartReadyRush() override;
+	virtual float GetReadyRushTime() override;
 	virtual void StartRush() override;
-	virtual bool IsRushEnd() override;
+	virtual float GetRushTime() override;
 	virtual void EndRush() override;
 
 // Move Section

@@ -73,6 +73,7 @@ void UBTTask_StraightMoveTo::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* 
     {
         MoveMemory->Moveable->EndMove();
         FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+        return;
     }
 
     FVector TargetLocation = BlackboardComp->GetValueAsVector(BBKEY_TATGETLOCATION);
@@ -85,11 +86,7 @@ void UBTTask_StraightMoveTo::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* 
         return;
     }
 
-    FVector Direction = (TargetLocation - ControlledCharacter->GetActorLocation()).GetSafeNormal();
-    float Speed = ControlledCharacter->GetCharacterMovement()->MaxWalkSpeed;
-    FVector NewLocation = ControlledCharacter->GetActorLocation() + Direction * Speed * DeltaSeconds;
-
-    ControlledCharacter->SetActorLocation(NewLocation);
+    ControlledCharacter->GetCharacterMovement()->AddInputVector(TargetLocation - ControlledCharacter->GetActorLocation());
 }
 
 uint16 UBTTask_StraightMoveTo::GetInstanceMemorySize() const

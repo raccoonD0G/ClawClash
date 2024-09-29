@@ -19,6 +19,8 @@ public:
     static float GetBackgroundY();
     static float GetBeforePlayerSpriteY();
     static float GetFieldTileY();
+    static float GetNonPlayerY();
     static float GetPlayerY();
-    static float GetAfterPlayerSpriteY();
+    static float GetAfterPlayerSpriteY()
+    ;
 };

@@ -18,12 +18,17 @@ float UCCLayerManager::GetFieldTileY()
 	return 49.0f;
 }
 
-float UCCLayerManager::GetPlayerY()
+float UCCLayerManager::GetNonPlayerY()
 {
 	return 50.0f;
 }
 
-float UCCLayerManager::GetAfterPlayerSpriteY()
+float UCCLayerManager::GetPlayerY()
 {
 	return 51.0f;
+}
+
+float UCCLayerManager::GetAfterPlayerSpriteY()
+{
+	return 52.0f;
 }

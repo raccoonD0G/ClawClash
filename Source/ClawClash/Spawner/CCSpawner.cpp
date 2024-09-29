@@ -3,6 +3,7 @@
 
 #include "CCSpawner.h"
 #include "ClawClash/Character/NonPlayer/CCPaperNonPlayer.h"
+#include "ClawClash/Managers/LayerManager/CCLayerManager.h"
 
 void ACCSpawner::BeginPlay()
 {
@@ -23,8 +24,7 @@ void ACCSpawner::SpawnCharacter()
 	if (MaxCharacterNum > Charaters.Num())
 	{
 		float RandomX = FMath::FRandRange(LeftEnd.X, RightEnd.X);
-		FVector SpawnPos = LeftEnd;
-		SpawnPos.X = RandomX;
+		FVector SpawnPos(RandomX, UCCLayerManager::GetNonPlayerY(), LeftEnd.Z);
 
 		FActorSpawnParameters SpawnParameters;
 		ACCPaperNonPlayer* SpawnedCharacter = GetWorld()->SpawnActor<ACCPaperNonPlayer>(SpawnClass, SpawnPos, FRotator::ZeroRotator, SpawnParameters);

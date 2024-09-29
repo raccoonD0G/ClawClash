@@ -4,29 +4,43 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "BTTask_ReadyRush.generated.h"
+#include "BTTask_JumpAttack.generated.h"
+
+class ICCJumpAttackable;
 
 USTRUCT()
-struct FReadyRushMemory
+struct FJumpAttackMemory
 {
 	GENERATED_BODY()
+
 public:
-	float ReadyRushTime;
-	float CurrentReadyRushTime;
+	UPROPERTY()
+	TObjectPtr<ICCJumpAttackable> JumpAttakable;
+
+	float JumpTime;
+	float CurrentJumpTime;
+	float AttackTime;
+	float CurrentAttackTime;
+
+	FVector Direction;
 };
 /**
  * 
  */
 UCLASS()
-class CLAWCLASH_API UBTTask_ReadyRush : public UBTTaskNode
+class CLAWCLASH_API UBTTask_JumpAttack : public UBTTaskNode
 {
 	GENERATED_BODY()
 	
 public:
-	UBTTask_ReadyRush();
+	UBTTask_JumpAttack();
 
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float JumpPower;
+	
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 	virtual uint16 GetInstanceMemorySize() const override;
+
 };

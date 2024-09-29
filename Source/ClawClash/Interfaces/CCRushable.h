@@ -24,6 +24,6 @@ class CLAWCLASH_API ICCRushable
 public:
 	virtual void FaceDirection(FVector Dir) = 0;
 	virtual void StartRush() = 0;
-	virtual bool IsRushEnd() = 0;
+	virtual float GetRushTime() = 0;
 	virtual void EndRush() = 0;
 };

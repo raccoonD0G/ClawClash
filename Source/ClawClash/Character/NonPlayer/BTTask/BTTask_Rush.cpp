@@ -64,6 +64,8 @@ EBTNodeResult::Type UBTTask_Rush::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 
     RushMemory->Rushable = Rushable;
     RushMemory->Direction = Direction;
+    RushMemory->RushTime = Rushable->GetRushTime();
+    RushMemory->CurrentRushTime = 0.0f;
 
     Rushable->StartRush();
     Rushable->FaceDirection(Player->GetActorLocation());
@@ -75,10 +77,15 @@ void UBTTask_Rush::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory
 {
     FRushMemory* RushMemory = (FRushMemory*)NodeMemory;
 
-    if (RushMemory->Rushable->IsRushEnd())
+    if (RushMemory->CurrentRushTime >= RushMemory->RushTime)
     {
         RushMemory->Rushable->EndRush();
         FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+        return;
+    }
+    else
+    {
+        RushMemory->CurrentRushTime += DeltaSeconds;
     }
 
     AAIController* AIController = OwnerComp.GetAIOwner();
@@ -86,17 +93,18 @@ void UBTTask_Rush::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory
     {
         RushMemory->Rushable->EndRush();
         FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+        return;
     }
 
-    ACharacter* ControlledCharacter = Cast<ACharacter>(AIController->GetPawn());
-    if (ControlledCharacter == nullptr)
+    ACCPaperNonPlayer* NonPlayer = Cast<ACCPaperNonPlayer>(AIController->GetPawn());
+    if (NonPlayer == nullptr)
     {
         RushMemory->Rushable->EndRush();
         FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+        return;
     }
 
-    float Speed = ControlledCharacter->GetCharacterMovement()->MaxWalkSpeed;
-    ControlledCharacter->SetActorLocation(ControlledCharacter->GetActorLocation() + RushMemory->Direction * Speed * DeltaSeconds);
+    NonPlayer->GetCharacterMovement()->AddInputVector(RushMemory->Direction);
 }
 
 uint16 UBTTask_Rush::GetInstanceMemorySize() const

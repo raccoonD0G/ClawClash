@@ -24,6 +24,8 @@ public:
 protected:
 	virtual void BeginDestroy() override;
 
+	virtual void Tick(float DeltaSeconds) override;
+
 // Sprite Section
 protected:
 	bool IsRightStart;
@@ -35,19 +37,17 @@ public:
 public:
 	virtual void Init(float NewMaxLeftXPos, float NewMaxRightX);
 
-// Target Section
+// Position Section
 protected:
 	float MaxLeftXPos;
 	float MaxRightXPos;
-	FVector TargetLocation;
 
 public:
 	FORCEINLINE float GetMaxLeftXPos() const { return MaxLeftXPos; }
 	FORCEINLINE float GetMaxRightXPos() const { return MaxRightXPos; }
 	FORCEINLINE void SetMaxLeftXPos(float NewMaxLeftX) { MaxLeftXPos = NewMaxLeftX; }
 	FORCEINLINE void SetMaxRightXPos(float NewMaxRightX) { MaxRightXPos = NewMaxRightX; }
-	FORCEINLINE FVector GetDest() const { return TargetLocation; }
-	FORCEINLINE void SetDest(FVector NewTargetLocation) { TargetLocation = NewTargetLocation; }
+	void SetPosition(FVector NewPos);
 
 // Move Section
 public:

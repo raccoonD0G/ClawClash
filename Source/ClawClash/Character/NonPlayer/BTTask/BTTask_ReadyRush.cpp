@@ -15,6 +15,8 @@ UBTTask_ReadyRush::UBTTask_ReadyRush()
 
 EBTNodeResult::Type UBTTask_ReadyRush::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
+    FReadyRushMemory* ReadyRushMemory = (FReadyRushMemory*)NodeMemory;
+
     AAIController* AIController = OwnerComp.GetAIOwner();
     if (AIController == nullptr)
     {
@@ -39,7 +41,9 @@ EBTNodeResult::Type UBTTask_ReadyRush::ExecuteTask(UBehaviorTreeComponent& Owner
         return EBTNodeResult::Failed;
     }
 
-    ReadyRushable->ReadyRush();
+    ReadyRushMemory->ReadyRushTime = ReadyRushable->GetReadyRushTime();
+    ReadyRushMemory->CurrentReadyRushTime = 0.0f;
+
     ReadyRushable->FaceDirection(Player->GetActorLocation());
 
 	return EBTNodeResult::InProgress;
@@ -47,6 +51,8 @@ EBTNodeResult::Type UBTTask_ReadyRush::ExecuteTask(UBehaviorTreeComponent& Owner
 
 void UBTTask_ReadyRush::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
+    FReadyRushMemory* ReadyRushMemory = (FReadyRushMemory*)NodeMemory;
+
     AAIController* AIController = OwnerComp.GetAIOwner();
     if (AIController == nullptr)
     {
@@ -59,8 +65,17 @@ void UBTTask_ReadyRush::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
         FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
     }
 
-    if (ReadyRushable->IsReadyRush())
+    if (ReadyRushMemory->ReadyRushTime <= ReadyRushMemory->CurrentReadyRushTime)
     {
         FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
     }
+    else
+    {
+        ReadyRushMemory->CurrentReadyRushTime += DeltaSeconds;
+    }
+}
+
+uint16 UBTTask_ReadyRush::GetInstanceMemorySize() const
+{
+    return sizeof(FReadyRushMemory);
 }

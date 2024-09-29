@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "ClawClash/Character/NonPlayer/CCPaperNonPlayer.h"
+#include "ClawClash/Interfaces/CCJumpAttackable.h"
 #include "CCPaperRaccoon.generated.h"
 
 UENUM(BlueprintType)
@@ -16,12 +17,13 @@ enum class ERaccoonState : uint8
 };
 
 class UPlayerDetectorComponent;
+class UDamageSphereComponent;
 
 /**
  * 
  */
 UCLASS()
-class CLAWCLASH_API ACCPaperRaccoon : public ACCPaperNonPlayer
+class CLAWCLASH_API ACCPaperRaccoon : public ACCPaperNonPlayer, public ICCJumpAttackable
 {
 	GENERATED_BODY()
 	
@@ -29,6 +31,10 @@ public:
 	ACCPaperRaccoon();
 
 	virtual void BeginPlay() override;
+
+// Sprite Section
+public:
+	virtual void FaceDirection(FVector Dir) override;
 	
 // Component Section
 protected:
@@ -56,7 +62,20 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UPaperFlipbook> AttackAnimation;
 
-// Stat Section
+// JumpAttack Section
 protected:
-	float MoveSpeed;
+	UPROPERTY()
+	TObjectPtr<UDamageSphereComponent> DamageSphereComponent;
+public:
+	virtual void StartJump() override;
+	virtual float GetJumpTime() override;
+	virtual void EndJump() override;
+	virtual void StartAttack() override;
+	virtual float GetAttackTime() override;
+	virtual void EndAttack() override;
+
+// Move Section
+public:
+	virtual void StartMove() override;
+	virtual void EndMove() override;
 };

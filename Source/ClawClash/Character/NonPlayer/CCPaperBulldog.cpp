@@ -55,24 +55,14 @@ void ACCPaperBulldog::SetCurrentState(EBulldogState NewState)
 	CurrentState = NewState;
 }
 
-void ACCPaperBulldog::ReadyRush()
+void ACCPaperBulldog::StartReadyRush()
 {
 	SetCurrentState(EBulldogState::ReadyRush);
 }
 
-bool ACCPaperBulldog::IsReadyRush()
+float ACCPaperBulldog::GetReadyRushTime()
 {
-	if (GetSprite()->GetFlipbook() != ReadyRushAnimation)
-	{
-		return false;
-	}
-
-	if (GetSprite()->GetPlaybackPositionInFrames() >= GetSprite()->GetFlipbook()->GetNumFrames() - 1)
-	{
-		return true;
-	}
-
-	return false;
+	return ReadyRushAnimation->GetNumFrames() / GetSprite()->GetFlipbook()->GetFramesPerSecond();
 }
 
 void ACCPaperBulldog::StartRush()
@@ -80,28 +70,19 @@ void ACCPaperBulldog::StartRush()
 	SetCurrentState(EBulldogState::Rush);
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Trigger"));
 	GetCharacterMovement()->MaxWalkSpeed = RushMoveSpeed;
-	DamageSphereComponent = NewObject<UDamageSphereComponent>(this, UDamageSphereComponent::StaticClass());
+	DamageSphereComponent = NewObject<UDamageSphereComponent>(this);
 
 	if (DamageSphereComponent)
 	{
 		DamageSphereComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+		DamageSphereComponent->SetRelativeLocation(FVector::ZeroVector);
 		DamageSphereComponent->RegisterComponent();
 	}
 }
 
-bool ACCPaperBulldog::IsRushEnd()
+float ACCPaperBulldog::GetRushTime()
 {
-	if (GetSprite()->GetFlipbook() != RushAnimation)
-	{
-		return false;
-	}
-
-	if (GetSprite()->GetPlaybackPositionInFrames() >= GetSprite()->GetFlipbook()->GetNumFrames() - 1)
-	{
-		return true;
-	}
-
-	return false;
+	return RushAnimation->GetNumFrames() / GetSprite()->GetFlipbook()->GetFramesPerSecond();
 }
 
 void ACCPaperBulldog::EndRush()
@@ -121,6 +102,7 @@ void ACCPaperBulldog::EndRush()
 void ACCPaperBulldog::StartMove()
 {
 	Super::StartMove();
+	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 	SetCurrentState(EBulldogState::Move);
 }
 
